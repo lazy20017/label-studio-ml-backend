@@ -1,0 +1,1432 @@
+[
+    {
+        "id": 1602,
+        "annotations": [
+            {
+                "id": 5,
+                "completed_by": 1,
+                "result": [
+                    {
+                        "value": {
+                            "start": 14,
+                            "end": 18,
+                            "text": "春耕烧荒",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "YAQ2fSlVqv",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 19,
+                            "end": 23,
+                            "text": "祭祀扫墓",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "iWDj5wGSCG",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 24,
+                            "end": 30,
+                            "text": "林区踏青活动",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "-GBitLwiGo",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 51,
+                            "end": 56,
+                            "text": "森林防灭火",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "ohexJCfUS3",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 66,
+                            "end": 70,
+                            "text": "森林防火",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "huiZBDLaVR",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 66,
+                            "end": 70,
+                            "text": "森林防火",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "Bm6RuUZ9TG",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 89,
+                            "end": 92,
+                            "text": "安徽省",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "4q2BwxAQg5",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 98,
+                            "end": 100,
+                            "text": "5起",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "rP6SjkXkXR",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 100,
+                            "end": 104,
+                            "text": "森林火灾",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "tbvRuU2po4",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 105,
+                            "end": 107,
+                            "text": "火情",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "N_moQ_DEHU",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 126,
+                            "end": 132,
+                            "text": "野外违规用火",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "hC9aH__T56",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 100,
+                            "end": 104,
+                            "text": "森林火灾",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "eV4E8bFF5p",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    }
+                ],
+                "was_cancelled": false,
+                "ground_truth": false,
+                "created_at": "2025-08-08T08:01:01.119353Z",
+                "updated_at": "2025-08-08T08:01:01.119353Z",
+                "draft_created_at": null,
+                "lead_time": 1.604,
+                "prediction": {},
+                "result_count": 12,
+                "unique_id": "32ea9bba-c8ca-4ee4-a954-8393d3b03705",
+                "import_id": null,
+                "last_action": null,
+                "bulk_created": false,
+                "task": 1602,
+                "project": 3,
+                "updated_by": 1,
+                "parent_prediction": 29,
+                "parent_annotation": null,
+                "last_created_by": null
+            }
+        ],
+        "file_upload": "d048292f-知识提取样本.txt",
+        "drafts": [],
+        "predictions": [
+            29
+        ],
+        "data": {
+            "text": "春季气温回升、天干物燥，正值春耕烧荒、祭祀扫墓、林区踏青活动叠加期，加之近年来林间可燃物载量持续攀升，森林防灭火形势极为严峻。为加强森林防火宣传教育，提高广大群众的森林防火意识，安徽省公开发布近期5起森林火灾（火情）典型案例，希望广大群众引以为戒，杜绝野外违规用火，严防森林火灾。    "
+        },
+        "meta": {},
+        "created_at": "2025-08-08T02:47:17.799132Z",
+        "updated_at": "2025-08-08T08:01:01.151333Z",
+        "inner_id": 1,
+        "total_annotations": 1,
+        "cancelled_annotations": 0,
+        "total_predictions": 1,
+        "comment_count": 0,
+        "unresolved_comment_count": 0,
+        "last_comment_updated_at": null,
+        "project": 3,
+        "updated_by": 1,
+        "comment_authors": []
+    },
+    {
+        "id": 1604,
+        "annotations": [
+            {
+                "id": 3,
+                "completed_by": 1,
+                "result": [
+                    {
+                        "value": {
+                            "start": 7,
+                            "end": 23,
+                            "text": "2025年3月21日11时52分",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "0YYD3lZrzi",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 24,
+                            "end": 27,
+                            "text": "滁州市",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "d2OIMDVnmm",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 27,
+                            "end": 30,
+                            "text": "凤阳县",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "WN4kY5VZ1T",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 30,
+                            "end": 33,
+                            "text": "刘府镇",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "pkwfzZNnR-",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 33,
+                            "end": 39,
+                            "text": "曹店国有林场",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "O8OkrkADMy",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 49,
+                            "end": 57,
+                            "text": "当日16时20分",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "9T6MCIVdlY",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 71,
+                            "end": 73,
+                            "text": "蚌埠",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "6P8ZA2n4O2",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 73,
+                            "end": 77,
+                            "text": "龙子湖区",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "VgNUbl4WV2",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 77,
+                            "end": 80,
+                            "text": "王某某",
+                            "labels": [
+                                "PER"
+                            ]
+                        },
+                        "id": "MBd2bluAQe",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 81,
+                            "end": 83,
+                            "text": "4人",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "-7UVC7pzCF",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 41,
+                            "end": 45,
+                            "text": "森林火情",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "prj90SS5Lk",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 90,
+                            "end": 94,
+                            "text": "过火面积",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "y5vsWTtRc5",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 95,
+                            "end": 97,
+                            "text": "4亩",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "IJ7LX8jrop",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 108,
+                            "end": 112,
+                            "text": "公安机关",
+                            "labels": [
+                                "ORG"
+                            ]
+                        },
+                        "id": "Lr6li3D2J7",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 112,
+                            "end": 116,
+                            "text": "行政拘留",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "Bi40cHJ_BT",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    }
+                ],
+                "was_cancelled": false,
+                "ground_truth": false,
+                "created_at": "2025-08-08T07:56:48.236622Z",
+                "updated_at": "2025-08-08T07:56:48.236622Z",
+                "draft_created_at": null,
+                "lead_time": 10.294,
+                "prediction": {},
+                "result_count": 15,
+                "unique_id": "9450483d-ee28-46e0-a226-12176d719566",
+                "import_id": null,
+                "last_action": null,
+                "bulk_created": false,
+                "task": 1604,
+                "project": 3,
+                "updated_by": 1,
+                "parent_prediction": 27,
+                "parent_annotation": null,
+                "last_created_by": null
+            }
+        ],
+        "file_upload": "d048292f-知识提取样本.txt",
+        "drafts": [],
+        "predictions": [
+            27
+        ],
+        "data": {
+            "text": "　　案例一  2025年3月21日11时52分，滁州市凤阳县刘府镇曹店国有林场发生森林火情，明火于当日16时20分全部扑灭。经调查，起火原因系蚌埠龙子湖区王某某等4人祭祀烧纸引发，过火面积约4亩。目前，4名肇事人员被公安机关行政拘留。    "
+        },
+        "meta": {},
+        "created_at": "2025-08-08T02:47:17.799132Z",
+        "updated_at": "2025-08-08T07:56:48.268621Z",
+        "inner_id": 3,
+        "total_annotations": 1,
+        "cancelled_annotations": 0,
+        "total_predictions": 1,
+        "comment_count": 0,
+        "unresolved_comment_count": 0,
+        "last_comment_updated_at": null,
+        "project": 3,
+        "updated_by": 1,
+        "comment_authors": []
+    },
+    {
+        "id": 1606,
+        "annotations": [
+            {
+                "id": 4,
+                "completed_by": 1,
+                "result": [
+                    {
+                        "value": {
+                            "start": 7,
+                            "end": 21,
+                            "text": "2025年3月21日13时许",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "W4d-6SsgMy",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 22,
+                            "end": 34,
+                            "text": "安庆市太湖县小池镇海会村",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "L4Otpr-Y3P",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 38,
+                            "end": 42,
+                            "text": "森林火情",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "oMzq9FLO0f",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 50,
+                            "end": 55,
+                            "text": "400余人",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "ExSsOp-oAL",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 63,
+                            "end": 69,
+                            "text": "当日23时许",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "2CfVLuRhUM",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 87,
+                            "end": 90,
+                            "text": "刘某某",
+                            "labels": [
+                                "PER"
+                            ]
+                        },
+                        "id": "r-DTrXxXKW",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 90,
+                            "end": 94,
+                            "text": "祭祀烧纸",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "OJk9l8tILG",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 102,
+                            "end": 105,
+                            "text": "26亩",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "lFiQp94WhH",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    }
+                ],
+                "was_cancelled": false,
+                "ground_truth": false,
+                "created_at": "2025-08-08T08:00:52.561953Z",
+                "updated_at": "2025-08-08T08:00:52.561953Z",
+                "draft_created_at": null,
+                "lead_time": 46.829,
+                "prediction": {},
+                "result_count": 8,
+                "unique_id": "a3ef475b-878f-457c-bac4-494640a5e74e",
+                "import_id": null,
+                "last_action": null,
+                "bulk_created": false,
+                "task": 1606,
+                "project": 3,
+                "updated_by": 1,
+                "parent_prediction": 31,
+                "parent_annotation": null,
+                "last_created_by": null
+            }
+        ],
+        "file_upload": "d048292f-知识提取样本.txt",
+        "drafts": [],
+        "predictions": [
+            31
+        ],
+        "data": {
+            "text": "　　案例二  2025年3月21日13时许，安庆市太湖县小池镇海会村山场发生森林火情，经各级各类队伍400余人全力扑救，明火于当日23时许全部扑灭。经调查，起火原因系当地居民刘某某祭祀烧纸引发，过火面积约26亩。目前，肇事人员被刑事拘留。    "
+        },
+        "meta": {},
+        "created_at": "2025-08-08T02:47:17.799132Z",
+        "updated_at": "2025-08-08T08:00:52.596071Z",
+        "inner_id": 5,
+        "total_annotations": 1,
+        "cancelled_annotations": 0,
+        "total_predictions": 1,
+        "comment_count": 0,
+        "unresolved_comment_count": 0,
+        "last_comment_updated_at": null,
+        "project": 3,
+        "updated_by": 1,
+        "comment_authors": []
+    },
+    {
+        "id": 1608,
+        "annotations": [
+            {
+                "id": 7,
+                "completed_by": 1,
+                "result": [
+                    {
+                        "value": {
+                            "start": 7,
+                            "end": 21,
+                            "text": "2025年3月21日14时许",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "1c3gPX4pw3",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 22,
+                            "end": 36,
+                            "text": "六安市霍山县大化坪镇青枫岭村",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "gfdfraNNrT",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 36,
+                            "end": 38,
+                            "text": "山场",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "73KSY-Iewq",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 40,
+                            "end": 44,
+                            "text": "森林火情",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "C8nlw4grfF",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 52,
+                            "end": 57,
+                            "text": "600余人",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "XpHdHE3zwG",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 65,
+                            "end": 67,
+                            "text": "3架",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "4H-J4nyg7X",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 67,
+                            "end": 74,
+                            "text": "航空消防直升机",
+                            "labels": [
+                                "ORG"
+                            ]
+                        },
+                        "id": "3KDftZ9kx8",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 76,
+                            "end": 84,
+                            "text": "吊桶作业170次",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "YclSpHCjry",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 88,
+                            "end": 99,
+                            "text": "3月22日14时30分",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "bHk7eifuo7",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 108,
+                            "end": 112,
+                            "text": "起火原因",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "-OsezH8BwS",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 117,
+                            "end": 119,
+                            "text": "戴某",
+                            "labels": [
+                                "PER"
+                            ]
+                        },
+                        "id": "q56Z454tk7",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 36,
+                            "end": 38,
+                            "text": "山场",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "AOEfwAqE__",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 127,
+                            "end": 129,
+                            "text": "吸烟",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "XI4_LAqe6x",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 137,
+                            "end": 140,
+                            "text": "36亩",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "u7hVQf9Pbk",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 149,
+                            "end": 153,
+                            "text": "公安机关",
+                            "labels": [
+                                "ORG"
+                            ]
+                        },
+                        "id": "oP-bfK94BW",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    }
+                ],
+                "was_cancelled": false,
+                "ground_truth": false,
+                "created_at": "2025-08-08T08:01:26.577137Z",
+                "updated_at": "2025-08-08T08:01:26.577137Z",
+                "draft_created_at": null,
+                "lead_time": 3.106,
+                "prediction": {},
+                "result_count": 15,
+                "unique_id": "f6d3e6d8-2561-4df5-b8d7-0dea687ecd6e",
+                "import_id": null,
+                "last_action": null,
+                "bulk_created": false,
+                "task": 1608,
+                "project": 3,
+                "updated_by": 1,
+                "parent_prediction": 33,
+                "parent_annotation": null,
+                "last_created_by": null
+            }
+        ],
+        "file_upload": "d048292f-知识提取样本.txt",
+        "drafts": [],
+        "predictions": [
+            33
+        ],
+        "data": {
+            "text": "　　案例三  2025年3月21日14时许，六安市霍山县大化坪镇青枫岭村山场发生森林火情，经各级各类队伍600余人全力扑救，并调动3架航空消防直升机实施吊桶作业170次，明火于3月22日14时30分全部扑灭。经调查，起火原因系当地居民戴某在山场施工过程中吸烟引发，过火面积约36亩。目前，肇事人员被公安机关依法处理。    "
+        },
+        "meta": {},
+        "created_at": "2025-08-08T02:47:17.799132Z",
+        "updated_at": "2025-08-08T08:01:26.611621Z",
+        "inner_id": 7,
+        "total_annotations": 1,
+        "cancelled_annotations": 0,
+        "total_predictions": 1,
+        "comment_count": 0,
+        "unresolved_comment_count": 0,
+        "last_comment_updated_at": null,
+        "project": 3,
+        "updated_by": 1,
+        "comment_authors": []
+    },
+    {
+        "id": 1610,
+        "annotations": [
+            {
+                "id": 8,
+                "completed_by": 1,
+                "result": [
+                    {
+                        "value": {
+                            "start": 7,
+                            "end": 23,
+                            "text": "2025年3月22日15时20分",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "b5vkkNdHhF",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 24,
+                            "end": 36,
+                            "text": "安庆市怀宁县黄墩镇独秀山",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "r3IrGjHHkM",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 38,
+                            "end": 42,
+                            "text": "森林火情",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "Q2shC2m85W",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 50,
+                            "end": 55,
+                            "text": "400余人",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "DvHIK9LN45",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 63,
+                            "end": 74,
+                            "text": "3月23日10时20分",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "D3a-R7akkN",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 92,
+                            "end": 94,
+                            "text": "刘某",
+                            "labels": [
+                                "PER"
+                            ]
+                        },
+                        "id": "tjFkIiur5c",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 94,
+                            "end": 99,
+                            "text": "祭祀烧冥币",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "P1IHcS114J",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 107,
+                            "end": 111,
+                            "text": "144亩",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "VIE2UDdJza",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 120,
+                            "end": 124,
+                            "text": "刑事拘留",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "pHUiUuIY60",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    }
+                ],
+                "was_cancelled": false,
+                "ground_truth": false,
+                "created_at": "2025-08-08T08:01:31.629912Z",
+                "updated_at": "2025-08-08T08:01:31.629912Z",
+                "draft_created_at": null,
+                "lead_time": 1.248,
+                "prediction": {},
+                "result_count": 9,
+                "unique_id": "277e16b5-2ea0-44bb-807a-2827b7411054",
+                "import_id": null,
+                "last_action": null,
+                "bulk_created": false,
+                "task": 1610,
+                "project": 3,
+                "updated_by": 1,
+                "parent_prediction": 35,
+                "parent_annotation": null,
+                "last_created_by": null
+            }
+        ],
+        "file_upload": "d048292f-知识提取样本.txt",
+        "drafts": [],
+        "predictions": [
+            35
+        ],
+        "data": {
+            "text": "　　案例四  2025年3月22日15时20分，安庆市怀宁县黄墩镇独秀山发生森林火情，经各级各类队伍400余人全力扑救，明火于3月23日10时20分全部扑灭。经调查，起火原因系当地居民刘某祭祀烧冥币引发，过火面积约144亩。目前，肇事人员被刑事拘留。    "
+        },
+        "meta": {},
+        "created_at": "2025-08-08T02:47:17.799132Z",
+        "updated_at": "2025-08-08T08:01:31.661284Z",
+        "inner_id": 9,
+        "total_annotations": 1,
+        "cancelled_annotations": 0,
+        "total_predictions": 1,
+        "comment_count": 0,
+        "unresolved_comment_count": 0,
+        "last_comment_updated_at": null,
+        "project": 3,
+        "updated_by": 1,
+        "comment_authors": []
+    },
+    {
+        "id": 1612,
+        "annotations": [
+            {
+                "id": 9,
+                "completed_by": 1,
+                "result": [
+                    {
+                        "value": {
+                            "start": 7,
+                            "end": 21,
+                            "text": "2025年3月25日14时许",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "AtLZ4EpGCt",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 22,
+                            "end": 28,
+                            "text": "合肥市庐江县",
+                            "labels": [
+                                "LOC"
+                            ]
+                        },
+                        "id": "jCSi1RGiEO",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 28,
+                            "end": 35,
+                            "text": "国有夹山蕻林场",
+                            "labels": [
+                                "ORG"
+                            ]
+                        },
+                        "id": "BnriImlHuU",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 37,
+                            "end": 41,
+                            "text": "森林火情",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "s5y66n_JFH",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 49,
+                            "end": 54,
+                            "text": "900余人",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "uwRsZHaBUb",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 62,
+                            "end": 64,
+                            "text": "2架",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "RSoTPRzfFn",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 64,
+                            "end": 71,
+                            "text": "航空消防直升机",
+                            "labels": [
+                                "ORG"
+                            ]
+                        },
+                        "id": "CH0kyBVltH",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 77,
+                            "end": 81,
+                            "text": "40余次",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "pqgE9W_fHv",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 85,
+                            "end": 96,
+                            "text": "3月26日12时52分",
+                            "labels": [
+                                "TIME"
+                            ]
+                        },
+                        "id": "L4gIZm5TKV",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 114,
+                            "end": 117,
+                            "text": "宛某某",
+                            "labels": [
+                                "PER"
+                            ]
+                        },
+                        "id": "9KHcez8mRV",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 130,
+                            "end": 134,
+                            "text": "167亩",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "BGYrKSrOeA",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    }
+                ],
+                "was_cancelled": false,
+                "ground_truth": false,
+                "created_at": "2025-08-08T08:01:36.135848Z",
+                "updated_at": "2025-08-08T08:01:36.135848Z",
+                "draft_created_at": null,
+                "lead_time": 1.079,
+                "prediction": {},
+                "result_count": 11,
+                "unique_id": "f167f154-10fb-4aea-877d-fbf4b2c39a4d",
+                "import_id": null,
+                "last_action": null,
+                "bulk_created": false,
+                "task": 1612,
+                "project": 3,
+                "updated_by": 1,
+                "parent_prediction": 37,
+                "parent_annotation": null,
+                "last_created_by": null
+            }
+        ],
+        "file_upload": "d048292f-知识提取样本.txt",
+        "drafts": [],
+        "predictions": [
+            37
+        ],
+        "data": {
+            "text": "　　案例五  2025年3月25日14时许，合肥市庐江县国有夹山蕻林场发生森林火情，经各级各类队伍900余人全力扑救，并调动2架航空消防直升机实施吊桶作业40余次，明火于3月26日12时52分全部扑灭。经调查，起火原因系当地居民宛某某祭祀烧冥币引发，过火面积约167亩。目前，肇事人员被刑事拘留。    "
+        },
+        "meta": {},
+        "created_at": "2025-08-08T02:47:17.799132Z",
+        "updated_at": "2025-08-08T08:01:36.168091Z",
+        "inner_id": 11,
+        "total_annotations": 1,
+        "cancelled_annotations": 0,
+        "total_predictions": 1,
+        "comment_count": 0,
+        "unresolved_comment_count": 0,
+        "last_comment_updated_at": null,
+        "project": 3,
+        "updated_by": 1,
+        "comment_authors": []
+    },
+    {
+        "id": 1614,
+        "annotations": [
+            {
+                "id": 10,
+                "completed_by": 1,
+                "result": [
+                    {
+                        "value": {
+                            "start": 36,
+                            "end": 40,
+                            "text": "森林防火",
+                            "labels": [
+                                "EVENT"
+                            ]
+                        },
+                        "id": "K3LvzE0c5_",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    },
+                    {
+                        "value": {
+                            "start": 93,
+                            "end": 98,
+                            "text": "12119",
+                            "labels": [
+                                "QUANTITY"
+                            ]
+                        },
+                        "id": "G9r9o3qsQY",
+                        "from_name": "label",
+                        "to_name": "text",
+                        "type": "labels",
+                        "origin": "prediction"
+                    }
+                ],
+                "was_cancelled": false,
+                "ground_truth": false,
+                "created_at": "2025-08-08T08:01:41.186649Z",
+                "updated_at": "2025-08-08T08:01:41.186649Z",
+                "draft_created_at": null,
+                "lead_time": 0.979,
+                "prediction": {},
+                "result_count": 2,
+                "unique_id": "cd17f41c-4b76-4070-96af-f5445f00de0d",
+                "import_id": null,
+                "last_action": null,
+                "bulk_created": false,
+                "task": 1614,
+                "project": 3,
+                "updated_by": 1,
+                "parent_prediction": 39,
+                "parent_annotation": null,
+                "last_created_by": null
+            }
+        ],
+        "file_upload": "d048292f-知识提取样本.txt",
+        "drafts": [],
+        "predictions": [
+            39
+        ],
+        "data": {
+            "text": "　　案例就在身边，警示就在眼前。希望广大群众在尊重传统习俗同时，务必增强森林防火意识，严格遵守相关法律法规，自觉抵制涉火违法行为，共同守护绿色家园。任何单位和个人发现森林火情，应立即拨打12119报警。"
+        },
+        "meta": {},
+        "created_at": "2025-08-08T02:47:17.799132Z",
+        "updated_at": "2025-08-08T08:01:41.217595Z",
+        "inner_id": 13,
+        "total_annotations": 1,
+        "cancelled_annotations": 0,
+        "total_predictions": 1,
+        "comment_count": 0,
+        "unresolved_comment_count": 0,
+        "last_comment_updated_at": null,
+        "project": 3,
+        "updated_by": 1,
+        "comment_authors": []
+    }
+]

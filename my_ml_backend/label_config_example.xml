@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<View>
+  <!-- 图片显示 -->
+  <Image name="image" value="$captioning" zoom="true" zoomControl="true" rotateControl="true"/>
+  
+  <!-- 图片描述文本区域 -->
+  <Header value="Describe the image:"/>
+  <TextArea name="caption" toName="image" 
+            placeholder="Enter description here..."
+            rows="5" 
+            maxSubmissions="1"
+            editable="true"
+            perRegion="false"
+            required="false"/>
+</View> 
