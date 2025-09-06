@@ -6,6 +6,7 @@ from openai import OpenAI
 from label_studio_ml.model import LabelStudioMLBase
 from label_studio_ml.response import ModelResponse
 
+# 启动命令  label-studio-ml start my_ml_backend
 
 # ==================== 命名实体配置 ====================
 # 从配置文件导入实体配置
@@ -60,14 +61,86 @@ class NewModel(LabelStudioMLBase):
         # 魔塔社区API配置
         self.api_key = os.getenv('MODELSCOPE_API_KEY', 'ms-2c045fb7-f463-45bf-b0f9-a36d50b0400e')
         self.api_base_url = os.getenv('MODELSCOPE_API_URL', 'https://api-inference.modelscope.cn/v1')
-        self.model_name = "Qwen/Qwen3-30B-A3B-Instruct-2507"
+        
+        # 🔄 多模型配置 - 按优先级排序
+        self.available_models = [
+                'Qwen/Qwen3-Coder-480B-A35B-Instruct', # 主力模型 - 最新Qwen3
+                'ZhipuAI/GLM-4.5', # 备用模型1 - 大参数量
+                'deepseek-ai/DeepSeek-V3.1', # 备用模型2 - 中等参数量
+                'Qwen/Qwen3-235B-A22B-Instruct-2507', # 备用模型2 - 中等参数量
+                'deepseek-ai/DeepSeek-R1-0528', # 备用模型5 - 平衡性能
+                'deepseek-ai/DeepSeek-R1-0528' # 备用模型6 - 平衡性能
+        ]
+        
+        # 🎯 模型切换控制
+        self.current_model_index = 0  # 当前使用的模型索引
+        self.model_consecutive_failures = 0  # 当前模型连续失败次数
+        self.max_model_failures = 3  # 模型连续失败阈值
+        self.model_failure_history = {}  # 记录每个模型的失败历史
+        
+        # 动态获取当前模型名称
+        self.model_name = self.available_models[self.current_model_index]
         
         # 延迟初始化客户端，只在需要时连接
         self.client = None
         self._api_initialized = False
         
         print("✅ ML后端初始化完成")
+        print(f"🎯 主力模型: {self.model_name}")
+        print(f"📋 备用模型: {len(self.available_models)-1} 个")
         
+    def _switch_to_next_model(self):
+        """切换到下一个可用模型"""
+        # 记录当前模型的失败
+        current_model = self.available_models[self.current_model_index]
+        if current_model not in self.model_failure_history:
+            self.model_failure_history[current_model] = 0
+        self.model_failure_history[current_model] += self.model_consecutive_failures
+        
+        # 切换到下一个模型
+        old_model = self.model_name
+        old_index = self.current_model_index
+        
+        self.current_model_index = (self.current_model_index + 1) % len(self.available_models)
+        self.model_name = self.available_models[self.current_model_index]
+        self.model_consecutive_failures = 0  # 重置新模型的失败计数
+        
+        # 重置API连接（强制重新连接新模型）
+        self._api_initialized = False
+        self.client = None
+        
+        print(f"🔄 模型切换: {old_model} → {self.model_name}")
+        print(f"📊 切换原因: 连续失败 {self.max_model_failures} 次")
+        
+        # 如果回到了第一个模型，说明所有模型都试过了
+        if self.current_model_index == 0 and old_index != 0:
+            print("⚠️ 所有模型都已尝试，回到主力模型")
+            
+        return True
+    
+    def _handle_model_failure(self):
+        """处理模型失败，决定是否切换模型"""
+        self.model_consecutive_failures += 1
+        current_model = self.available_models[self.current_model_index]
+        
+        print(f"❌ 模型 {current_model} 连续失败: {self.model_consecutive_failures}/{self.max_model_failures}")
+        
+        # 如果达到失败阈值，切换模型
+        if self.model_consecutive_failures >= self.max_model_failures:
+            if len(self.available_models) > 1:  # 只有在有多个模型时才切换
+                self._switch_to_next_model()
+                return True  # 表示已切换模型
+            else:
+                print("⚠️ 只有一个模型可用，无法切换")
+                return False
+        
+        return False  # 没有切换模型
+    
+    def _handle_model_success(self):
+        """处理模型成功，重置失败计数"""
+        if self.model_consecutive_failures > 0:
+            print(f"✅ 模型 {self.model_name} 恢复正常")
+            self.model_consecutive_failures = 0
         
     def _ensure_api_connection(self):
         """确保API连接已初始化（延迟初始化）"""
@@ -207,6 +280,9 @@ class NewModel(LabelStudioMLBase):
             print(f"\n📊 处理完成: {successful_tasks}/{processed_count} 成功, 总实体: {total_entities}, 耗时: {total_duration:.1f}s")
             if failed_tasks > 0:
                 print(f"⚠️ {failed_tasks} 个任务处理失败")
+            
+            # 显示模型使用统计
+            self._print_model_statistics()
         
         return ModelResponse(predictions=predictions)
     
@@ -382,33 +458,96 @@ class NewModel(LabelStudioMLBase):
         return None
     
     def _call_modelscope_api(self, prompt: str) -> Optional[str]:
-        """调用魔塔社区API"""
-        # 确保API连接可用
-        if not self._ensure_api_connection():
-            return None
+        """调用魔塔社区API（支持自动模型切换）"""
+        max_retries_per_model = 2  # 每个模型最多重试2次再切换
         
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=[
-                    {"role": "system", "content": "You are a specialized Named Entity Recognition assistant for legal texts. CRITICAL: You must extract both traditional entities AND relational expressions. Use EXACT label names from the provided list. Never use descriptions, abbreviations, or variations. For relation labels, extract complete phrases that express semantic relationships between entities. Always respond with valid JSON format containing only the specified labels."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=2000,
-                temperature=0.1,
-                top_p=0.9,
-                stream=False
-            )
-            
-            if response.choices and len(response.choices) > 0:
-                content = response.choices[0].message.content
-                return content
-            else:
+        for attempt in range(max_retries_per_model):
+            # 确保API连接可用
+            if not self._ensure_api_connection():
+                self._handle_model_failure()
+                if self._has_more_models_to_try():
+                    continue  # 尝试下一个模型
                 return None
+            
+            try:
+                print(f"🔄 调用模型: {self.model_name} (尝试 {attempt + 1}/{max_retries_per_model})")
                 
-        except Exception as e:
-            print(f"❌ API调用失败: {str(e)[:50]}")
-            return None
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=[
+                        {"role": "system", "content": "You are a specialized Named Entity Recognition assistant for legal texts. CRITICAL: You must extract both traditional entities AND relational expressions. Use EXACT label names from the provided list. Never use descriptions, abbreviations, or variations. For relation labels, extract complete phrases that express semantic relationships between entities. Always respond with valid JSON format containing only the specified labels."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=2000,
+                    temperature=0.1,
+                    top_p=0.9,
+                    stream=False
+                )
+                
+                if response.choices and len(response.choices) > 0:
+                    content = response.choices[0].message.content
+                    if content and content.strip():
+                        # API调用成功，重置失败计数
+                        self._handle_model_success()
+                        return content
+                    else:
+                        print(f"⚠️ 模型 {self.model_name} 返回空内容")
+                        # 空内容也算失败
+                        self._handle_model_failure()
+                else:
+                    print(f"⚠️ 模型 {self.model_name} 响应格式异常")
+                    self._handle_model_failure()
+                    
+            except Exception as e:
+                print(f"❌ 模型 {self.model_name} API调用异常: {str(e)[:100]}")
+                self._handle_model_failure()
+            
+            # 如果当前模型失败，检查是否需要切换
+            if self.model_consecutive_failures >= self.max_model_failures:
+                if self._has_more_models_to_try():
+                    print(f"🔄 切换到下一个模型...")
+                    break  # 跳出重试循环，切换模型
+                else:
+                    print("❌ 所有模型都已尝试失败")
+                    return None
+        
+        # 如果所有重试都失败，返回None
+        return None
+    
+    def _has_more_models_to_try(self) -> bool:
+        """检查是否还有其他模型可以尝试"""
+        return len(self.available_models) > 1
+        
+    def _print_model_statistics(self):
+        """打印模型使用统计信息"""
+        print(f"\n🤖 模型使用情况:")
+        print(f"   当前模型: {self.model_name}")
+        print(f"   当前失败次数: {self.model_consecutive_failures}/{self.max_model_failures}")
+        
+        if self.model_failure_history:
+            print(f"   模型失败历史:")
+            for model, failures in self.model_failure_history.items():
+                if failures > 0:
+                    model_short = model.split('/')[-1] if '/' in model else model
+                    print(f"     • {model_short}: {failures} 次失败")
+        
+        # 显示可用模型列表
+        print(f"   可用模型: {len(self.available_models)} 个")
+        for i, model in enumerate(self.available_models):
+            status = "🎯" if i == self.current_model_index else "💤"
+            model_short = model.split('/')[-1] if '/' in model else model
+            print(f"     {status} {model_short}")
+    
+    def get_model_status(self) -> Dict:
+        """获取模型状态信息（供外部调用）"""
+        return {
+            "current_model": self.model_name,
+            "current_model_index": self.current_model_index,
+            "consecutive_failures": self.model_consecutive_failures,
+            "max_failures": self.max_model_failures,
+            "available_models": self.available_models,
+            "failure_history": self.model_failure_history.copy()
+        }
     
     def _format_prediction(self, api_response: str, task: Dict) -> Dict:
         """格式化预测结果为Label Studio格式"""
