@@ -1,0 +1,162 @@
+[
+  {
+    "id": 23,
+    "title": "事故信息_101-2022年4月全国自然灾害情况（洪涝）",
+    "description": "基于101-2022年4月全国自然灾害情况（洪涝）.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:21",
+    "created_at": "2025-09-06T08:30:21.073410Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 22,
+    "title": "事故信息_100-2022年5月全国自然灾害情况（洪涝）",
+    "description": "基于100-2022年5月全国自然灾害情况（洪涝）.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:20",
+    "created_at": "2025-09-06T08:30:20.470249Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 21,
+    "title": "事故信息_09-国家防总针对重庆市启动防汛四级应急响应",
+    "description": "基于09-国家防总针对重庆市启动防汛四级应急响应.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:19",
+    "created_at": "2025-09-06T08:30:19.331730Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 20,
+    "title": "事故信息_08-国家防总针对贵州云南启动防汛四级应急响应",
+    "description": "基于08-国家防总针对贵州云南启动防汛四级应急响应.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:18",
+    "created_at": "2025-09-06T08:30:18.718650Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 19,
+    "title": "事故信息_06-国家防总针对江苏启动防汛防台风四级应急响应",
+    "description": "基于06-国家防总针对江苏启动防汛防台风四级应急响应.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:17",
+    "created_at": "2025-09-06T08:30:17.579920Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 18,
+    "title": "事故信息_05-国家防总针对广西启动防汛防台风四级应急响应",
+    "description": "基于05-国家防总针对广西启动防汛防台风四级应急响应.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:16",
+    "created_at": "2025-09-06T08:30:16.961617Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 17,
+    "title": "事故信息_04-国家防总针对京冀晋吉宁启动防汛四级应急响应并针对浙闽启动防汛防台风四级应急响应",
+    "description": "基于04-国家防总针对京冀晋吉宁启动防汛四级应急响应并针对浙闽启动防汛防台风四级应急响应.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:16",
+    "created_at": "2025-09-06T08:30:16.354105Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 16,
+    "title": "事故信息_03-国家防总针对安徽启动防汛防台风四级应急响应",
+    "description": "基于03-国家防总针对安徽启动防汛防台风四级应急响应.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:15",
+    "created_at": "2025-09-06T08:30:15.745352Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 15,
+    "title": "事故信息_02-国家防减救灾委针对河北提升国家救灾应急响应级别至三级",
+    "description": "基于02-国家防减救灾委针对河北提升国家救灾应急响应级别至三级.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:15",
+    "created_at": "2025-09-06T08:30:15.145241Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 14,
+    "title": "事故信息_01-国家防减救灾委针对广东启动国家四级救灾应急响应",
+    "description": "基于01-国家防减救灾委针对广东启动国家四级救灾应急响应.txt的文本命名实体提取项目，自动创建于2025-09-06 16:30:14",
+    "created_at": "2025-09-06T08:30:14.524404Z",
+    "updated_at": "",
+    "task_count": 1,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 8,
+    "title": "洪涝灾害文本1",
+    "description": "",
+    "created_at": "2025-09-06T02:45:47.265461Z",
+    "updated_at": "",
+    "task_count": 172,
+    "total_annotations": 12,
+    "finished_task_count": 12
+  },
+  {
+    "id": 7,
+    "title": "视频标注",
+    "description": "",
+    "created_at": "2025-09-03T00:07:51.120410Z",
+    "updated_at": "",
+    "task_count": 2,
+    "total_annotations": 1,
+    "finished_task_count": 1
+  },
+  {
+    "id": 6,
+    "title": "图形框图标注识别",
+    "description": "",
+    "created_at": "2025-08-08T10:44:08.516708Z",
+    "updated_at": "",
+    "task_count": 3,
+    "total_annotations": 0,
+    "finished_task_count": 0
+  },
+  {
+    "id": 5,
+    "title": "New Project #3",
+    "description": "",
+    "created_at": "2025-08-08T01:02:18.540525Z",
+    "updated_at": "",
+    "task_count": 2,
+    "total_annotations": 2,
+    "finished_task_count": 2
+  },
+  {
+    "id": 3,
+    "title": "文本标注02",
+    "description": "文本标注02，自动化提取",
+    "created_at": "2025-08-03T08:44:59.514005Z",
+    "updated_at": "",
+    "task_count": 13,
+    "total_annotations": 6,
+    "finished_task_count": 6
+  },
+  {
+    "id": 2,
+    "title": "中文文本表示01",
+    "description": "描述-1",
+    "created_at": "2025-06-02T01:54:06.231069Z",
+    "updated_at": "",
+    "task_count": 1587,
+    "total_annotations": 1,
+    "finished_task_count": 1
+  }
+]

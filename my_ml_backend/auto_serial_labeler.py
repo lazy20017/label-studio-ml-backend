@@ -33,10 +33,11 @@ from datetime import datetime
 # 用户配置区域 - 请根据实际情况修改
 # ================================
 
+
 # Label Studio 配置
 LABEL_STUDIO_URL = "http://localhost:8080"          # Label Studio服务地址
 LABEL_STUDIO_API_TOKEN = "02be98ff6805d4d3c86f6b51bb0d538acb4c96e5"     # 您的API令牌，在Label Studio的Account Settings中获取
-PROJECT_ID = 8                                     # 项目ID，在项目URL中可以找到
+PROJECT_ID = 62                                     # 项目ID，在项目URL中可以找到
 
 # ML Backend 配置  
 ML_BACKEND_URL = "http://localhost:9090"            # ML Backend服务地址
@@ -44,7 +45,7 @@ ML_BACKEND_URL = "http://localhost:9090"            # ML Backend服务地址
 # 处理配置
 MAX_TASKS = None                                    # 最大处理任务数，None表示处理所有未标注任务
 DELAY_BETWEEN_TASKS = 1.0                          # 任务间延迟时间（秒），避免对服务器造成压力
-MAX_RETRIES = 3                                    # 失败任务的最大重试次数
+MAX_RETRIES = 0                                    # 失败任务的最大重试次数（0表示只尝试1次）
 REQUEST_TIMEOUT = 300                              # 单个请求的超时时间（秒）
 
 # 日志配置
@@ -414,32 +415,55 @@ class AutoSerialLabeler:
                 if not prediction_result:
                     raise Exception("预测失败")
                 
+                # 检查ML Backend返回的错误标记
+                if isinstance(prediction_result, dict):
+                    # 检查predictions中是否有失败的预测
+                    predictions = prediction_result.get('predictions', [])
+                    if predictions:
+                        first_prediction = predictions[0]
+                        if (isinstance(first_prediction, dict) and 
+                            (first_prediction.get('status') == 'failed' or 
+                             'error' in first_prediction)):
+                            error_msg = first_prediction.get('error', '预测失败')
+                            raise Exception(f"ML Backend标记为失败: {error_msg}")
+                    
+                    # 检查直接的错误标记
+                    if prediction_result.get('status') == 'failed' or 'error' in prediction_result:
+                        error_msg = prediction_result.get('error', '预测失败')
+                        raise Exception(f"ML Backend标记为失败: {error_msg}")
+                
+                # 先统计实体数量，判断是否真正成功
+                entity_count = 0
+                try:
+                    if isinstance(prediction_result, dict):
+                        # 检查不同的响应格式
+                        if 'results' in prediction_result:
+                            results = prediction_result['results']
+                            if results and len(results) > 0:
+                                entities = results[0].get('result', [])
+                                entity_count = len(entities)
+                        elif 'predictions' in prediction_result:
+                            predictions = prediction_result['predictions']
+                            if predictions and len(predictions) > 0:
+                                first_prediction = predictions[0]
+                                if isinstance(first_prediction, dict) and 'result' in first_prediction:
+                                    entities = first_prediction['result']
+                                    entity_count = len(entities)
+                        elif 'result' in prediction_result:
+                            entities = prediction_result['result']
+                            entity_count = len(entities)
+                except Exception as e:
+                    logger.debug(f"⚠️ 统计实体数量时出错: {e}")
+                    entity_count = 0
+                
+                # 检查是否识别到实体
+                if entity_count == 0:
+                    logger.error(f"❌ 任务 {task_id} 处理失败 - 未识别到任何实体")
+                    # 即使预测成功但无实体，也应该记录为失败
+                    raise Exception(f"未识别到任何实体 (返回了 {entity_count} 个实体)")
+                
                 # 保存标注
                 if self.save_annotation(task, prediction_result):
-                    # 统计实体数量
-                    entity_count = 0
-                    try:
-                        if isinstance(prediction_result, dict):
-                            # 检查不同的响应格式
-                            if 'results' in prediction_result:
-                                results = prediction_result['results']
-                                if results and len(results) > 0:
-                                    entities = results[0].get('result', [])
-                                    entity_count = len(entities)
-                            elif 'predictions' in prediction_result:
-                                predictions = prediction_result['predictions']
-                                if predictions and len(predictions) > 0:
-                                    first_prediction = predictions[0]
-                                    if isinstance(first_prediction, dict) and 'result' in first_prediction:
-                                        entities = first_prediction['result']
-                                        entity_count = len(entities)
-                            elif 'result' in prediction_result:
-                                entities = prediction_result['result']
-                                entity_count = len(entities)
-                    except Exception as e:
-                        logger.debug(f"⚠️ 统计实体数量时出错: {e}")
-                        entity_count = 0
-                    
                     logger.info(f"✅ 任务 {task_id} 处理成功 (识别到 {entity_count} 个实体)")
                     return True
                 else:
