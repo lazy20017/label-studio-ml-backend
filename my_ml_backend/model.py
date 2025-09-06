@@ -13,22 +13,11 @@ try:
     from entity_config import get_entity_config, get_entity_labels, get_all_categories, get_entities_by_category
     NER_ENTITY_CONFIG = get_entity_config()
     ENTITY_LABELS = get_entity_labels()
-    print(f"✅ 从配置文件加载了 {len(ENTITY_LABELS)} 种实体类型")
-    print(f"📋 包含类别: {', '.join(get_all_categories())}")
+    print(f"✅ 加载了 {len(ENTITY_LABELS)} 种实体类型")
 except ImportError:
-    # 如果配置文件不存在，使用默认配置
-    print("⚠️ 配置文件不存在，退出程序!!!")
+    print("❌ 配置文件不存在，退出程序")
     exit()
-   
 
-
-# 生成实体类型说明文本
-def get_entity_types_description():
-    """生成实体类型的说明文本"""
-    descriptions = []
-    for label, config in NER_ENTITY_CONFIG.items():
-        descriptions.append(f"{label}({config['description']})")
-    return "、".join(descriptions)
 
 # 生成JSON格式示例
 def get_json_format_example():
@@ -44,7 +33,6 @@ def get_json_format_example():
   ]
 }}"""
 
-# 简化的标签验证函数
 def validate_label(label: str) -> str:
     """验证标签是否在有效标签列表中"""
     if not label:
@@ -56,17 +44,8 @@ def validate_label(label: str) -> str:
     if clean_label in ENTITY_LABELS:
         return clean_label
     
-    # 如果不匹配，返回None
-    print(f"   ❌ 无效标签: '{clean_label}' (不在有效标签列表中)")
     return None
 
-def get_valid_label_list():
-    """获取所有有效的标签列表用于提示"""
-    try:
-        from entity_config import get_entity_labels
-        return get_entity_labels()
-    except ImportError:
-        return list(NER_ENTITY_CONFIG.keys())
 
 
 class NewModel(LabelStudioMLBase):
@@ -81,82 +60,48 @@ class NewModel(LabelStudioMLBase):
         # 魔塔社区API配置
         self.api_key = os.getenv('MODELSCOPE_API_KEY', 'ms-2c045fb7-f463-45bf-b0f9-a36d50b0400e')
         self.api_base_url = os.getenv('MODELSCOPE_API_URL', 'https://api-inference.modelscope.cn/v1')
-        # 推荐的模型选择（按优先级）:
-        # 1. Qwen/Qwen3-235B-A22B-Instruct-2507 - 最适合结构化输出
-        # 2. Qwen/Qwen3-Coder-480B-A35B-Instruct - 代码和结构化数据处理
-        # 3. Qwen/Qwen3-235B-A22B-Thinking-2507 - 思维链模型（输出格式复杂）
-        # 4. moonshotai/Kimi-K2-Instruct-0905 - 更适合NER任务
-        # 5. Qwen/Qwen3-30B-A3B-Instruct-2507
-        self.model_name = "Qwen/Qwen3-30B-A3B-Instruct-2507"  # 更适合NER任务
+        self.model_name = "Qwen/Qwen3-30B-A3B-Instruct-2507"
         
-        # 初始化OpenAI客户端
-        if self.api_key:
-            try:
-                self.client = OpenAI(
-                    base_url=self.api_base_url,
-                    api_key=self.api_key
-                )
-                print(f"✅ 模型初始化成功: {self.model_name}")
-            except Exception as e:
-                print(f"❌ 客户端初始化失败: {e}")
-                self.client = None
-        else:
-            print(f"⚠️ 请设置MODELSCOPE_API_KEY环境变量")
-            self.client = None
+        # 延迟初始化客户端，只在需要时连接
+        self.client = None
+        self._api_initialized = False
         
-        # 检查API连接
-        self._check_api_connection()
+        print("✅ ML后端初始化完成")
         
-        # 显示当前配置的实体标签
-        self._show_entity_config()
         
-    def _check_api_connection(self):
-        """检查魔塔社区API连接"""
-        if not self.client:
-            print(f"❌ 客户端未初始化")
-            return
+    def _ensure_api_connection(self):
+        """确保API连接已初始化（延迟初始化）"""
+        if self._api_initialized and self.client:
+            return True
+        
+        if not self.api_key:
+            print("⚠️ 请设置MODELSCOPE_API_KEY环境变量")
+            return False
         
         try:
+            print("🔄 正在连接大模型API...")
+            self.client = OpenAI(
+                base_url=self.api_base_url,
+                api_key=self.api_key
+            )
+            
+            # 测试连接
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[{"role": "user", "content": "test"}],
-                max_tokens=1000,
+                max_tokens=10,
                 temperature=0.1
             )
-            print(f"✅ API连接成功")
+            
+            self._api_initialized = True
+            print("✅ 大模型API连接成功")
+            return True
+            
         except Exception as e:
             print(f"❌ API连接失败: {str(e)[:100]}")
-    
-    def _show_entity_config(self):
-        """显示当前配置的实体标签"""
-        print(f"\n📋 当前支持的命名实体类型:")
-        print("="*60)
-        
-        try:
-            from entity_config import get_all_categories, get_entities_by_category
-            categories = get_all_categories()
-            
-            for category in categories:
-                entities = get_entities_by_category(category)
-                if entities:
-                    print(f"\n📂 {category}类 ({len(entities)}个实体):")
-                    for i, (label, config) in enumerate(entities.items(), 1):
-                        print(f"  {i:2d}. {label} - {config['description']}")
-                        if config['examples']:
-                            examples = "、".join(config['examples'][:2])
-                            print(f"      示例: {examples}")
-                            
-        except ImportError:
-            # 备用显示方式
-            for i, (label, config) in enumerate(NER_ENTITY_CONFIG.items(), 1):
-                print(f"  {i}. {label} - {config['description']}")
-                if config['examples']:
-                    examples = "、".join(config['examples'][:3])
-                    print(f"     示例: {examples}")
-        
-        print(f"\n💡 总计: {len(ENTITY_LABELS)} 种实体类型")
-        print(f"🔧 如需修改实体类型，请编辑entity_config.py文件")
-        print("="*60)
+            self.client = None
+            self._api_initialized = False
+            return False
     
 
 
@@ -169,25 +114,42 @@ class NewModel(LabelStudioMLBase):
         total_tasks = len(tasks)
         predictions = []
         
-        print(f"🚀 开始处理 {total_tasks} 个任务")
-        print("="*60)
+        # 检查是否为实体标注任务
+        if not self._is_annotation_task(tasks):
+            print("ℹ️ 非标注任务，跳过大模型连接")
+            # 返回空预测结果
+            empty_predictions = []
+            for task in tasks:
+                empty_prediction = {
+                    "model_version": self.get("model_version"),
+                    "score": 0.0,
+                    "result": []
+                }
+                empty_predictions.append(empty_prediction)
+            return ModelResponse(predictions=empty_predictions)
+        
+        # 只在需要进行标注预测时才连接大模型
+        if not self._ensure_api_connection():
+            print("❌ 无法连接大模型API，返回空预测结果")
+            empty_predictions = []
+            for task in tasks:
+                empty_prediction = {
+                    "model_version": self.get("model_version"),
+                    "score": 0.0,
+                    "result": [],
+                    "error": "API连接失败"
+                }
+                empty_predictions.append(empty_prediction)
+            return ModelResponse(predictions=empty_predictions)
+        
+        if total_tasks > 1:
+            print(f"🚀 开始处理 {total_tasks} 个标注任务")
         
         start_time = time.time()
         
         for i, task in enumerate(tasks):
-            print(f"\n🔄 正在处理任务 {i+1}/{total_tasks}...")
-            
-            # 显示任务内容预览
-            task_data = task.get('data', {})
-            text_content = ""
-            for key in ['text', 'content', 'prompt', 'question', 'description', 'query']:
-                if key in task_data and isinstance(task_data[key], str):
-                    text_content = task_data[key]
-                    break
-            
-            if text_content:
-                preview = text_content[:50] + "..." if len(text_content) > 50 else text_content
-                print(f"   📝 文本预览: {preview}")
+            if total_tasks > 1:  # 多任务时显示进度
+                print(f"\n🔄 处理任务 {i+1}/{total_tasks}")
             
             # 记录开始时间
             task_start_time = time.time()
@@ -201,64 +163,85 @@ class NewModel(LabelStudioMLBase):
                     # 成功识别到实体
                     predictions.append(prediction)
                     entities_count = len(prediction.get('result', []))
-                    print(f"✅ 任务 {i+1} 处理成功 (耗时: {task_duration:.2f}秒, 实体数: {entities_count})")
+                    if total_tasks > 1:
+                        print(f"✅ 任务 {i+1} 成功 (耗时: {task_duration:.1f}s, 实体: {entities_count})")
                 else:
-                    # 未识别到实体或处理失败 - 返回错误标记
+                    # 未识别到实体或处理失败
                     failed_prediction = {
                         "model_version": self.get("model_version"),
                         "score": 0.0,
                         "result": [],
-                        "error": "未识别到任何实体",  # 添加错误标记
-                        "status": "failed"  # 明确标记为失败
+                        "error": "未识别到任何实体",
+                        "status": "failed"
                     }
                     predictions.append(failed_prediction)
-                    print(f"❌ 任务 {i+1} 处理失败 - 未识别到任何实体 (耗时: {task_duration:.2f}秒)")
+                    if total_tasks > 1:
+                        print(f"❌ 任务 {i+1} 失败 - 无实体 (耗时: {task_duration:.1f}s)")
                     
             except Exception as e:
                 task_end_time = time.time()
                 task_duration = task_end_time - task_start_time
-                print(f"❌ 任务 {i+1} 处理异常 (耗时: {task_duration:.2f}秒): {e}")
+                if total_tasks > 1:
+                    print(f"❌ 任务 {i+1} 异常 (耗时: {task_duration:.1f}s): {str(e)[:50]}")
                 failed_prediction = {
                     "model_version": self.get("model_version"),
                     "score": 0.0,
                     "result": [],
-                    "error": f"处理异常: {str(e)}",  # 添加错误信息
-                    "status": "failed"  # 明确标记为失败
+                    "error": f"处理异常: {str(e)}",
+                    "status": "failed"
                 }
                 predictions.append(failed_prediction)
             
-            # 强制刷新输出缓冲区
-            import sys
-            sys.stdout.flush()
         
         # 处理完成后的总结
         end_time = time.time()
         total_duration = end_time - start_time
         processed_count = len(predictions)
         
-        print(f"\n📊 处理完成")
-        print("="*60)
-        print("📊 处理总结:")
-        print(f"   处理任务: {processed_count}/{total_tasks} 个")
-        print(f"   总耗时: {total_duration:.2f}秒")
-        print(f"   平均耗时: {total_duration/processed_count:.2f}秒/任务" if processed_count > 0 else "   平均耗时: N/A")
-        
         # 统计成功和失败的任务
         successful_tasks = sum(1 for p in predictions if p.get('result') and len(p.get('result', [])) > 0)
         failed_tasks = processed_count - successful_tasks
         total_entities = sum(len(p.get('result', [])) for p in predictions)
         
-        print(f"   ✅ 成功任务: {successful_tasks}/{processed_count} 个 ({successful_tasks/processed_count*100:.1f}%)" if processed_count > 0 else "   ✅ 成功任务: 0 个")
-        print(f"   ❌ 失败任务: {failed_tasks}/{processed_count} 个 ({failed_tasks/processed_count*100:.1f}%)" if processed_count > 0 else "   ❌ 失败任务: 0 个")
-        print(f"   🏷️ 总实体数: {total_entities} 个")
-        
-        if successful_tasks > 0:
-            avg_entities = total_entities / successful_tasks
-            print(f"   📈 平均实体数: {avg_entities:.1f} 个/成功任务")
-        
-        print("="*60)
+        if total_tasks > 1:
+            print(f"\n📊 处理完成: {successful_tasks}/{processed_count} 成功, 总实体: {total_entities}, 耗时: {total_duration:.1f}s")
+            if failed_tasks > 0:
+                print(f"⚠️ {failed_tasks} 个任务处理失败")
         
         return ModelResponse(predictions=predictions)
+    
+    def _is_annotation_task(self, tasks: List[Dict]) -> bool:
+        """判断是否为需要进行实体标注的任务"""
+        if not tasks:
+            return False
+        
+        # 检查任务是否包含需要标注的文本内容
+        for task in tasks:
+            task_data = task.get('data', {})
+            
+            # 检查是否有文本内容需要标注
+            text_keys = ['text', 'content', 'prompt', 'question', 'description', 'query']
+            has_text_content = False
+            
+            for key, value in task_data.items():
+                if isinstance(value, str) and key in text_keys and value.strip():
+                    has_text_content = True
+                    break
+            
+            if has_text_content:
+                # 检查是否已经有标注结果（如果有完整标注则可能是查看任务）
+                annotations = task.get('annotations', [])
+                if annotations:
+                    # 如果有标注但是空的，说明需要预测
+                    for annotation in annotations:
+                        result = annotation.get('result', [])
+                        if not result:  # 空标注，需要预测
+                            return True
+                else:
+                    # 没有标注，需要预测
+                    return True
+        
+        return False
     
     def _process_single_task(self, task: Dict) -> Optional[Dict]:
         """处理单个任务"""
@@ -400,13 +383,9 @@ class NewModel(LabelStudioMLBase):
     
     def _call_modelscope_api(self, prompt: str) -> Optional[str]:
         """调用魔塔社区API"""
-        if not self.client:
-            print("❌ OpenAI客户端未初始化")
+        # 确保API连接可用
+        if not self._ensure_api_connection():
             return None
-        
-        print(f"📤 发送API请求...")
-        print(f"   模型: {self.model_name}")
-        print(f"   提示词长度: {len(prompt)} 字符")
         
         try:
             response = self.client.chat.completions.create(
@@ -421,28 +400,18 @@ class NewModel(LabelStudioMLBase):
                 stream=False
             )
             
-            print(f"📥 收到API响应")
-            
             if response.choices and len(response.choices) > 0:
                 content = response.choices[0].message.content
-                print(f"✅ 响应内容长度: {len(content) if content else 0} 字符")
-                if content:
-                    print(f"📋 响应内容预览: {content[:300]}{'...' if len(content) > 300 else ''}")
                 return content
             else:
-                print("❌ API响应中没有choices")
                 return None
                 
         except Exception as e:
-            print(f"❌ API调用失败: {str(e)}")
-            print(f"   完整错误信息: {repr(e)}")
+            print(f"❌ API调用失败: {str(e)[:50]}")
             return None
     
     def _format_prediction(self, api_response: str, task: Dict) -> Dict:
         """格式化预测结果为Label Studio格式"""
-        print(f"\n🔄 格式化预测结果:")
-        print(f"   API响应长度: {len(api_response)} 字符")
-        print(f"   API响应内容: {api_response[:200]}{'...' if len(api_response) > 200 else ''}")
         
         prediction = {
             "model_version": self.get("model_version"),
@@ -454,26 +423,16 @@ class NewModel(LabelStudioMLBase):
         ner_results = self._parse_ner_response(api_response, task)
         if ner_results and len(ner_results) > 0:
             prediction["result"] = ner_results
-            prediction["score"] = 0.95  # 成功识别的置信度
-            print(f"✅ NER解析成功，识别到 {len(ner_results)} 个实体")
-            for i, result in enumerate(ner_results):
-                entity = result.get('value', {})
-                text = entity.get('text', '')
-                labels = entity.get('labels', [])
-                start = entity.get('start', 0)
-                end = entity.get('end', 0)
-                print(f"   实体 {i+1}: [{text}] -> {labels} ({start}-{end})")
+            prediction["score"] = 0.95
             return prediction
         
         # 如果没有识别到任何实体，返回失败信息
-        print("❌ NER解析失败，未识别到任何有效实体")
-        prediction["score"] = 0.0  # 失败的置信度
-        prediction["result"] = []   # 空结果
-        return None  # 返回None表示处理失败
+        prediction["score"] = 0.0
+        prediction["result"] = []
+        return None
     
     def _parse_ner_response(self, api_response: str, task: Dict) -> Optional[List[Dict]]:
         """解析AI返回的命名实体识别JSON结果，并用正则表达式进行补充"""
-        print(f"\n🔍 开始解析NER响应...")
         
         # 获取原始文本
         task_data = task.get('data', {})
@@ -484,11 +443,7 @@ class NewModel(LabelStudioMLBase):
                 break
         
         if not original_text:
-            print("❌ 无法获取原始文本")
             return None
-        
-        print(f"📝 原始文本: {original_text}")
-        print(f"📏 原始文本长度: {len(original_text)} 字符")
         
         # 初始化结果列表
         results = []
@@ -499,38 +454,28 @@ class NewModel(LabelStudioMLBase):
             ai_entities = self._parse_ai_entities(api_response, original_text)
             if ai_entities:
                 results.extend(ai_entities)
-                print(f"🤖 AI模型识别到 {len(ai_entities)} 个实体")
-        else:
-            print("⚠️ AI响应为空，跳过AI实体解析")
         
         # 第二步：使用正则表达式进行补充识别
         regex_entities = self._extract_regex_entities(original_text, ai_entities)
         if regex_entities:
             results.extend(regex_entities)
-            print(f"🔧 正则表达式补充识别到 {len(regex_entities)} 个实体")
         
         # 第三步：去重和排序
         final_results = self._deduplicate_entities(results)
-        print(f"📊 去重后最终实体数量: {len(final_results)}")
         
         return final_results if final_results else None
     
     def _parse_ai_entities(self, api_response: str, original_text: str) -> List[Dict]:
         """解析AI模型返回的实体"""
-        print(f"\n🤖 解析AI实体识别结果...")
         ai_results = []
         
         try:
             # 尝试直接解析JSON
             try:
-                print("🔧 尝试直接JSON解析...")
                 ner_data = json.loads(api_response.strip())
-                print("✅ 直接JSON解析成功")
             except json.JSONDecodeError as e:
-                print(f"⚠️ 直接JSON解析失败: {e}")
                 # 尝试提取JSON部分
                 import re
-                print("🔧 尝试提取JSON片段...")
                 
                 # 多种JSON提取策略
                 patterns = [
@@ -540,34 +485,28 @@ class NewModel(LabelStudioMLBase):
                 ]
                 
                 ner_data = None
-                for i, pattern in enumerate(patterns):
+                for pattern in patterns:
                     json_match = re.search(pattern, api_response, re.DOTALL)
                     if json_match:
                         try:
                             ner_data = json.loads(json_match.group())
-                            print(f"✅ JSON提取成功 (策略 {i+1})")
                             break
                         except json.JSONDecodeError:
-                            print(f"⚠️ JSON提取策略 {i+1} 失败")
                             continue
                 
                 if not ner_data:
-                    print("❌ 所有JSON提取策略都失败")
-                    print(f"📄 原始响应内容: {api_response}")
                     return ai_results
             
             # 检查entities字段
             if 'entities' not in ner_data or not isinstance(ner_data['entities'], list):
-                print("⚠️ 响应中没有有效的entities字段")
                 return ai_results
             
             entities = ner_data['entities']
             
             # 转换为Label Studio格式
-            for i, entity in enumerate(entities):
+            for entity in entities:
                 # 验证必需字段
                 if not all(key in entity for key in ['text', 'start', 'end', 'label']):
-                    print(f"   ⚠️ AI实体 {i+1} 缺少必需字段，跳过")
                     continue
                 
                 start = entity['start']
@@ -575,29 +514,17 @@ class NewModel(LabelStudioMLBase):
                 text = entity['text']
                 original_label = entity['label']
                 
-                print(f"\n🔍 处理AI实体 {i+1}: {entity}")
-                
                 # 严格验证标签
                 validated_label = validate_label(original_label)
                 if not validated_label:
-                    print(f"   ❌ AI实体 {i+1} 标签无效: '{original_label}'，跳过")
                     continue
                 
                 # 使用验证通过的标签
                 label = validated_label
-                if validated_label in NER_ENTITY_CONFIG:
-                    description = NER_ENTITY_CONFIG[validated_label]['description']
-                    print(f"   ✅ 标签验证通过: '{original_label}' -> '{validated_label}' (描述: {description})")
-                else:
-                    print(f"   ✅ 标签验证通过: '{original_label}' -> '{label}'")
                 
                 # 验证位置信息基本合理性
                 if not isinstance(start, int) or not isinstance(end, int) or start < 0:
-                    print(f"   ❌ AI实体 {i+1} 位置信息无效 (start={start}, end={end})，跳过")
                     continue
-                
-                print(f"   📋 AI提供的文本: '{text}'")
-                print(f"   📍 原始位置: {start}-{end}")
                 
                 # 先尝试修正位置，再进行范围检查
                 corrected_start, corrected_end, corrected_text = self._correct_entity_position(
@@ -606,16 +533,11 @@ class NewModel(LabelStudioMLBase):
                 
                 # 检查修正后的位置是否合理
                 if corrected_start is None or corrected_end is None or corrected_text is None:
-                    print(f"   ❌ AI实体 {i+1} 位置修正失败，跳过")
                     continue
                 
                 # 验证修正后的位置不超出文本长度
                 if corrected_end > len(original_text) or corrected_start < 0:
-                    print(f"   ❌ AI实体 {i+1} 修正后位置超出文本长度 (start={corrected_start}, end={corrected_end}, text_len={len(original_text)})，跳过")
                     continue
-                
-                print(f"   📋 修正后的文本: '{corrected_text}'")
-                print(f"   📍 修正后位置: {corrected_start}-{corrected_end}")
                 
                 if corrected_text:
                     # 验证修正后的实体是否合理
@@ -634,22 +556,14 @@ class NewModel(LabelStudioMLBase):
                         }
                         
                         ai_results.append(result)
-                        print(f"   ✅ AI实体 {i+1} 已添加: '{corrected_text}' -> {label} ({corrected_start}-{corrected_end})")
-                    else:
-                        print(f"   ❌ AI实体 {i+1} 验证失败: '{corrected_text}' 不是有效的 {label} 实体")
-                else:
-                    print(f"   ❌ AI实体 {i+1} 无法修正位置，跳过")
             
-            print(f"🤖 AI模型解析完成，有效实体: {len(ai_results)}")
             return ai_results
             
-        except Exception as e:
-            print(f"❌ 解析AI实体异常: {e}")
+        except Exception:
             return ai_results
     
     def _extract_regex_entities(self, original_text: str, existing_entities: List[Dict]) -> List[Dict]:
         """使用正则表达式补充识别实体"""
-        print(f"\n🔧 开始正则表达式补充识别...")
         regex_results = []
         
         try:
@@ -676,8 +590,6 @@ class NewModel(LabelStudioMLBase):
                 patterns = config['patterns']
                 description = config['description']
                 
-                print(f"🔍 检查 {label_key} ({description}) 的正则模式...")
-                
                 # 对每个正则模式进行匹配
                 for pattern in patterns:
                     try:
@@ -692,7 +604,6 @@ class NewModel(LabelStudioMLBase):
                             # 检查是否与已识别的实体重叠
                             overlapping = any(pos in existing_ranges for pos in range(start, end))
                             if overlapping:
-                                print(f"   ⚠️ 正则匹配 '{text}' ({start}-{end}) 与已识别实体重叠，跳过")
                                 continue
                             
                             # 验证实体是否合理
@@ -711,28 +622,21 @@ class NewModel(LabelStudioMLBase):
                                 }
                                 
                                 regex_results.append(result)
-                                print(f"   ✅ 正则识别: '{text}' -> {label_key} (描述: {description}) ({start}-{end})")
                                 
                                 # 更新已识别范围
                                 for pos in range(start, end):
                                     existing_ranges.add(pos)
-                            else:
-                                print(f"   ❌ 正则匹配 '{text}' 验证失败，跳过")
                                 
-                    except re.error as e:
-                        print(f"   ❌ 正则模式错误 '{pattern}': {e}")
+                    except re.error:
                         continue
             
-            print(f"🔧 正则表达式补充完成，新增实体: {len(regex_results)}")
             return regex_results
             
-        except Exception as e:
-            print(f"❌ 正则表达式补充异常: {e}")
+        except Exception:
             return regex_results
     
     def _deduplicate_entities(self, entities: List[Dict]) -> List[Dict]:
         """去重和排序实体"""
-        print(f"\n🔄 开始去重和排序实体...")
         
         # 按起始位置排序
         sorted_entities = sorted(entities, key=lambda x: x.get('value', {}).get('start', 0))
@@ -770,36 +674,22 @@ class NewModel(LabelStudioMLBase):
                     overlap_ratio = overlap_length / min_length if min_length > 0 else 0
                     
                     if overlap_ratio > 0.5:  # 重叠超过50%
-                        print(f"   🔄 发现重叠实体:")
-                        print(f"      当前: '{current_text}' ({current_start}-{current_end}) [{current_source}]")
-                        print(f"      已有: '{existing_text}' ({existing_start}-{existing_end}) [{existing_source}]")
-                        print(f"      重叠比例: {overlap_ratio:.2%}")
                         
                         # 优先级：AI > 正则，长实体 > 短实体
                         should_replace = False
                         if current_source == 'ai' and existing_source == 'regex':
                             should_replace = True
-                            print(f"      💡 AI识别优先于正则识别")
                         elif current_source == existing_source and current_length > existing_length:
                             should_replace = True
-                            print(f"      💡 更长的实体优先")
-                        elif current_source == existing_source and current_length == existing_length:
-                            # 相同长度，保留原有的
-                            should_replace = False
-                            print(f"      💡 相同条件，保留原有实体")
                         
                         if should_replace:
                             deduplicated[i] = current
-                            print(f"      ✅ 替换为当前实体")
-                        else:
-                            print(f"      ✅ 保留原有实体")
                         
                         should_add = False
                         break
             
             if should_add:
                 deduplicated.append(current)
-                print(f"   ✅ 添加实体: '{current_text}' -> {current_value.get('labels', [])} ({current_start}-{current_end}) [{current_source}]")
         
         # 最终按位置排序
         final_results = sorted(deduplicated, key=lambda x: x.get('value', {}).get('start', 0))
@@ -808,7 +698,6 @@ class NewModel(LabelStudioMLBase):
         for result in final_results:
             result.pop('source', None)
         
-        print(f"🔄 去重完成，最终实体数量: {len(final_results)}")
         return final_results
     
     def _correct_entity_position(self, original_text: str, entity_text: str, start: int, end: int) -> tuple:
@@ -830,7 +719,6 @@ class NewModel(LabelStudioMLBase):
             exact_start = original_text.find(clean_entity)
             if exact_start != -1:
                 exact_end = exact_start + len(clean_entity)
-                print(f"   🔧 精确匹配修正: '{clean_entity}' ({exact_start}-{exact_end})")
                 return exact_start, exact_end, clean_entity
             
             # 尝试模糊匹配（去除标点符号）
@@ -841,7 +729,6 @@ class NewModel(LabelStudioMLBase):
                     slice_text = original_text[i:i + len(clean_text_for_search)]
                     clean_slice = re.sub(r'[^\w\u4e00-\u9fff]', '', slice_text)
                     if clean_slice == clean_text_for_search:
-                        print(f"   🔧 模糊匹配修正: '{slice_text}' ({i}-{i + len(clean_text_for_search)})")
                         return i, i + len(clean_text_for_search), slice_text
             
             # 如果还是找不到，尝试部分匹配
@@ -852,11 +739,10 @@ class NewModel(LabelStudioMLBase):
                     # 尝试扩展匹配
                     extended_end = min(core_start + len(clean_entity) + 2, len(original_text))
                     extended_text = original_text[core_start:extended_end]
-                    print(f"   🔧 部分匹配修正: '{extended_text}' ({core_start}-{extended_end})")
                     return core_start, extended_end, extended_text
             
-        except Exception as e:
-            print(f"   ❌ 位置修正失败: {e}")
+        except Exception:
+            pass
         
         return None, None, None
     
@@ -879,7 +765,6 @@ class NewModel(LabelStudioMLBase):
         
         # 验证标签是否有效
         if label not in ENTITY_LABELS:
-            print(f"   ⚠️ 实体文本 '{clean_text}' 的标签 '{label}' 不在有效标签列表中")
             return False
         
         # 特殊验证：关系标签
@@ -890,29 +775,15 @@ class NewModel(LabelStudioMLBase):
                                '配合', '执行', '实施', '补偿', '赔偿']
             
             if not any(keyword in clean_text for keyword in relation_keywords):
-                print(f"   ⚠️ 关系标签 '{label}' 的文本 '{clean_text}' 不包含关系关键词")
                 # 对于关系标签，放宽验证，只要不是纯标点就接受
                 pass
         
         return True
     
-    def _extract_choice(self, response: str, choices: List[str]) -> Optional[str]:
-        """从响应中提取最匹配的选择"""
-        response_lower = response.lower()
-        for choice in choices:
-            if choice.lower() in response_lower:
-                return choice
-        return choices[0] if choices else None
     
     def fit(self, event, data, **kwargs):
-        """
-        训练/更新模型
-        :param event: 事件类型 ('ANNOTATION_CREATED', 'ANNOTATION_UPDATED', 'START_TRAINING')
-        :param data: 事件数据
-        """
-        # 更新缓存数据
-        old_data = self.get('my_data')
+        """训练/更新模型"""
         self.set('my_data', 'updated_data')
         self.set('model_version', 'updated_version')
-        print(f"✅ 模型已更新 (事件: {event})")
+        print(f"✅ 模型已更新 ({event})")
 
