@@ -37,7 +37,7 @@ from datetime import datetime
 # Label Studio 配置
 LABEL_STUDIO_URL = "http://localhost:8080"          # Label Studio服务地址
 LABEL_STUDIO_API_TOKEN = "02be98ff6805d4d3c86f6b51bb0d538acb4c96e5"     # 您的API令牌，在Label Studio的Account Settings中获取
-PROJECT_IDS = list(range(693, 693+50))                          # 项目ID列表，按顺序处理，在项目URL中可以找到
+PROJECT_IDS = list(range(770, 770+100))                          # 693开始，共279个项目，到972，项目ID列表，按顺序处理，在项目URL中可以找到
 
 # ML Backend 配置  
 ML_BACKEND_URL = "http://localhost:9090"            # ML Backend服务地址
@@ -45,7 +45,7 @@ ML_BACKEND_URL = "http://localhost:9090"            # ML Backend服务地址
 # 处理配置
 MAX_TASKS = None                                    # 最大处理任务数，None表示处理所有未标注任务
 DELAY_BETWEEN_TASKS = 1.0                          # 任务间延迟时间（秒），避免对服务器造成压力
-MAX_RETRIES = 3                                    # 失败任务的最大重试次数（每个任务最多尝试4次：1次初始+3次重试）
+MAX_RETRIES = 6                                    # 失败任务的最大重试次数（每个任务最多尝试4次：1次初始+3次重试）
 REQUEST_TIMEOUT = 300                              # 单个请求的超时时间（秒）
 
 # 日志配置
