@@ -37,7 +37,7 @@ from datetime import datetime
 # Label Studio 配置
 LABEL_STUDIO_URL = "http://localhost:8080"          # Label Studio服务地址
 LABEL_STUDIO_API_TOKEN = "02be98ff6805d4d3c86f6b51bb0d538acb4c96e5"     # 您的API令牌，在Label Studio的Account Settings中获取
-PROJECT_IDS = list(range(351, 451))                          # 项目ID列表，按顺序处理，在项目URL中可以找到
+PROJECT_IDS = list(range(693, 693+50))                          # 项目ID列表，按顺序处理，在项目URL中可以找到
 
 # ML Backend 配置  
 ML_BACKEND_URL = "http://localhost:9090"            # ML Backend服务地址

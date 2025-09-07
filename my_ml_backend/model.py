@@ -6,7 +6,8 @@ from openai import OpenAI
 from label_studio_ml.model import LabelStudioMLBase
 from label_studio_ml.response import ModelResponse
 
-# 启动命令  label-studio-ml start my_ml_backend
+# 启动命令   label-studio-ml start my_ml_backend
+
 
 # ==================== 命名实体配置 ====================
 # 从配置文件导入实体配置
@@ -56,27 +57,37 @@ class NewModel(LabelStudioMLBase):
     def setup(self):
         """Configure any parameters of your model here
         """
-        self.set("model_version", "0.0.1")
+        self.set("model_version", "2.0.0-洪涝灾害专用版")
         
         # 魔塔社区API配置
-        self.api_key = os.getenv('MODELSCOPE_API_KEY', 'ms-2c045fb7-f463-45bf-b0f9-a36d50b0400e')
+        self.api_key = os.getenv('MODELSCOPE_API_KEY', 'ms-7fa00741-856a-4134-80d2-f296b15c0e76')
         self.api_base_url = os.getenv('MODELSCOPE_API_URL', 'https://api-inference.modelscope.cn/v1')
         
-        # 🔄 多模型配置 - 按优先级排序
+        # 🔄 多模型配置 - 按稳定性和性能排序
         self.available_models = [
-                'Qwen/Qwen3-Coder-480B-A35B-Instruct', # 主力模型 - 最新Qwen3
-                'ZhipuAI/GLM-4.5', # 备用模型1 - 大参数量
-                'deepseek-ai/DeepSeek-V3.1', # 备用模型2 - 中等参数量
-                'Qwen/Qwen3-235B-A22B-Instruct-2507', # 备用模型2 - 中等参数量
-                'deepseek-ai/DeepSeek-R1-0528', # 备用模型5 - 平衡性能
-                'deepseek-ai/DeepSeek-R1-0528' # 备用模型6 - 平衡性能
+                'Qwen/Qwen3-Coder-480B-A35B-Instruct', # 备用模型1 - 最新Qwen3
+                'Qwen/Qwen3-235B-A22B-Instruct-2507', # 备用模型4 - 容易超时，排最后
+                'Qwen/Qwen3-235B-A22B',
+                'Qwen/Qwen3-235B-A22B-Thinking-2507',               
+                'deepseek-ai/DeepSeek-V3.1', # 备用模型2 - 中等参数量  
+                'deepseek-ai/DeepSeek-R1-0528', # 备用模型3 - 平衡性能
+                'deepseek-ai/DeepSeek-V3' ,
+                'ZhipuAI/GLM-4.5', # 主力模型 - 稳定性好
+               
         ]
         
         # 🎯 模型切换控制
-        self.current_model_index = 0  # 当前使用的模型索引
-        self.model_consecutive_failures = 0  # 当前模型连续失败次数
-        self.max_model_failures = 3  # 模型连续失败阈值
-        self.model_failure_history = {}  # 记录每个模型的失败历史
+        self.max_model_failures = 2  # 模型连续失败阈值
+        
+        # 🔄 程序启动时总是从第一个模型开始，运行时状态通过内存保持
+        self.current_model_index = 0  # 每次启动都重置到第一个模型
+        self.model_consecutive_failures = 0  # 重置失败计数
+        self.model_failure_history = {}  # 重置失败历史
+        
+        # 📝 说明：程序启动时重置模型状态，但运行期间会智能切换模型
+        # - 程序重启：从第一个模型开始
+        # - 运行期间：遇到429等错误会智能切换到其他模型
+        # - 状态保持：只在当前会话期间有效，重启后重置
         
         # 动态获取当前模型名称
         self.model_name = self.available_models[self.current_model_index]
@@ -85,9 +96,35 @@ class NewModel(LabelStudioMLBase):
         self.client = None
         self._api_initialized = False
         
-        print("✅ ML后端初始化完成")
-        print(f"🎯 主力模型: {self.model_name}")
+        print("✅ 洪涝灾害专用ML后端初始化完成")
+        print(f"🎯 当前模型: {self.model_name} (索引: {self.current_model_index})")
         print(f"📋 备用模型: {len(self.available_models)-1} 个")
+        print(f"🔄 智能切换: 429错误立即切换，连续失败{self.max_model_failures}次切换")
+        print(f"⏰ 超时设置: 250秒（给大模型充足处理时间）")
+        print(f"🌊 专业领域: 洪涝灾害知识提取 v2.0.0")
+        print(f"🚀 启动策略: 每次程序启动都从第一个模型开始，运行期间智能切换")
+    
+    def _save_model_state(self):
+        """💾 在运行期间临时保存模型状态（不持久化到磁盘）"""
+        # 注意：为了确保每次程序启动都从第一个模型开始，
+        # 这里不再将状态持久化到缓存，只在内存中保持状态
+        # 这样程序重启后会自动重置到第一个模型
+        pass  # 移除持久化逻辑，只保持运行时状态
+    
+    def reset_model_state(self):
+        """🔄 重置模型状态到初始状态（手动调用）"""
+        print("🔄 重置模型状态到初始状态...")
+        self.current_model_index = 0
+        self.model_consecutive_failures = 0
+        self.model_failure_history = {}
+        self.model_name = self.available_models[0]
+        
+        # 重置API连接
+        self._api_initialized = False
+        self.client = None
+        
+        print(f"✅ 状态已重置，当前模型: {self.model_name}")
+        return True
         
     def _switch_to_next_model(self):
         """切换到下一个可用模型"""
@@ -115,19 +152,26 @@ class NewModel(LabelStudioMLBase):
         # 如果回到了第一个模型，说明所有模型都试过了
         if self.current_model_index == 0 and old_index != 0:
             print("⚠️ 所有模型都已尝试，回到主力模型")
-            
+        
+        # 注意：状态只在运行时保持，程序重启后会重置到第一个模型
         return True
     
-    def _handle_model_failure(self):
+    def _handle_model_failure(self, reason: str = "未知错误", force_switch: bool = False):
         """处理模型失败，决定是否切换模型"""
         self.model_consecutive_failures += 1
         current_model = self.available_models[self.current_model_index]
         
-        print(f"❌ 模型 {current_model} 连续失败: {self.model_consecutive_failures}/{self.max_model_failures}")
+        print(f"❌ 模型 {current_model} 失败: {reason} (连续失败: {self.model_consecutive_failures}/{self.max_model_failures})")
         
-        # 如果达到失败阈值，切换模型
-        if self.model_consecutive_failures >= self.max_model_failures:
+        # 强制切换或达到失败阈值时切换模型
+        should_switch = force_switch or (self.model_consecutive_failures >= self.max_model_failures)
+        
+        if should_switch:
             if len(self.available_models) > 1:  # 只有在有多个模型时才切换
+                if force_switch:
+                    print(f"🚨 强制切换模型: {reason}")
+                else:
+                    print(f"📊 达到失败阈值，切换模型")
                 self._switch_to_next_model()
                 return True  # 表示已切换模型
             else:
@@ -141,6 +185,88 @@ class NewModel(LabelStudioMLBase):
         if self.model_consecutive_failures > 0:
             print(f"✅ 模型 {self.model_name} 恢复正常")
             self.model_consecutive_failures = 0
+    
+    def _should_switch_immediately(self, error_str: str) -> bool:
+        """判断是否需要立即切换模型（不重试）"""
+        immediate_switch_patterns = [
+            # API限流错误 - 立即切换
+            "429",
+            "Too Many Requests", 
+            "Request limit exceeded",
+            "Rate limit exceeded",
+            "Quota exceeded",
+            
+            # 认证/权限错误 - 立即切换
+            "401", 
+            "403",
+            "Unauthorized",
+            "Forbidden",
+            "Invalid API key",
+            "API key expired",
+            
+            # 模型不可用错误 - 立即切换
+            "404",
+            "Model not found",
+            "Model unavailable",
+            "Service unavailable",
+            "Model is overloaded",
+            
+            # 服务器内部错误 - 立即切换
+            "500",
+            "502", 
+            "503",
+            "504",
+            "Internal server error",
+            "Bad gateway",
+            "Gateway timeout",
+            
+            # 参数错误 - 立即切换（模型不支持当前参数）
+            "Invalid model",
+            "Unsupported model",
+            "Model does not exist",
+            
+            # 严重超时错误 - 立即切换（避免长时间等待）
+            "Connection timeout",  # 连接层面的超时
+            "Read timeout",        # 读取超时
+            "Gateway timeout"      # 网关超时
+        ]
+        
+        error_lower = error_str.lower()
+        for pattern in immediate_switch_patterns:
+            if pattern.lower() in error_lower:
+                return True
+        
+        return False
+    
+    def _get_error_type(self, error_str: str) -> str:
+        """获取错误类型描述"""
+        error_lower = error_str.lower()
+        
+        # 🚨 高优先级错误（立即切换）
+        if any(x in error_lower for x in ["429", "too many requests", "rate limit", "quota exceeded"]):
+            return "API限流"
+        elif any(x in error_lower for x in ["401", "403", "unauthorized", "forbidden", "api key"]):
+            return "认证失败"
+        elif any(x in error_lower for x in ["404", "model not found", "model unavailable"]):
+            return "模型不存在"
+        elif any(x in error_lower for x in ["500", "502", "503", "504", "internal server"]):
+            return "服务器错误"
+        elif any(x in error_lower for x in ["invalid model", "unsupported model"]):
+            return "模型不支持"
+        elif any(x in error_lower for x in ["connection timeout", "read timeout", "gateway timeout"]):
+            return "网络超时"
+        elif any(x in error_lower for x in ["timeout", "timed out"]):
+            return "处理超时"
+        
+        # 🔄 一般错误（可重试）  
+        elif any(x in error_lower for x in ["connection", "network"]):
+            return "网络连接"
+        elif any(x in error_lower for x in ["json", "parse", "format"]):
+            return "格式错误"
+        elif "empty" in error_lower or "空" in error_str:
+            return "空响应"
+        else:
+            return "未知错误"
         
     def _ensure_api_connection(self):
         """确保API连接已初始化（延迟初始化）"""
@@ -155,15 +281,18 @@ class NewModel(LabelStudioMLBase):
             print("🔄 正在连接大模型API...")
             self.client = OpenAI(
                 base_url=self.api_base_url,
-                api_key=self.api_key
+                api_key=self.api_key,
+                max_retries=0,  # 🚨 禁用OpenAI内置重试，让智能切换接管
+                timeout=250.0   # ⏰ 设置250秒超时，给大模型充足的处理时间
             )
             
-            # 测试连接
+            # 测试连接（使用较短的测试请求）
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[{"role": "user", "content": "test"}],
-                max_tokens=10,
-                temperature=0.1
+                max_tokens=5,
+                temperature=0.1,
+                timeout=250  # 测试连接使用250秒超时
             )
             
             self._api_initialized = True
@@ -171,10 +300,26 @@ class NewModel(LabelStudioMLBase):
             return True
             
         except Exception as e:
-            print(f"❌ API连接失败: {str(e)[:100]}")
-            self.client = None
-            self._api_initialized = False
-            return False
+            error_str = str(e)
+            print(f"❌ API连接失败: {error_str[:100]}")
+            
+            # 🚨 检查是否需要立即切换模型（429等错误）
+            should_switch_immediately = self._should_switch_immediately(error_str)
+            
+            if should_switch_immediately:
+                error_type = self._get_error_type(error_str)
+                print(f"🔄 连接测试检测到需要立即切换的错误: {error_type}")
+                self._handle_model_failure(f"连接测试-{error_type}", force_switch=True)
+                
+                # 重置连接状态，让调用方可以重试下一个模型
+                self.client = None
+                self._api_initialized = False
+                return False
+            else:
+                # 普通错误，不立即切换
+                self.client = None
+                self._api_initialized = False
+                return False
     
 
 
@@ -458,54 +603,79 @@ class NewModel(LabelStudioMLBase):
         return None
     
     def _call_modelscope_api(self, prompt: str) -> Optional[str]:
-        """调用魔塔社区API（支持自动模型切换）"""
+        """调用魔塔社区API（支持智能模型切换）"""
         max_retries_per_model = 2  # 每个模型最多重试2次再切换
         
         for attempt in range(max_retries_per_model):
             # 确保API连接可用
             if not self._ensure_api_connection():
-                self._handle_model_failure()
+                # 注意：_ensure_api_connection内部已经处理了429等需要立即切换的错误
+                # 这里只需要处理普通的连接失败
+                if self.model_consecutive_failures == 0:  # 如果失败计数为0，说明_ensure_api_connection没有处理
+                    self._handle_model_failure("连接失败")
+                
                 if self._has_more_models_to_try():
                     continue  # 尝试下一个模型
                 return None
             
             try:
                 print(f"🔄 调用模型: {self.model_name} (尝试 {attempt + 1}/{max_retries_per_model})")
+                print(f"   ⏰ 超时设置: 250秒 | 💾 最大token: 2000")
                 
+                start_time = time.time()
                 response = self.client.chat.completions.create(
                     model=self.model_name,
                     messages=[
-                        {"role": "system", "content": "You are a specialized Named Entity Recognition assistant for legal texts. CRITICAL: You must extract both traditional entities AND relational expressions. Use EXACT label names from the provided list. Never use descriptions, abbreviations, or variations. For relation labels, extract complete phrases that express semantic relationships between entities. Always respond with valid JSON format containing only the specified labels."},
+                        {"role": "system", "content": "🌊 You are a specialized Knowledge Extraction Expert for Flood Disaster Management domain. 专注：洪涝灾害法律法规、应急预案、技术标准。能力：法律条款、应急流程、组织职责、技术标准、关系抽取。CRITICAL: You must extract both traditional entities AND relational expressions. Use EXACT label names from the provided list. Never use descriptions, abbreviations, or variations. For relation labels, extract complete phrases that express semantic relationships between entities. Always respond with valid JSON format containing only the specified labels."},
                         {"role": "user", "content": prompt}
                     ],
                     max_tokens=2000,
                     temperature=0.1,
                     top_p=0.9,
-                    stream=False
+                    stream=False,
+                    timeout=250  # 🕐 实体识别任务使用250秒超时
                 )
                 
                 if response.choices and len(response.choices) > 0:
                     content = response.choices[0].message.content
+                    end_time = time.time()
+                    api_duration = end_time - start_time
+                    
                     if content and content.strip():
                         # API调用成功，重置失败计数
                         self._handle_model_success()
+                        print(f"   ✅ 调用成功 (耗时: {api_duration:.1f}s, 响应长度: {len(content)} 字符)")
                         return content
                     else:
                         print(f"⚠️ 模型 {self.model_name} 返回空内容")
                         # 空内容也算失败
-                        self._handle_model_failure()
+                        self._handle_model_failure("空响应")
                 else:
                     print(f"⚠️ 模型 {self.model_name} 响应格式异常")
-                    self._handle_model_failure()
+                    self._handle_model_failure("格式异常")
                     
             except Exception as e:
-                print(f"❌ 模型 {self.model_name} API调用异常: {str(e)[:100]}")
-                self._handle_model_failure()
+                error_str = str(e)
+                print(f"❌ 模型 {self.model_name} API调用异常: {error_str[:100]}")
+                
+                # 🚨 检查特殊错误类型，立即切换模型
+                should_switch_immediately = self._should_switch_immediately(error_str)
+                
+                if should_switch_immediately:
+                    print(f"🔄 检测到需要立即切换的错误: {self._get_error_type(error_str)}")
+                    self._handle_model_failure("立即切换", force_switch=True)
+                    if self._has_more_models_to_try():
+                        break  # 立即跳出重试循环，切换模型
+                    else:
+                        print("❌ 所有模型都已尝试失败")
+                        return None
+                else:
+                    self._handle_model_failure(f"API异常: {self._get_error_type(error_str)}")
             
             # 如果当前模型失败，检查是否需要切换
             if self.model_consecutive_failures >= self.max_model_failures:
                 if self._has_more_models_to_try():
-                    print(f"🔄 切换到下一个模型...")
+                    print(f"🔄 达到失败阈值，切换到下一个模型...")
                     break  # 跳出重试循环，切换模型
                 else:
                     print("❌ 所有模型都已尝试失败")
@@ -520,23 +690,32 @@ class NewModel(LabelStudioMLBase):
         
     def _print_model_statistics(self):
         """打印模型使用统计信息"""
-        print(f"\n🤖 模型使用情况:")
-        print(f"   当前模型: {self.model_name}")
-        print(f"   当前失败次数: {self.model_consecutive_failures}/{self.max_model_failures}")
+        print(f"\n🤖 模型状态统计:")
+        print(f"   🎯 当前模型: {self.model_name}")
+        print(f"   📊 当前失败: {self.model_consecutive_failures}/{self.max_model_failures}")
         
         if self.model_failure_history:
-            print(f"   模型失败历史:")
+            print(f"   📈 失败历史:")
             for model, failures in self.model_failure_history.items():
                 if failures > 0:
                     model_short = model.split('/')[-1] if '/' in model else model
-                    print(f"     • {model_short}: {failures} 次失败")
+                    status = "❌" if failures >= self.max_model_failures else "⚠️"
+                    print(f"     {status} {model_short}: {failures} 次")
         
         # 显示可用模型列表
-        print(f"   可用模型: {len(self.available_models)} 个")
+        print(f"   🔧 可用模型池: {len(self.available_models)} 个")
         for i, model in enumerate(self.available_models):
-            status = "🎯" if i == self.current_model_index else "💤"
+            if i == self.current_model_index:
+                status = "🎯 使用中"
+            elif model in self.model_failure_history and self.model_failure_history[model] > 0:
+                status = "❌ 已失败"
+            else:
+                status = "✅ 待用"
+            
             model_short = model.split('/')[-1] if '/' in model else model
             print(f"     {status} {model_short}")
+        
+        print(f"   🔄 切换策略: 429错误立即切换，其他错误达到{self.max_model_failures}次后切换")
     
     def get_model_status(self) -> Dict:
         """获取模型状态信息（供外部调用）"""
@@ -546,7 +725,9 @@ class NewModel(LabelStudioMLBase):
             "consecutive_failures": self.model_consecutive_failures,
             "max_failures": self.max_model_failures,
             "available_models": self.available_models,
-            "failure_history": self.model_failure_history.copy()
+            "failure_history": self.model_failure_history.copy(),
+            "status_persisted": False,  # 状态不持久化，程序重启后重置
+            "restart_behavior": "程序重启后从第一个模型开始"
         }
     
     def _format_prediction(self, api_response: str, task: Dict) -> Dict:

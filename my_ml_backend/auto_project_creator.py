@@ -20,6 +20,7 @@ import json
 import requests
 import logging
 import time
+import re
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
@@ -108,6 +109,7 @@ class ProjectAutoCreator:
             'failed_projects': 0,
             'imported_documents': 0,
             'failed_imports': 0,
+            'imported_tasks': 0,  # 新增：导入的任务总数
             'project_list': [],
             'errors': []
         }
@@ -183,6 +185,170 @@ class ProjectAutoCreator:
         # 删除空行和只包含空白字符的行
         cleaned_lines = [line for line in lines if line.strip()]
         return '\n'.join(cleaned_lines)
+    
+    def _split_paragraph_into_sentences(self, paragraph: str) -> List[str]:
+        """将段落按句子分割
+        
+        Args:
+            paragraph: 待分割的段落
+            
+        Returns:
+            句子列表
+        """
+        # 定义句子分割符（中英文句号、问号、感叹号）
+        sentence_endings = r'[。！？.!?]+'
+        
+        # 使用正则表达式分割句子，保留分割符
+        sentences = re.split(f'({sentence_endings})', paragraph)
+        
+        # 重新组合句子和标点
+        result_sentences = []
+        temp_sentence = ""
+        
+        for part in sentences:
+            if not part.strip():
+                continue
+                
+            temp_sentence += part
+            
+            # 如果遇到句子结尾标点，结束当前句子
+            if re.match(sentence_endings, part):
+                if temp_sentence.strip():
+                    result_sentences.append(temp_sentence.strip())
+                    temp_sentence = ""
+        
+        # 添加最后一个句子（如果没有结尾标点）
+        if temp_sentence.strip():
+            result_sentences.append(temp_sentence.strip())
+        
+        # 过滤掉空句子
+        return [s for s in result_sentences if s.strip()]
+    
+    def _combine_sentences_into_chunks(self, sentences: List[str], max_length: int = 300) -> List[str]:
+        """将句子组合成不超过指定长度的文本块
+        
+        Args:
+            sentences: 句子列表
+            max_length: 每个文本块的最大长度
+            
+        Returns:
+            文本块列表
+        """
+        if not sentences:
+            return []
+        
+        chunks = []
+        current_chunk = ""
+        
+        for sentence in sentences:
+            # 如果单个句子就超过最大长度，单独作为一个块
+            if len(sentence) > max_length:
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+                    current_chunk = ""
+                chunks.append(sentence)
+                continue
+            
+            # 检查加入当前句子后是否超长
+            test_chunk = current_chunk + sentence if not current_chunk else current_chunk + sentence
+            
+            if len(test_chunk) <= max_length:
+                # 不超长，加入当前块
+                current_chunk = test_chunk
+            else:
+                # 超长了，保存当前块并开始新块
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+                current_chunk = sentence
+        
+        # 添加最后一个块
+        if current_chunk:
+            chunks.append(current_chunk.strip())
+        
+        return chunks
+    
+    def _process_long_paragraph(self, paragraph: str, max_paragraph_length: int = 500, max_chunk_length: int = 300) -> List[str]:
+        """处理超长段落，按句子分割并重新组合
+        
+        Args:
+            paragraph: 待处理的段落
+            max_paragraph_length: 段落最大长度，超过此长度会进行分割
+            max_chunk_length: 分割后每块的最大长度
+            
+        Returns:
+            处理后的文本块列表
+        """
+        if len(paragraph) <= max_paragraph_length:
+            # 段落长度在范围内，直接返回
+            return [paragraph]
+        
+        logger.info(f"📏 处理超长段落: {len(paragraph)} 字符 -> 分割为多个块（每块≤{max_chunk_length}字符）")
+        
+        # 按句子分割
+        sentences = self._split_paragraph_into_sentences(paragraph)
+        
+        if not sentences:
+            return [paragraph]  # 如果分割失败，返回原段落
+        
+        logger.info(f"   🔍 分割为 {len(sentences)} 个句子")
+        
+        # 重新组合句子
+        chunks = self._combine_sentences_into_chunks(sentences, max_chunk_length)
+        
+        logger.info(f"   📦 组合为 {len(chunks)} 个文本块")
+        for i, chunk in enumerate(chunks):
+            logger.info(f"      块{i+1}: {len(chunk)} 字符 - {chunk[:50]}{'...' if len(chunk) > 50 else ''}")
+        
+        return chunks
+    
+    def _split_text_into_paragraphs(self, text: str) -> List[str]:
+        """将文本按自然段分割成段落列表，自动处理超长段落"""
+        # 先按双换行符分割（标准段落分隔）
+        paragraphs = text.split('\n\n')
+        
+        # 如果双换行符分割后只有一个段落，说明没有空行分隔
+        # 则按单行进行分割（适合每行都是独立内容的文件）
+        if len(paragraphs) == 1:
+            lines = text.split('\n')
+            paragraphs = []
+            
+            for line in lines:
+                line = line.strip()
+                if line:  # 非空行作为独立段落
+                    paragraphs.append(line)
+        else:
+            # 如果有双换行符分割，进一步处理每个段落
+            cleaned_paragraphs = []
+            for para in paragraphs:
+                para = para.strip()
+                if para:
+                    cleaned_paragraphs.append(para)
+            paragraphs = cleaned_paragraphs
+        
+        # 新增：处理超长段落
+        final_paragraphs = []
+        long_paragraph_count = 0
+        
+        for paragraph in paragraphs:
+            if len(paragraph) > 500:  # 超过500字符的段落需要分割
+                long_paragraph_count += 1
+                logger.info(f"🔍 发现超长段落 #{long_paragraph_count}: {len(paragraph)} 字符")
+                
+                # 使用智能分割处理超长段落
+                chunks = self._process_long_paragraph(paragraph, max_paragraph_length=500, max_chunk_length=300)
+                final_paragraphs.extend(chunks)
+            else:
+                final_paragraphs.append(paragraph)
+        
+        if long_paragraph_count > 0:
+            original_count = len(paragraphs)
+            final_count = len(final_paragraphs)
+            logger.info(f"📊 超长段落处理完成:")
+            logger.info(f"   原始段落数: {original_count}")
+            logger.info(f"   处理后段落数: {final_count}")
+            logger.info(f"   增加段落数: {final_count - original_count}")
+        
+        return final_paragraphs
     
     def scan_input_files(self, max_files=0) -> List[Tuple[str, str]]:
         """扫描输入文件夹，返回(文件路径, 文件名)列表
@@ -397,58 +563,84 @@ class ProjectAutoCreator:
         else:
             logger.warning(f"⚠️ 无法为项目 {project_id} 配置ML Backend")
     
-    def import_document(self, project_id: int, file_path: str) -> bool:
-        """导入文档到项目"""
-        logger.info(f"📥 导入文档: {os.path.basename(file_path)} -> 项目 {project_id}")
+    def import_document(self, project_id: int, file_path: str) -> Tuple[bool, int]:
+        """导入文档到项目，按段落分割为多个任务
+        
+        Returns:
+            Tuple[bool, int]: (是否成功, 创建的任务数)
+        """
+        filename = os.path.basename(file_path)
+        logger.info(f"📥 导入文档: {filename} -> 项目 {project_id}")
         
         try:
-            # 读取并清理文档内容
+            # 读取文档内容
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # 删除空行
-            cleaned_content = self._clean_text_content(content)
-            
-            if not cleaned_content.strip():
+            if not content.strip():
                 logger.warning(f"⚠️ 文件内容为空: {file_path}")
-                return False
+                return False, 0
             
-            # 准备任务数据
-            task_data = {
-                "data": {
-                    "text": cleaned_content
+            # 按段落分割文本
+            paragraphs = self._split_text_into_paragraphs(content)
+            
+            if not paragraphs:
+                logger.warning(f"⚠️ 未找到有效段落: {file_path}")
+                return False, 0
+            
+            logger.info(f"📄 发现 {len(paragraphs)} 个段落，将创建 {len(paragraphs)} 个任务")
+            
+            # 为每个段落创建任务数据
+            task_list = []
+            for i, paragraph in enumerate(paragraphs, 1):
+                task_data = {
+                    "data": {
+                        "text": paragraph,
+                        "source_file": filename,  # 记录来源文件
+                        "paragraph_index": i,     # 段落序号
+                        "total_paragraphs": len(paragraphs)  # 总段落数
+                    }
                 }
-            }
+                task_list.append(task_data)
             
-            # 导入任务
+            # 批量导入任务
+            logger.info(f"🔄 批量导入 {len(task_list)} 个任务...")
             response = self.session.post(
                 f"{self.label_studio_url}/api/projects/{project_id}/import",
-                json=[task_data],
-                timeout=60
+                json=task_list,
+                timeout=120  # 增加超时时间，因为可能有很多任务
             )
             
             response.raise_for_status()
             result = response.json()
             
-            if result.get('task_count', 0) > 0:
-                logger.info(f"✅ 文档导入成功，任务数: {result.get('task_count')}")
+            task_count = result.get('task_count', 0)
+            if task_count > 0:
+                logger.info(f"✅ 文档导入成功！")
+                logger.info(f"   📊 创建任务数: {task_count}")
+                logger.info(f"   📝 来源段落: {len(paragraphs)}")
+                logger.info(f"   📁 源文件: {filename}")
                 self.stats['imported_documents'] += 1
-                return True
+                # 新增：记录导入的任务数
+                if 'imported_tasks' not in self.stats:
+                    self.stats['imported_tasks'] = 0
+                self.stats['imported_tasks'] += task_count
+                return True, task_count
             else:
                 logger.error(f"❌ 文档导入失败，无任务创建")
                 self.stats['failed_imports'] += 1
-                return False
+                return False, 0
             
         except requests.exceptions.RequestException as e:
             logger.error(f"❌ 导入文档失败: {e}")
             self.stats['failed_imports'] += 1
             self.stats['errors'].append(f"导入文档 {file_path} 失败: {e}")
-            return False
+            return False, 0
         except Exception as e:
             logger.error(f"❌ 导入文档时发生未知错误: {e}")
             self.stats['failed_imports'] += 1
             self.stats['errors'].append(f"导入文档 {file_path} 时发生未知错误: {e}")
-            return False
+            return False, 0
     
     def test_connection(self) -> bool:
         """测试Label Studio和ML Backend连接"""
@@ -508,12 +700,14 @@ class ProjectAutoCreator:
             
             if project_id:
                 # 导入文档
-                success = self.import_document(project_id, file_path)
+                success, task_count = self.import_document(project_id, file_path)
                 
                 # 更新项目状态
                 for project in self.stats['project_list']:
                     if project['id'] == project_id:
                         project['status'] = 'imported' if success else 'import_failed'
+                        if success:
+                            project['task_count'] = task_count  # 记录任务数量
                         break
             
             # 延迟避免过快请求
@@ -541,12 +735,14 @@ class ProjectAutoCreator:
         logger.info(f"❌ 创建失败: {self.stats['failed_projects']}")
         logger.info(f"📥 导入成功: {self.stats['imported_documents']}")
         logger.info(f"💥 导入失败: {self.stats['failed_imports']}")
+        logger.info(f"📝 创建任务: {self.stats['imported_tasks']} 个（按段落分割）")
         
         if self.stats['project_list']:
             logger.info(f"\n🏷️ 创建的项目列表:")
             for project in self.stats['project_list']:
                 status_emoji = "✅" if project['status'] == 'imported' else "⚠️" if project['status'] == 'import_failed' else "❌"
-                logger.info(f"   {status_emoji} [{project['id']:2d}] {project['name']}")
+                task_info = f"({project.get('task_count', 0)} 个任务)" if project.get('task_count') else ""
+                logger.info(f"   {status_emoji} [{project['id']:2d}] {project['name']} {task_info}")
         
         if self.stats['errors']:
             logger.info(f"\n⚠️ 错误详情:")
@@ -559,8 +755,10 @@ class ProjectAutoCreator:
         if self.stats['total_files'] > 0:
             project_success_rate = (self.stats['created_projects'] / self.stats['total_files']) * 100
             import_success_rate = (self.stats['imported_documents'] / self.stats['total_files']) * 100
+            avg_tasks_per_file = self.stats['imported_tasks'] / self.stats['imported_documents'] if self.stats['imported_documents'] > 0 else 0
             logger.info(f"   项目创建成功率: {project_success_rate:.1f}%")
             logger.info(f"   文档导入成功率: {import_success_rate:.1f}%")
+            logger.info(f"   平均每个文档任务数: {avg_tasks_per_file:.1f} 个")
 
 
 def main(max_projects=0):
