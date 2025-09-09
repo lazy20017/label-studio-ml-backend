@@ -10,6 +10,12 @@ Label Studio 项目自动创建器
 4. 导入对应的文档到项目中
 5. 返回每个项目的编号
 
+使用方法：
+```bash
+cd label-studio-ml-backend/my_ml_backend
+python auto_project_creator.py
+```
+
 作者: AI Assistant
 创建时间: 2025-01-28
 版本: 1.0.0

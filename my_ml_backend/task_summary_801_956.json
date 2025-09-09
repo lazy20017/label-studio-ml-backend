@@ -1,0 +1,1421 @@
+{
+  "range_start": 801,
+  "range_end": 956,
+  "project_count": 141,
+  "total_tasks": 12319,
+  "total_finished_tasks": 2382,
+  "total_annotations": 2382,
+  "completion_rate": 19.335985063722706,
+  "projects": [
+    {
+      "id": 941,
+      "title": "防洪规范_05-水情预警信号有哪些",
+      "description": "基于05-水情预警信号有哪些.txt的文本命名实体提取项目，自动创建于2025-09-07 09:50:56",
+      "created_at": "2025-09-07T01:50:56.555523Z",
+      "updated_at": "",
+      "task_count": 36,
+      "total_annotations": 36,
+      "finished_task_count": 36
+    },
+    {
+      "id": 940,
+      "title": "防洪规范_04-洪水来了该准备什么",
+      "description": "基于04-洪水来了该准备什么.txt的文本命名实体提取项目，自动创建于2025-09-07 09:50:44",
+      "created_at": "2025-09-07T01:50:44.737768Z",
+      "updated_at": "",
+      "task_count": 8,
+      "total_annotations": 8,
+      "finished_task_count": 8
+    },
+    {
+      "id": 939,
+      "title": "防洪规范_03-发洪水时如何自救",
+      "description": "基于03-发洪水时如何自救.txt的文本命名实体提取项目，自动创建于2025-09-07 09:50:32",
+      "created_at": "2025-09-07T01:50:32.899073Z",
+      "updated_at": "",
+      "task_count": 7,
+      "total_annotations": 7,
+      "finished_task_count": 7
+    },
+    {
+      "id": 938,
+      "title": "防洪规范_02-发洪水的原因有哪些",
+      "description": "基于02-发洪水的原因有哪些.txt的文本命名实体提取项目，自动创建于2025-09-07 09:50:21",
+      "created_at": "2025-09-07T01:50:21.035114Z",
+      "updated_at": "",
+      "task_count": 8,
+      "total_annotations": 8,
+      "finished_task_count": 8
+    },
+    {
+      "id": 937,
+      "title": "防洪规范_01-雨天车辆涉水-牢记避险要诀",
+      "description": "基于01-雨天车辆涉水-牢记避险要诀.txt的文本命名实体提取项目，自动创建于2025-09-07 09:50:09",
+      "created_at": "2025-09-07T01:50:09.185822Z",
+      "updated_at": "",
+      "task_count": 5,
+      "total_annotations": 5,
+      "finished_task_count": 5
+    },
+    {
+      "id": 936,
+      "title": "法律法规_99-国家煤矿安监局关于认真贯彻落实习近平总书记重要指示精神加强汛期煤矿水害防治",
+      "description": "基于99-国家煤矿安监局关于认真贯彻落实习近平总书记重要指示精神加强汛期煤矿水害防治.txt的文本命名实体提取项目，自动创建于2025-09-07 09:49:57",
+      "created_at": "2025-09-07T01:49:57.366873Z",
+      "updated_at": "",
+      "task_count": 14,
+      "total_annotations": 14,
+      "finished_task_count": 14
+    },
+    {
+      "id": 935,
+      "title": "法律法规_98-财政部关于坚决贯彻落实习近平总书记重要批示精神全力做好防汛救灾财力保障工作",
+      "description": "基于98-财政部关于坚决贯彻落实习近平总书记重要批示精神全力做好防汛救灾财力保障工作.txt的文本命名实体提取项目，自动创建于2025-09-07 09:49:45",
+      "created_at": "2025-09-07T01:49:45.503898Z",
+      "updated_at": "",
+      "task_count": 9,
+      "total_annotations": 9,
+      "finished_task_count": 9
+    },
+    {
+      "id": 934,
+      "title": "法律法规_97-南方水稻防涝抗灾技术指导意见",
+      "description": "基于97-南方水稻防涝抗灾技术指导意见.txt的文本命名实体提取项目，自动创建于2025-09-07 09:49:33",
+      "created_at": "2025-09-07T01:49:33.668964Z",
+      "updated_at": "",
+      "task_count": 7,
+      "total_annotations": 7,
+      "finished_task_count": 7
+    },
+    {
+      "id": 933,
+      "title": "法律法规_96-国家文物局就加强汛期文物安全工作发出紧急通知",
+      "description": "基于96-国家文物局就加强汛期文物安全工作发出紧急通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:49:21",
+      "created_at": "2025-09-07T01:49:21.837715Z",
+      "updated_at": "",
+      "task_count": 4,
+      "total_annotations": 4,
+      "finished_task_count": 4
+    },
+    {
+      "id": 932,
+      "title": "法律法规_95-安徽省教育厅关于切实做好2020年初中学业水平考试期间防汛防洪工作的紧急通",
+      "description": "基于95-安徽省教育厅关于切实做好2020年初中学业水平考试期间防汛防洪工作的紧急通.txt的文本命名实体提取项目，自动创建于2025-09-07 09:49:09",
+      "created_at": "2025-09-07T01:49:10.007187Z",
+      "updated_at": "",
+      "task_count": 21,
+      "total_annotations": 21,
+      "finished_task_count": 21
+    },
+    {
+      "id": 931,
+      "title": "法律法规_94-宁波市人民政府关于进一步加强防汛防台工作的若干意见",
+      "description": "基于94-宁波市人民政府关于进一步加强防汛防台工作的若干意见.txt的文本命名实体提取项目，自动创建于2025-09-07 09:48:58",
+      "created_at": "2025-09-07T01:48:58.121659Z",
+      "updated_at": "",
+      "task_count": 45,
+      "total_annotations": 45,
+      "finished_task_count": 45
+    },
+    {
+      "id": 930,
+      "title": "法律法规_93-南方地区洪涝灾后改种荞麦生产技术意见",
+      "description": "基于93-南方地区洪涝灾后改种荞麦生产技术意见.txt的文本命名实体提取项目，自动创建于2025-09-07 09:48:46",
+      "created_at": "2025-09-07T01:48:46.304058Z",
+      "updated_at": "",
+      "task_count": 7,
+      "total_annotations": 7,
+      "finished_task_count": 7
+    },
+    {
+      "id": 929,
+      "title": "法律法规_92-关于用好财政扶贫资金项目支持克服洪涝地质灾害影响的通知",
+      "description": "基于92-关于用好财政扶贫资金项目支持克服洪涝地质灾害影响的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:48:34",
+      "created_at": "2025-09-07T01:48:34.456613Z",
+      "updated_at": "",
+      "task_count": 8,
+      "total_annotations": 8,
+      "finished_task_count": 8
+    },
+    {
+      "id": 928,
+      "title": "法律法规_91-上海市人民政府关于同意《上海市防洪除涝规划-2020-2035年-》的批复",
+      "description": "基于91-上海市人民政府关于同意《上海市防洪除涝规划-2020-2035年-》的批复.txt的文本命名实体提取项目，自动创建于2025-09-07 09:48:22",
+      "created_at": "2025-09-07T01:48:22.644452Z",
+      "updated_at": "",
+      "task_count": 9,
+      "total_annotations": 9,
+      "finished_task_count": 9
+    },
+    {
+      "id": 927,
+      "title": "法律法规_90-关于做好2021年防汛准备工作的通知",
+      "description": "基于90-关于做好2021年防汛准备工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:48:10",
+      "created_at": "2025-09-07T01:48:10.795574Z",
+      "updated_at": "",
+      "task_count": 16,
+      "total_annotations": 16,
+      "finished_task_count": 16
+    },
+    {
+      "id": 926,
+      "title": "法律法规_89-江西省农业农村厅办公室关于进一步做好近期强降雨天气防范应对工作的通知",
+      "description": "基于89-江西省农业农村厅办公室关于进一步做好近期强降雨天气防范应对工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:47:58",
+      "created_at": "2025-09-07T01:47:58.988458Z",
+      "updated_at": "",
+      "task_count": 8,
+      "total_annotations": 8,
+      "finished_task_count": 8
+    },
+    {
+      "id": 925,
+      "title": "法律法规_88-浙江重修防汛防台抗旱条例",
+      "description": "基于88-浙江重修防汛防台抗旱条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:47:47",
+      "created_at": "2025-09-07T01:47:47.143362Z",
+      "updated_at": "",
+      "task_count": 6,
+      "total_annotations": 6,
+      "finished_task_count": 6
+    },
+    {
+      "id": 924,
+      "title": "法律法规_87-2021年水稻抗灾夺丰收技术意见",
+      "description": "基于87-2021年水稻抗灾夺丰收技术意见.txt的文本命名实体提取项目，自动创建于2025-09-07 09:47:35",
+      "created_at": "2025-09-07T01:47:35.294197Z",
+      "updated_at": "",
+      "task_count": 17,
+      "total_annotations": 17,
+      "finished_task_count": 17
+    },
+    {
+      "id": 923,
+      "title": "法律法规_86-山东省粮食和物资储备局办公室关于加强汛期安全生产和安全储粮工作的通知",
+      "description": "基于86-山东省粮食和物资储备局办公室关于加强汛期安全生产和安全储粮工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:47:23",
+      "created_at": "2025-09-07T01:47:23.457310Z",
+      "updated_at": "",
+      "task_count": 11,
+      "total_annotations": 11,
+      "finished_task_count": 11
+    },
+    {
+      "id": 922,
+      "title": "法律法规_85-中央组织部印发《关于在防汛救灾中充分发挥基层党组织战斗堡垒作用和广大党员先",
+      "description": "基于85-中央组织部印发《关于在防汛救灾中充分发挥基层党组织战斗堡垒作用和广大党员先.txt的文本命名实体提取项目，自动创建于2025-09-07 09:47:11",
+      "created_at": "2025-09-07T01:47:11.599977Z",
+      "updated_at": "",
+      "task_count": 9,
+      "total_annotations": 9,
+      "finished_task_count": 9
+    },
+    {
+      "id": 921,
+      "title": "法律法规_84-山东省防汛抗旱指挥部办公室关于毫不松懈做好新一轮降雨防范工作的通知",
+      "description": "基于84-山东省防汛抗旱指挥部办公室关于毫不松懈做好新一轮降雨防范工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:46:59",
+      "created_at": "2025-09-07T01:46:59.773649Z",
+      "updated_at": "",
+      "task_count": 7,
+      "total_annotations": 7,
+      "finished_task_count": 7
+    },
+    {
+      "id": 920,
+      "title": "法律法规_83-水利部印发关于完善流域防洪工程体系的指导意见和实施方案",
+      "description": "基于83-水利部印发关于完善流域防洪工程体系的指导意见和实施方案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:46:47",
+      "created_at": "2025-09-07T01:46:47.921452Z",
+      "updated_at": "",
+      "task_count": 6,
+      "total_annotations": 6,
+      "finished_task_count": 6
+    },
+    {
+      "id": 919,
+      "title": "法律法规_82-水利部关于表彰全国水旱灾害防御工作先进集体和先进个人的决定",
+      "description": "基于82-水利部关于表彰全国水旱灾害防御工作先进集体和先进个人的决定.txt的文本命名实体提取项目，自动创建于2025-09-07 09:46:36",
+      "created_at": "2025-09-07T01:46:36.087087Z",
+      "updated_at": "",
+      "task_count": 5,
+      "total_annotations": 5,
+      "finished_task_count": 5
+    },
+    {
+      "id": 918,
+      "title": "法律法规_81-国务院关于印发气象高质量发展纲要-2022-2035年-的通知",
+      "description": "基于81-国务院关于印发气象高质量发展纲要-2022-2035年-的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:46:24",
+      "created_at": "2025-09-07T01:46:24.177994Z",
+      "updated_at": "",
+      "task_count": 46,
+      "total_annotations": 46,
+      "finished_task_count": 46
+    },
+    {
+      "id": 917,
+      "title": "法律法规_80-江西省2023年防汛抗旱工作要点",
+      "description": "基于80-江西省2023年防汛抗旱工作要点.txt的文本命名实体提取项目，自动创建于2025-09-07 09:46:12",
+      "created_at": "2025-09-07T01:46:12.321779Z",
+      "updated_at": "",
+      "task_count": 32,
+      "total_annotations": 32,
+      "finished_task_count": 32
+    },
+    {
+      "id": 916,
+      "title": "法律法规_79-江西省防汛抗旱指挥部办公室关于印发全省防汛隐患常态化排查整治工作方案的通知",
+      "description": "基于79-江西省防汛抗旱指挥部办公室关于印发全省防汛隐患常态化排查整治工作方案的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:46:00",
+      "created_at": "2025-09-07T01:46:00.445556Z",
+      "updated_at": "",
+      "task_count": 27,
+      "total_annotations": 27,
+      "finished_task_count": 27
+    },
+    {
+      "id": 915,
+      "title": "法律法规_78-山东省防汛抗旱指挥部办公室关于做好-七下八上-关键期防汛工作的通知",
+      "description": "基于78-山东省防汛抗旱指挥部办公室关于做好-七下八上-关键期防汛工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:45:48",
+      "created_at": "2025-09-07T01:45:48.605372Z",
+      "updated_at": "",
+      "task_count": 11,
+      "total_annotations": 11,
+      "finished_task_count": 11
+    },
+    {
+      "id": 914,
+      "title": "法律法规_77-关于积极做好农业保险防汛救灾工作有关事项的通知",
+      "description": "基于77-关于积极做好农业保险防汛救灾工作有关事项的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:45:36",
+      "created_at": "2025-09-07T01:45:36.791163Z",
+      "updated_at": "",
+      "task_count": 9,
+      "total_annotations": 9,
+      "finished_task_count": 9
+    },
+    {
+      "id": 913,
+      "title": "法律法规_76-山东省防汛抗旱指挥部办公室关于切实做好近期降雨过程防范工作的通知",
+      "description": "基于76-山东省防汛抗旱指挥部办公室关于切实做好近期降雨过程防范工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:45:24",
+      "created_at": "2025-09-07T01:45:24.945596Z",
+      "updated_at": "",
+      "task_count": 10,
+      "total_annotations": 10,
+      "finished_task_count": 10
+    },
+    {
+      "id": 912,
+      "title": "法律法规_75-吉林省人民政府办公厅关于进一步做好洪水地质灾害防御工作的紧急通知",
+      "description": "基于75-吉林省人民政府办公厅关于进一步做好洪水地质灾害防御工作的紧急通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:45:13",
+      "created_at": "2025-09-07T01:45:13.134476Z",
+      "updated_at": "",
+      "task_count": 7,
+      "total_annotations": 7,
+      "finished_task_count": 7
+    },
+    {
+      "id": 911,
+      "title": "法律法规_74-厦门市采取十项措施-强化台风暴雨灾害天气防范应对工作",
+      "description": "基于74-厦门市采取十项措施-强化台风暴雨灾害天气防范应对工作.txt的文本命名实体提取项目，自动创建于2025-09-07 09:45:01",
+      "created_at": "2025-09-07T01:45:01.263270Z",
+      "updated_at": "",
+      "task_count": 24,
+      "total_annotations": 24,
+      "finished_task_count": 24
+    },
+    {
+      "id": 910,
+      "title": "法律法规_73-永定河防御洪水方案",
+      "description": "基于73-永定河防御洪水方案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:44:49",
+      "created_at": "2025-09-07T01:44:49.430364Z",
+      "updated_at": "",
+      "task_count": 42,
+      "total_annotations": 42,
+      "finished_task_count": 42
+    },
+    {
+      "id": 909,
+      "title": "法律法规_72-黑龙江省水利厅关于进一步加强我省洪水影响评价管理工作的通知",
+      "description": "基于72-黑龙江省水利厅关于进一步加强我省洪水影响评价管理工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:44:37",
+      "created_at": "2025-09-07T01:44:37.577711Z",
+      "updated_at": "",
+      "task_count": 36,
+      "total_annotations": 36,
+      "finished_task_count": 36
+    },
+    {
+      "id": 908,
+      "title": "法律法规_71-大清河防御洪水方案",
+      "description": "基于71-大清河防御洪水方案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:44:25",
+      "created_at": "2025-09-07T01:44:25.687776Z",
+      "updated_at": "",
+      "task_count": 68,
+      "total_annotations": 68,
+      "finished_task_count": 68
+    },
+    {
+      "id": 907,
+      "title": "法律法规_70-淮河防御洪水方案",
+      "description": "基于70-淮河防御洪水方案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:44:13",
+      "created_at": "2025-09-07T01:44:13.787887Z",
+      "updated_at": "",
+      "task_count": 70,
+      "total_annotations": 70,
+      "finished_task_count": 70
+    },
+    {
+      "id": 906,
+      "title": "法律法规_69-永定河洪水调度方案",
+      "description": "基于69-永定河洪水调度方案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:44:01",
+      "created_at": "2025-09-07T01:44:01.968084Z",
+      "updated_at": "",
+      "task_count": 10,
+      "total_annotations": 10,
+      "finished_task_count": 10
+    },
+    {
+      "id": 905,
+      "title": "法律法规_68-关于做好特别重大自然灾害灾后恢复重建",
+      "description": "基于68-关于做好特别重大自然灾害灾后恢复重建.txt的文本命名实体提取项目，自动创建于2025-09-07 09:43:49",
+      "created_at": "2025-09-07T01:43:49.997502Z",
+      "updated_at": "",
+      "task_count": 150,
+      "total_annotations": 136,
+      "finished_task_count": 136
+    },
+    {
+      "id": 904,
+      "title": "法律法规_67-水利部关于加强蓄滞洪区内非防洪建设项目",
+      "description": "基于67-水利部关于加强蓄滞洪区内非防洪建设项目.txt的文本命名实体提取项目，自动创建于2025-09-07 09:43:38",
+      "created_at": "2025-09-07T01:43:38.159456Z",
+      "updated_at": "",
+      "task_count": 38,
+      "total_annotations": 38,
+      "finished_task_count": 38
+    },
+    {
+      "id": 903,
+      "title": "法律法规_66-江西省应急管理厅办公室关于预防暴雨洪水等自然灾害引发矿山事故灾难的通知",
+      "description": "基于66-江西省应急管理厅办公室关于预防暴雨洪水等自然灾害引发矿山事故灾难的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:43:26",
+      "created_at": "2025-09-07T01:43:26.340878Z",
+      "updated_at": "",
+      "task_count": 8,
+      "total_annotations": 8,
+      "finished_task_count": 8
+    },
+    {
+      "id": 902,
+      "title": "法律法规_65-国家矿山安全监察局",
+      "description": "基于65-国家矿山安全监察局.txt的文本命名实体提取项目，自动创建于2025-09-07 09:43:14",
+      "created_at": "2025-09-07T01:43:14.487334Z",
+      "updated_at": "",
+      "task_count": 28,
+      "total_annotations": 28,
+      "finished_task_count": 28
+    },
+    {
+      "id": 901,
+      "title": "法律法规_64-全国洪水作业预报工作管理办法",
+      "description": "基于64-全国洪水作业预报工作管理办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:43:02",
+      "created_at": "2025-09-07T01:43:02.646308Z",
+      "updated_at": "",
+      "task_count": 38,
+      "total_annotations": 38,
+      "finished_task_count": 38
+    },
+    {
+      "id": 900,
+      "title": "法律法规_63-太湖流域启动防汛I级",
+      "description": "基于63-太湖流域启动防汛I级.txt的文本命名实体提取项目，自动创建于2025-09-07 09:42:50",
+      "created_at": "2025-09-07T01:42:50.820189Z",
+      "updated_at": "",
+      "task_count": 4,
+      "total_annotations": 4,
+      "finished_task_count": 4
+    },
+    {
+      "id": 899,
+      "title": "法律法规_62-关于做好漳卫河洪水防御工作的通知",
+      "description": "基于62-关于做好漳卫河洪水防御工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:42:38",
+      "created_at": "2025-09-07T01:42:38.999433Z",
+      "updated_at": "",
+      "task_count": 6,
+      "total_annotations": 6,
+      "finished_task_count": 6
+    },
+    {
+      "id": 898,
+      "title": "法律法规_61-青海省人民政府办公厅关于进一步做好洪涝地质灾害防御工作的通知",
+      "description": "基于61-青海省人民政府办公厅关于进一步做好洪涝地质灾害防御工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:42:27",
+      "created_at": "2025-09-07T01:42:27.148331Z",
+      "updated_at": "",
+      "task_count": 13,
+      "total_annotations": 13,
+      "finished_task_count": 13
+    },
+    {
+      "id": 897,
+      "title": "法律法规_60-国务院扶贫办-财政部关于用好财政扶贫资金项目支持克服洪涝地质灾害影响的通知",
+      "description": "基于60-国务院扶贫办-财政部关于用好财政扶贫资金项目支持克服洪涝地质灾害影响的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:42:15",
+      "created_at": "2025-09-07T01:42:15.295837Z",
+      "updated_at": "",
+      "task_count": 10,
+      "total_annotations": 10,
+      "finished_task_count": 10
+    },
+    {
+      "id": 896,
+      "title": "法律法规_59-山东省水利厅关于做好2024年水旱灾害防御工作的通知",
+      "description": "基于59-山东省水利厅关于做好2024年水旱灾害防御工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:42:03",
+      "created_at": "2025-09-07T01:42:03.420740Z",
+      "updated_at": "",
+      "task_count": 25,
+      "total_annotations": 25,
+      "finished_task_count": 25
+    },
+    {
+      "id": 895,
+      "title": "法律法规_58-蓄滞洪区运用补偿办法",
+      "description": "基于58-蓄滞洪区运用补偿办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:41:51",
+      "created_at": "2025-09-07T01:41:51.556196Z",
+      "updated_at": "",
+      "task_count": 58,
+      "total_annotations": 58,
+      "finished_task_count": 58
+    },
+    {
+      "id": 894,
+      "title": "法律法规_57-国家中医药管理局办公室关于在洪涝灾害疾病防治中充分发挥中医药作用的通知",
+      "description": "基于57-国家中医药管理局办公室关于在洪涝灾害疾病防治中充分发挥中医药作用的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:41:39",
+      "created_at": "2025-09-07T01:41:39.696907Z",
+      "updated_at": "",
+      "task_count": 8,
+      "total_annotations": 8,
+      "finished_task_count": 8
+    },
+    {
+      "id": 893,
+      "title": "法律法规_56-国家林业局办公室关于切实做好洪涝灾害林业灾后恢复重建工作的通知",
+      "description": "基于56-国家林业局办公室关于切实做好洪涝灾害林业灾后恢复重建工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:41:27",
+      "created_at": "2025-09-07T01:41:27.854605Z",
+      "updated_at": "",
+      "task_count": 12,
+      "total_annotations": 12,
+      "finished_task_count": 12
+    },
+    {
+      "id": 892,
+      "title": "法律法规_55-农业部办公厅关于切实做好洪涝灾区动物防疫工作的紧急通知",
+      "description": "基于55-农业部办公厅关于切实做好洪涝灾区动物防疫工作的紧急通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:41:16",
+      "created_at": "2025-09-07T01:41:16.035047Z",
+      "updated_at": "",
+      "task_count": 8,
+      "total_annotations": 8,
+      "finished_task_count": 8
+    },
+    {
+      "id": 891,
+      "title": "法律法规_54-国家卫生计生委办公厅关于印发洪涝灾害后卫生防疫有关方案的通知",
+      "description": "基于54-国家卫生计生委办公厅关于印发洪涝灾害后卫生防疫有关方案的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:41:04",
+      "created_at": "2025-09-07T01:41:04.222516Z",
+      "updated_at": "",
+      "task_count": 7,
+      "total_annotations": 7,
+      "finished_task_count": 7
+    },
+    {
+      "id": 890,
+      "title": "法律法规_53-洪涝灾害动物疫病防控技术指南",
+      "description": "基于53-洪涝灾害动物疫病防控技术指南.txt的文本命名实体提取项目，自动创建于2025-09-07 09:40:52",
+      "created_at": "2025-09-07T01:40:52.257839Z",
+      "updated_at": "",
+      "task_count": 162,
+      "total_annotations": 143,
+      "finished_task_count": 143
+    },
+    {
+      "id": 889,
+      "title": "法律法规_52-中国银保监会办公厅关于做好洪涝地质灾害应急应对及灾后重建金融支持工作的通知",
+      "description": "基于52-中国银保监会办公厅关于做好洪涝地质灾害应急应对及灾后重建金融支持工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:40:40",
+      "created_at": "2025-09-07T01:40:40.393959Z",
+      "updated_at": "",
+      "task_count": 45,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 888,
+      "title": "法律法规_51-国家卫生健康委关于发布推荐性卫生行业标准《洪涝灾区预防性消毒技术规范》的通",
+      "description": "基于51-国家卫生健康委关于发布推荐性卫生行业标准《洪涝灾区预防性消毒技术规范》的通.txt的文本命名实体提取项目，自动创建于2025-09-07 09:40:28",
+      "created_at": "2025-09-07T01:40:28.554640Z",
+      "updated_at": "",
+      "task_count": 10,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 887,
+      "title": "法律法规_50-住房和城乡建设部办公厅-国务院扶贫办综合司关于做好因洪涝地质灾害影响贫困农",
+      "description": "基于50-住房和城乡建设部办公厅-国务院扶贫办综合司关于做好因洪涝地质灾害影响贫困农.txt的文本命名实体提取项目，自动创建于2025-09-07 09:40:16",
+      "created_at": "2025-09-07T01:40:16.568329Z",
+      "updated_at": "",
+      "task_count": 20,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 886,
+      "title": "法律法规_49-国务院扶贫办-财政部关于用好财政扶贫资金项目支持克服洪涝地质灾害影响的通知",
+      "description": "基于49-国务院扶贫办-财政部关于用好财政扶贫资金项目支持克服洪涝地质灾害影响的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:40:04",
+      "created_at": "2025-09-07T01:40:04.728629Z",
+      "updated_at": "",
+      "task_count": 13,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 885,
+      "title": "法律法规_48-中国银保监会办公厅关于做好金融支持洪涝灾害灾后恢复重建工作的通知",
+      "description": "基于48-中国银保监会办公厅关于做好金融支持洪涝灾害灾后恢复重建工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:39:52",
+      "created_at": "2025-09-07T01:39:52.903701Z",
+      "updated_at": "",
+      "task_count": 24,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 884,
+      "title": "法律法规_47-洪涝灾区预防性消毒指引-2021年",
+      "description": "基于47-洪涝灾区预防性消毒指引-2021年.txt的文本命名实体提取项目，自动创建于2025-09-07 09:39:41",
+      "created_at": "2025-09-07T01:39:41.076212Z",
+      "updated_at": "",
+      "task_count": 26,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 883,
+      "title": "法律法规_46-农业农村部畜牧兽医局关于印发《洪涝灾害灾后动物防疫技术指南》的通知",
+      "description": "基于46-农业农村部畜牧兽医局关于印发《洪涝灾害灾后动物防疫技术指南》的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:39:29",
+      "created_at": "2025-09-07T01:39:29.211096Z",
+      "updated_at": "",
+      "task_count": 36,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 882,
+      "title": "法律法规_45-财政部关于下达支持河南省洪涝灾害灾后恢复重建补助资金预算的通知",
+      "description": "基于45-财政部关于下达支持河南省洪涝灾害灾后恢复重建补助资金预算的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:39:17",
+      "created_at": "2025-09-07T01:39:17.366149Z",
+      "updated_at": "",
+      "task_count": 7,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 881,
+      "title": "法律法规_44-国家乡村振兴局综合司-财政部办公厅关于防范洪涝灾害切实防止返贫致贫的通知",
+      "description": "基于44-国家乡村振兴局综合司-财政部办公厅关于防范洪涝灾害切实防止返贫致贫的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:39:05",
+      "created_at": "2025-09-07T01:39:05.534757Z",
+      "updated_at": "",
+      "task_count": 15,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 880,
+      "title": "法律法规_43-财政部关于下达2021年河南-四川-山西-浙江省暴雨台风洪涝灾害灾后恢复重",
+      "description": "基于43-财政部关于下达2021年河南-四川-山西-浙江省暴雨台风洪涝灾害灾后恢复重.txt的文本命名实体提取项目，自动创建于2025-09-07 09:38:53",
+      "created_at": "2025-09-07T01:38:53.686453Z",
+      "updated_at": "",
+      "task_count": 31,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 879,
+      "title": "法律法规_42-住房和城乡建设部办公厅关于印发《洪涝灾害农村住房安全应急预案-暂行-》和《",
+      "description": "基于42-住房和城乡建设部办公厅关于印发《洪涝灾害农村住房安全应急预案-暂行-》和《.txt的文本命名实体提取项目，自动创建于2025-09-07 09:38:41",
+      "created_at": "2025-09-07T01:38:41.792209Z",
+      "updated_at": "",
+      "task_count": 78,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 878,
+      "title": "法律法规_41-财政部关于下达2021年支持河南省洪涝灾害灾后恢复重建补助资金预算的通知",
+      "description": "基于41-财政部关于下达2021年支持河南省洪涝灾害灾后恢复重建补助资金预算的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:38:29",
+      "created_at": "2025-09-07T01:38:29.957673Z",
+      "updated_at": "",
+      "task_count": 6,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 877,
+      "title": "法律法规_40-财政部关于下达2021年中央自然灾害救灾资金预算-洪涝灾害-的通知",
+      "description": "基于40-财政部关于下达2021年中央自然灾害救灾资金预算-洪涝灾害-的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:38:18",
+      "created_at": "2025-09-07T01:38:18.109785Z",
+      "updated_at": "",
+      "task_count": 8,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 876,
+      "title": "法律法规_39-财政部关于下达2021年河南郑州等地特大暴雨洪涝灾害灾后恢复重建中央基建投",
+      "description": "基于39-财政部关于下达2021年河南郑州等地特大暴雨洪涝灾害灾后恢复重建中央基建投.txt的文本命名实体提取项目，自动创建于2025-09-07 09:38:06",
+      "created_at": "2025-09-07T01:38:06.243681Z",
+      "updated_at": "",
+      "task_count": 7,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 875,
+      "title": "法律法规_38-财政部关于下达2021年河北-山西-湖北-陕西省暴雨洪涝灾害及四川省地震灾",
+      "description": "基于38-财政部关于下达2021年河北-山西-湖北-陕西省暴雨洪涝灾害及四川省地震灾.txt的文本命名实体提取项目，自动创建于2025-09-07 09:37:54",
+      "created_at": "2025-09-07T01:37:54.427113Z",
+      "updated_at": "",
+      "task_count": 6,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 874,
+      "title": "法律法规_37-国家文物局关于黄埔军校旧址保护范围内洪涝综合治理应急抢险工程设计方案的批复",
+      "description": "基于37-国家文物局关于黄埔军校旧址保护范围内洪涝综合治理应急抢险工程设计方案的批复.txt的文本命名实体提取项目，自动创建于2025-09-07 09:37:42",
+      "created_at": "2025-09-07T01:37:42.605526Z",
+      "updated_at": "",
+      "task_count": 8,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 873,
+      "title": "法律法规_36-洪涝灾区环境卫生处置与预防性消毒指引-2023版",
+      "description": "基于36-洪涝灾区环境卫生处置与预防性消毒指引-2023版.txt的文本命名实体提取项目，自动创建于2025-09-07 09:37:30",
+      "created_at": "2025-09-07T01:37:30.677998Z",
+      "updated_at": "",
+      "task_count": 98,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 872,
+      "title": "法律法规_35-云南省防洪条例",
+      "description": "基于35-云南省防洪条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:37:18",
+      "created_at": "2025-09-07T01:37:18.792836Z",
+      "updated_at": "",
+      "task_count": 63,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 871,
+      "title": "法律法规_34-江苏省防洪条例",
+      "description": "基于34-江苏省防洪条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:37:06",
+      "created_at": "2025-09-07T01:37:06.905935Z",
+      "updated_at": "",
+      "task_count": 95,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 870,
+      "title": "法律法规_33-江西省实施《中华人民共和国防洪法》办法",
+      "description": "基于33-江西省实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:36:54",
+      "created_at": "2025-09-07T01:36:54.990912Z",
+      "updated_at": "",
+      "task_count": 144,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 869,
+      "title": "法律法规_32-甘肃省实施《中华人民共和国防洪法》办法",
+      "description": "基于32-甘肃省实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:36:43",
+      "created_at": "2025-09-07T01:36:43.096599Z",
+      "updated_at": "",
+      "task_count": 94,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 868,
+      "title": "法律法规_31-新疆维吾尔族自治区实施《中华人民共和国防洪法》办法",
+      "description": "基于31-新疆维吾尔族自治区实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:36:31",
+      "created_at": "2025-09-07T01:36:31.145711Z",
+      "updated_at": "",
+      "task_count": 103,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 867,
+      "title": "法律法规_30-苏州市长江防洪工程管理条例",
+      "description": "基于30-苏州市长江防洪工程管理条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:36:19",
+      "created_at": "2025-09-07T01:36:19.287900Z",
+      "updated_at": "",
+      "task_count": 36,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 866,
+      "title": "法律法规_29-河北省实施《中华人民共和国防洪法》办法",
+      "description": "基于29-河北省实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:36:07",
+      "created_at": "2025-09-07T01:36:07.365958Z",
+      "updated_at": "",
+      "task_count": 124,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 865,
+      "title": "法律法规_28-广西壮族自治区实施《中华人民共和国防洪法》办法",
+      "description": "基于28-广西壮族自治区实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:35:55",
+      "created_at": "2025-09-07T01:35:55.480004Z",
+      "updated_at": "",
+      "task_count": 54,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 864,
+      "title": "法律法规_27-安徽省实行《中华人民共和国防洪法》办法",
+      "description": "基于27-安徽省实行《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:35:43",
+      "created_at": "2025-09-07T01:35:43.537338Z",
+      "updated_at": "",
+      "task_count": 133,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 863,
+      "title": "法律法规_26-甘肃省实施《中华人民共和国防洪法》办法",
+      "description": "基于26-甘肃省实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:35:31",
+      "created_at": "2025-09-07T01:35:31.599143Z",
+      "updated_at": "",
+      "task_count": 121,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 862,
+      "title": "法律法规_25-福州市河道防洪岸线管理若干规定",
+      "description": "基于25-福州市河道防洪岸线管理若干规定.txt的文本命名实体提取项目，自动创建于2025-09-07 09:35:19",
+      "created_at": "2025-09-07T01:35:19.754151Z",
+      "updated_at": "",
+      "task_count": 40,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 861,
+      "title": "法律法规_24-山东省实施《中华人民共和国防洪法》办法",
+      "description": "基于24-山东省实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:35:07",
+      "created_at": "2025-09-07T01:35:07.849788Z",
+      "updated_at": "",
+      "task_count": 112,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 860,
+      "title": "法律法规_23-西藏自治区实施《中华人民共和国防洪法》办法",
+      "description": "基于23-西藏自治区实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:34:55",
+      "created_at": "2025-09-07T01:34:55.989803Z",
+      "updated_at": "",
+      "task_count": 61,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 859,
+      "title": "法律法规_22-内蒙古自治区实施《中华人民共和国防洪法》办法",
+      "description": "基于22-内蒙古自治区实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:34:44",
+      "created_at": "2025-09-07T01:34:44.072330Z",
+      "updated_at": "",
+      "task_count": 95,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 858,
+      "title": "法律法规_21-湖北省实施《中华人民共和国防洪法》办法",
+      "description": "基于21-湖北省实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:34:32",
+      "created_at": "2025-09-07T01:34:32.168250Z",
+      "updated_at": "",
+      "task_count": 101,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 857,
+      "title": "法律法规_20-南昌市城市防洪条例",
+      "description": "基于20-南昌市城市防洪条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:34:20",
+      "created_at": "2025-09-07T01:34:20.246966Z",
+      "updated_at": "",
+      "task_count": 126,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 856,
+      "title": "法律法规_19-福建省防洪条例",
+      "description": "基于19-福建省防洪条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:34:08",
+      "created_at": "2025-09-07T01:34:08.328090Z",
+      "updated_at": "",
+      "task_count": 121,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 855,
+      "title": "法律法规_18-天津市防洪抗旱条例",
+      "description": "基于18-天津市防洪抗旱条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:33:56",
+      "created_at": "2025-09-07T01:33:56.419776Z",
+      "updated_at": "",
+      "task_count": 103,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 854,
+      "title": "法律法规_17-辽宁省实施《中华人民共和国防洪法》办法",
+      "description": "基于17-辽宁省实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:33:44",
+      "created_at": "2025-09-07T01:33:44.375427Z",
+      "updated_at": "",
+      "task_count": 96,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 853,
+      "title": "法律法规_16-南平市城市防洪排涝管理办法",
+      "description": "基于16-南平市城市防洪排涝管理办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:33:32",
+      "created_at": "2025-09-07T01:33:32.478738Z",
+      "updated_at": "",
+      "task_count": 98,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 852,
+      "title": "法律法规_15-北京市实施《中华人民共和国防洪法》办法",
+      "description": "基于15-北京市实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:33:20",
+      "created_at": "2025-09-07T01:33:20.600551Z",
+      "updated_at": "",
+      "task_count": 103,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 851,
+      "title": "法律法规_14-河南省实施《中华人民共和国",
+      "description": "基于14-河南省实施《中华人民共和国.txt的文本命名实体提取项目，自动创建于2025-09-07 09:33:08",
+      "created_at": "2025-09-07T01:33:08.692406Z",
+      "updated_at": "",
+      "task_count": 121,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 850,
+      "title": "法律法规_13-湖南省实施《中华人民共和国防洪法》办法",
+      "description": "基于13-湖南省实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:32:56",
+      "created_at": "2025-09-07T01:32:56.818952Z",
+      "updated_at": "",
+      "task_count": 64,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 849,
+      "title": "法律法规_12-四川省《中华人民共和国防洪法》实施办法",
+      "description": "基于12-四川省《中华人民共和国防洪法》实施办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:32:44",
+      "created_at": "2025-09-07T01:32:44.917692Z",
+      "updated_at": "",
+      "task_count": 72,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 848,
+      "title": "法律法规_11-黑龙江省实施《中华人民共和国防洪法》条例",
+      "description": "基于11-黑龙江省实施《中华人民共和国防洪法》条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:32:33",
+      "created_at": "2025-09-07T01:32:33.060663Z",
+      "updated_at": "",
+      "task_count": 81,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 847,
+      "title": "法律法规_101-安徽省人民政府关于印发《安徽省淮河行蓄洪区基础设施建设总体规划-2018",
+      "description": "基于101-安徽省人民政府关于印发《安徽省淮河行蓄洪区基础设施建设总体规划-2018.txt的文本命名实体提取项目，自动创建于2025-09-07 09:32:21",
+      "created_at": "2025-09-07T01:32:21.163838Z",
+      "updated_at": "",
+      "task_count": 66,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 846,
+      "title": "法律法规_100-上海市水务局关于做好2019年本市在建水务海洋工程安全度汛工作的通知",
+      "description": "基于100-上海市水务局关于做好2019年本市在建水务海洋工程安全度汛工作的通知.txt的文本命名实体提取项目，自动创建于2025-09-07 09:32:09",
+      "created_at": "2025-09-07T01:32:09.321985Z",
+      "updated_at": "",
+      "task_count": 11,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 845,
+      "title": "法律法规_10-吉林市防洪条例",
+      "description": "基于10-吉林市防洪条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:31:57",
+      "created_at": "2025-09-07T01:31:57.422915Z",
+      "updated_at": "",
+      "task_count": 77,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 844,
+      "title": "法律法规_09-邯郸市防洪条例",
+      "description": "基于09-邯郸市防洪条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:31:45",
+      "created_at": "2025-09-07T01:31:45.603929Z",
+      "updated_at": "",
+      "task_count": 1,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 843,
+      "title": "法律法规_08-吉林省防洪条例",
+      "description": "基于08-吉林省防洪条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:31:33",
+      "created_at": "2025-09-07T01:31:33.557809Z",
+      "updated_at": "",
+      "task_count": 233,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 842,
+      "title": "法律法规_07-贵州省防洪条例",
+      "description": "基于07-贵州省防洪条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:31:21",
+      "created_at": "2025-09-07T01:31:21.633820Z",
+      "updated_at": "",
+      "task_count": 115,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 841,
+      "title": "法律法规_06-南京市防洪堤管理条例",
+      "description": "基于06-南京市防洪堤管理条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:31:09",
+      "created_at": "2025-09-07T01:31:09.709753Z",
+      "updated_at": "",
+      "task_count": 68,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 840,
+      "title": "法律法规_05-武汉市防洪管理规定",
+      "description": "基于05-武汉市防洪管理规定.txt的文本命名实体提取项目，自动创建于2025-09-07 09:30:57",
+      "created_at": "2025-09-07T01:30:57.855587Z",
+      "updated_at": "",
+      "task_count": 56,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 839,
+      "title": "法律法规_04-宁波市防洪条例",
+      "description": "基于04-宁波市防洪条例.txt的文本命名实体提取项目，自动创建于2025-09-07 09:30:45",
+      "created_at": "2025-09-07T01:30:46.011153Z",
+      "updated_at": "",
+      "task_count": 63,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 838,
+      "title": "法律法规_03-蓄滞洪区运用补偿办法",
+      "description": "基于03-蓄滞洪区运用补偿办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:30:34",
+      "created_at": "2025-09-07T01:30:34.108572Z",
+      "updated_at": "",
+      "task_count": 55,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 837,
+      "title": "法律法规_02-陕西省实施《中华人民共和国防洪法》办法",
+      "description": "基于02-陕西省实施《中华人民共和国防洪法》办法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:30:22",
+      "created_at": "2025-09-07T01:30:22.182366Z",
+      "updated_at": "",
+      "task_count": 86,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 836,
+      "title": "法律法规_01-中华人民共和国防洪法",
+      "description": "基于01-中华人民共和国防洪法.txt的文本命名实体提取项目，自动创建于2025-09-07 09:30:10",
+      "created_at": "2025-09-07T01:30:10.219270Z",
+      "updated_at": "",
+      "task_count": 140,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 835,
+      "title": "应急预案_30-新疆维吾尔自治区自然灾害救助应急预案",
+      "description": "基于30-新疆维吾尔自治区自然灾害救助应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:29:58",
+      "created_at": "2025-09-07T01:29:58.204402Z",
+      "updated_at": "",
+      "task_count": 215,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 834,
+      "title": "应急预案_29-宁夏回族自治区防汛抗旱应急预案",
+      "description": "基于29-宁夏回族自治区防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:29:46",
+      "created_at": "2025-09-07T01:29:46.294688Z",
+      "updated_at": "",
+      "task_count": 130,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 833,
+      "title": "应急预案_28-青海省防汛抗洪应急预案",
+      "description": "基于28-青海省防汛抗洪应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:29:34",
+      "created_at": "2025-09-07T01:29:34.282199Z",
+      "updated_at": "",
+      "task_count": 272,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 832,
+      "title": "应急预案_27-甘肃省防汛抗洪应急预案",
+      "description": "基于27-甘肃省防汛抗洪应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:29:22",
+      "created_at": "2025-09-07T01:29:22.328247Z",
+      "updated_at": "",
+      "task_count": 191,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 831,
+      "title": "应急预案_26-陕西省防汛应急预案",
+      "description": "基于26-陕西省防汛应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:29:10",
+      "created_at": "2025-09-07T01:29:10.093697Z",
+      "updated_at": "",
+      "task_count": 322,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 830,
+      "title": "应急预案_25-云南省防汛抗旱应急预案简本",
+      "description": "基于25-云南省防汛抗旱应急预案简本.txt的文本命名实体提取项目，自动创建于2025-09-07 09:28:58",
+      "created_at": "2025-09-07T01:28:58.147910Z",
+      "updated_at": "",
+      "task_count": 132,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 829,
+      "title": "应急预案_24-贵州省防汛抗旱应急预案",
+      "description": "基于24-贵州省防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:28:46",
+      "created_at": "2025-09-07T01:28:46.195548Z",
+      "updated_at": "",
+      "task_count": 87,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 828,
+      "title": "应急预案_23-四川省防汛抗旱应急预案",
+      "description": "基于23-四川省防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:28:34",
+      "created_at": "2025-09-07T01:28:34.352852Z",
+      "updated_at": "",
+      "task_count": 25,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 827,
+      "title": "应急预案_22-重庆市防汛抗旱应急预案",
+      "description": "基于22-重庆市防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:28:22",
+      "created_at": "2025-09-07T01:28:22.514000Z",
+      "updated_at": "",
+      "task_count": 29,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 826,
+      "title": "应急预案_21-海南省防汛防风抗旱应急预案",
+      "description": "基于21-海南省防汛防风抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:28:10",
+      "created_at": "2025-09-07T01:28:10.380512Z",
+      "updated_at": "",
+      "task_count": 405,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 825,
+      "title": "应急预案_20-广西防汛抗旱应急预案",
+      "description": "基于20-广西防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:27:58",
+      "created_at": "2025-09-07T01:27:58.300472Z",
+      "updated_at": "",
+      "task_count": 356,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 824,
+      "title": "应急预案_19-广东省防汛防旱防风防冻应急预案",
+      "description": "基于19-广东省防汛防旱防风防冻应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:27:45",
+      "created_at": "2025-09-07T01:27:45.902811Z",
+      "updated_at": "",
+      "task_count": 742,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 823,
+      "title": "应急预案_18-湖南省防汛应急预案",
+      "description": "基于18-湖南省防汛应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:27:33",
+      "created_at": "2025-09-07T01:27:33.936002Z",
+      "updated_at": "",
+      "task_count": 166,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 822,
+      "title": "应急预案_17-湖北省防汛抗旱应急预案",
+      "description": "基于17-湖北省防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:27:21",
+      "created_at": "2025-09-07T01:27:21.760788Z",
+      "updated_at": "",
+      "task_count": 457,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 821,
+      "title": "应急预案_16-河南省防汛应急预案",
+      "description": "基于16-河南省防汛应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:27:09",
+      "created_at": "2025-09-07T01:27:09.772810Z",
+      "updated_at": "",
+      "task_count": 244,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 820,
+      "title": "应急预案_15-山东省防汛抗旱应急预案",
+      "description": "基于15-山东省防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:26:57",
+      "created_at": "2025-09-07T01:26:57.691256Z",
+      "updated_at": "",
+      "task_count": 279,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 819,
+      "title": "应急预案_14-江西省防汛抗旱应急预案",
+      "description": "基于14-江西省防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:26:45",
+      "created_at": "2025-09-07T01:26:45.842132Z",
+      "updated_at": "",
+      "task_count": 46,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 818,
+      "title": "应急预案_13-福建省防汛抗旱防台风应急预案-简本",
+      "description": "基于13-福建省防汛抗旱防台风应急预案-简本.txt的文本命名实体提取项目，自动创建于2025-09-07 09:26:33",
+      "created_at": "2025-09-07T01:26:33.747007Z",
+      "updated_at": "",
+      "task_count": 337,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 817,
+      "title": "应急预案_12-安徽省防汛抗旱应急预案",
+      "description": "基于12-安徽省防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:26:21",
+      "created_at": "2025-09-07T01:26:21.633091Z",
+      "updated_at": "",
+      "task_count": 361,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 816,
+      "title": "应急预案_11-浙江省防汛防台抗旱应急预案",
+      "description": "基于11-浙江省防汛防台抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:26:09",
+      "created_at": "2025-09-07T01:26:09.810652Z",
+      "updated_at": "",
+      "task_count": 15,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 815,
+      "title": "应急预案_10-江苏省自然灾害救助应急预案",
+      "description": "基于10-江苏省自然灾害救助应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:25:57",
+      "created_at": "2025-09-07T01:25:57.632542Z",
+      "updated_at": "",
+      "task_count": 233,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 814,
+      "title": "应急预案_09-黑龙江省防汛应急预案",
+      "description": "基于09-黑龙江省防汛应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:25:45",
+      "created_at": "2025-09-07T01:25:45.246084Z",
+      "updated_at": "",
+      "task_count": 723,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 813,
+      "title": "应急预案_09-上海市自然灾害救助应急预案",
+      "description": "基于09-上海市自然灾害救助应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:25:33",
+      "created_at": "2025-09-07T01:25:33.351915Z",
+      "updated_at": "",
+      "task_count": 88,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 812,
+      "title": "应急预案_08-吉林省防汛抗台风应急预案",
+      "description": "基于08-吉林省防汛抗台风应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:25:21",
+      "created_at": "2025-09-07T01:25:21.514772Z",
+      "updated_at": "",
+      "task_count": 15,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 811,
+      "title": "应急预案_07-内蒙古自治区防汛抗旱应急预案",
+      "description": "基于07-内蒙古自治区防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:25:09",
+      "created_at": "2025-09-07T01:25:09.674214Z",
+      "updated_at": "",
+      "task_count": 2,
+      "total_annotations": 0,
+      "finished_task_count": 0
+    },
+    {
+      "id": 810,
+      "title": "应急预案_06-山西省防汛抗旱应急预案",
+      "description": "基于06-山西省防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:24:57",
+      "created_at": "2025-09-07T01:24:57.519733Z",
+      "updated_at": "",
+      "task_count": 460,
+      "total_annotations": 200,
+      "finished_task_count": 200
+    },
+    {
+      "id": 809,
+      "title": "应急预案_05-河北省自然灾害救助应急预案",
+      "description": "基于05-河北省自然灾害救助应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:24:45",
+      "created_at": "2025-09-07T01:24:45.553112Z",
+      "updated_at": "",
+      "task_count": 172,
+      "total_annotations": 172,
+      "finished_task_count": 172
+    },
+    {
+      "id": 808,
+      "title": "应急预案_04-天津市自然灾害救助应急预案",
+      "description": "基于04-天津市自然灾害救助应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:24:33",
+      "created_at": "2025-09-07T01:24:33.696725Z",
+      "updated_at": "",
+      "task_count": 45,
+      "total_annotations": 45,
+      "finished_task_count": 45
+    },
+    {
+      "id": 807,
+      "title": "应急预案_03-北京市防汛应急预案-2025年修订",
+      "description": "基于03-北京市防汛应急预案-2025年修订.txt的文本命名实体提取项目，自动创建于2025-09-07 09:24:21",
+      "created_at": "2025-09-07T01:24:21.436828Z",
+      "updated_at": "",
+      "task_count": 551,
+      "total_annotations": 551,
+      "finished_task_count": 551
+    },
+    {
+      "id": 806,
+      "title": "应急预案_02-国家防汛抗旱应急预案",
+      "description": "基于02-国家防汛抗旱应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:24:09",
+      "created_at": "2025-09-07T01:24:09.635134Z",
+      "updated_at": "",
+      "task_count": 4,
+      "total_annotations": 4,
+      "finished_task_count": 4
+    },
+    {
+      "id": 805,
+      "title": "应急预案_01-国家自然灾害救助应急预案",
+      "description": "基于01-国家自然灾害救助应急预案.txt的文本命名实体提取项目，自动创建于2025-09-07 09:23:57",
+      "created_at": "2025-09-07T01:23:57.666141Z",
+      "updated_at": "",
+      "task_count": 191,
+      "total_annotations": 189,
+      "finished_task_count": 189
+    },
+    {
+      "id": 804,
+      "title": "事故信息_99-2022年上半年全国自然灾害情况-洪涝",
+      "description": "基于99-2022年上半年全国自然灾害情况-洪涝.txt的文本命名实体提取项目，自动创建于2025-09-07 09:23:45",
+      "created_at": "2025-09-07T01:23:45.820559Z",
+      "updated_at": "",
+      "task_count": 5,
+      "total_annotations": 5,
+      "finished_task_count": 5
+    },
+    {
+      "id": 803,
+      "title": "事故信息_98-2022年7月份全国自然灾害情况-洪涝",
+      "description": "基于98-2022年7月份全国自然灾害情况-洪涝.txt的文本命名实体提取项目，自动创建于2025-09-07 09:23:33",
+      "created_at": "2025-09-07T01:23:33.989812Z",
+      "updated_at": "",
+      "task_count": 3,
+      "total_annotations": 3,
+      "finished_task_count": 3
+    },
+    {
+      "id": 802,
+      "title": "事故信息_97-2022年8月全国自然灾害情况-洪涝",
+      "description": "基于97-2022年8月全国自然灾害情况-洪涝.txt的文本命名实体提取项目，自动创建于2025-09-07 09:23:22",
+      "created_at": "2025-09-07T01:23:22.169647Z",
+      "updated_at": "",
+      "task_count": 3,
+      "total_annotations": 3,
+      "finished_task_count": 3
+    },
+    {
+      "id": 801,
+      "title": "事故信息_96-2022年前三季度全国自然灾害情况-洪涝",
+      "description": "基于96-2022年前三季度全国自然灾害情况-洪涝.txt的文本命名实体提取项目，自动创建于2025-09-07 09:23:10",
+      "created_at": "2025-09-07T01:23:10.315051Z",
+      "updated_at": "",
+      "task_count": 3,
+      "total_annotations": 3,
+      "finished_task_count": 3
+    }
+  ]
+}

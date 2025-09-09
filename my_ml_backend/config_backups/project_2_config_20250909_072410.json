@@ -1,0 +1,125 @@
+{
+  "project_id": 2,
+  "backup_time": "2025-09-09T07:24:10.237716",
+  "project_title": "中文文本表示01",
+  "original_config": "<View>\n  \n\n  <View style=\"display:flex;align-items:start;gap:8px;flex-direction:column-reverse\"><Text name=\"text\" value=\"$text\"/><Labels name=\"label\" toName=\"text\" showInline=\"true\">\n    <Label value=\"PER\" background=\"red\"/>\n    <Label value=\"ORG\" background=\"darkorange\"/>\n    <Label value=\"LOC\" background=\"orange\"/>\n    <Label value=\"MISC\" background=\"green\"/>\n  <Label value=\"人名\" background=\"#FFA39E\"/><Label value=\"地址\" background=\"#D4380D\"/><Label value=\"时间\" background=\"#FFC069\"/></Labels></View>\n</View>",
+  "project_info": {
+    "id": 2,
+    "title": "中文文本表示01",
+    "description": "描述-1",
+    "label_config": "<View>\n  \n\n  <View style=\"display:flex;align-items:start;gap:8px;flex-direction:column-reverse\"><Text name=\"text\" value=\"$text\"/><Labels name=\"label\" toName=\"text\" showInline=\"true\">\n    <Label value=\"PER\" background=\"red\"/>\n    <Label value=\"ORG\" background=\"darkorange\"/>\n    <Label value=\"LOC\" background=\"orange\"/>\n    <Label value=\"MISC\" background=\"green\"/>\n  <Label value=\"人名\" background=\"#FFA39E\"/><Label value=\"地址\" background=\"#D4380D\"/><Label value=\"时间\" background=\"#FFC069\"/></Labels></View>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 1,
+      "first_name": "",
+      "last_name": "",
+      "email": "8466850@qq.com",
+      "avatar": null
+    },
+    "created_at": "2025-06-02T01:54:06.231069Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 1,
+    "task_number": 1587,
+    "useful_annotation_number": 1,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 1,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "label": {
+        "overall": 1.0,
+        "type": "Labels",
+        "labels": {
+          "PER": 1.0,
+          "ORG": 1.0,
+          "LOC": 1.0,
+          "MISC": 1.0,
+          "人名": 1.0,
+          "地址": 1.0,
+          "时间": 1.0
+        }
+      }
+    },
+    "parsed_label_config": {
+      "label": {
+        "type": "Labels",
+        "to_name": [
+          "text"
+        ],
+        "inputs": [
+          {
+            "type": "Text",
+            "valueType": null,
+            "value": "text"
+          }
+        ],
+        "labels": [
+          "PER",
+          "ORG",
+          "LOC",
+          "MISC",
+          "人名",
+          "地址",
+          "时间"
+        ],
+        "labels_attrs": {
+          "PER": {
+            "value": "PER",
+            "background": "red"
+          },
+          "ORG": {
+            "value": "ORG",
+            "background": "darkorange"
+          },
+          "LOC": {
+            "value": "LOC",
+            "background": "orange"
+          },
+          "MISC": {
+            "value": "MISC",
+            "background": "green"
+          },
+          "人名": {
+            "value": "人名",
+            "background": "#FFA39E"
+          },
+          "地址": {
+            "value": "地址",
+            "background": "#D4380D"
+          },
+          "时间": {
+            "value": "时间",
+            "background": "#FFC069"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 1,
+    "queue_total": 1587,
+    "queue_done": 1,
+    "config_suitable_for_bulk_annotation": false
+  }
+}

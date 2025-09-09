@@ -1,0 +1,119 @@
+{
+  "project_id": 3,
+  "backup_time": "2025-09-09T07:24:15.373152",
+  "project_title": "文本标注02",
+  "original_config": "<View>\n  <Labels name=\"label\" toName=\"text\">\n    <Label value=\"PER\" background=\"#ea1010\"/>\n    <Label value=\"ORG\" background=\"#00ff9d\"/>\n    <Label value=\"LOC\" background=\"#3300ff\"/>\n    \n  <Label value=\"EVENT\" background=\"#072f5a\"/><Label value=\"QUANTITY\" background=\"#d7b509\"/><Label value=\"TIME\" background=\"#FFC069\"/></Labels>\n\n  <Text name=\"text\" value=\"$text\"/>\n</View>",
+  "project_info": {
+    "id": 3,
+    "title": "文本标注02",
+    "description": "文本标注02，自动化提取",
+    "label_config": "<View>\n  <Labels name=\"label\" toName=\"text\">\n    <Label value=\"PER\" background=\"#ea1010\"/>\n    <Label value=\"ORG\" background=\"#00ff9d\"/>\n    <Label value=\"LOC\" background=\"#3300ff\"/>\n    \n  <Label value=\"EVENT\" background=\"#072f5a\"/><Label value=\"QUANTITY\" background=\"#d7b509\"/><Label value=\"TIME\" background=\"#FFC069\"/></Labels>\n\n  <Text name=\"text\" value=\"$text\"/>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": null,
+    "is_draft": false,
+    "created_by": {
+      "id": 1,
+      "first_name": "",
+      "last_name": "",
+      "email": "8466850@qq.com",
+      "avatar": null
+    },
+    "created_at": "2025-08-03T08:44:59.514005Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 6,
+    "task_number": 13,
+    "useful_annotation_number": 6,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 6,
+    "total_predictions_number": 13,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "label": {
+        "overall": 1.0,
+        "type": "Labels",
+        "labels": {
+          "PER": 1.0,
+          "ORG": 1.0,
+          "LOC": 1.0,
+          "EVENT": 1.0,
+          "QUANTITY": 1.0,
+          "TIME": 1.0
+        }
+      }
+    },
+    "parsed_label_config": {
+      "label": {
+        "type": "Labels",
+        "to_name": [
+          "text"
+        ],
+        "inputs": [
+          {
+            "type": "Text",
+            "valueType": null,
+            "value": "text"
+          }
+        ],
+        "labels": [
+          "PER",
+          "ORG",
+          "LOC",
+          "EVENT",
+          "QUANTITY",
+          "TIME"
+        ],
+        "labels_attrs": {
+          "PER": {
+            "value": "PER",
+            "background": "#ea1010"
+          },
+          "ORG": {
+            "value": "ORG",
+            "background": "#00ff9d"
+          },
+          "LOC": {
+            "value": "LOC",
+            "background": "#3300ff"
+          },
+          "EVENT": {
+            "value": "EVENT",
+            "background": "#072f5a"
+          },
+          "QUANTITY": {
+            "value": "QUANTITY",
+            "background": "#d7b509"
+          },
+          "TIME": {
+            "value": "TIME",
+            "background": "#FFC069"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 6,
+    "queue_total": 13,
+    "queue_done": 6,
+    "config_suitable_for_bulk_annotation": false
+  }
+}

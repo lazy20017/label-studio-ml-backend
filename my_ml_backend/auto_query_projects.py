@@ -2,7 +2,23 @@
 # -*- coding: utf-8 -*-
 """
 Label Studio 项目查询器
-功能：查询并显示Label Studio中所有项目的名称和编号
+功能：
+1. 查询并显示Label Studio中所有项目的名称和编号
+2. 统计指定范围项目的任务完成情况
+3. 计算项目完成率和任务完成率
+4. 批量删除项目
+
+主要统计指标：
+- 项目完成率：完全完成的项目数量占总项目数量的百分比
+- 任务完成率：已完成任务数量占总任务数量的百分比
+- 完成项目数：所有任务都已完成的项目数量
+
+使用方法：
+```bash
+cd label-studio-ml-backend/my_ml_backend
+python auto_query_projects.py
+```
+
 """
 
 import requests
@@ -342,6 +358,181 @@ class LabelStudioProjectQuery:
         formatted_projects = self.format_project_info(raw_projects)
         
         return formatted_projects
+    
+    def get_projects_in_range(self, start_id: int, end_id: int) -> Optional[List[Dict]]:
+        """
+        获取指定ID范围内的项目信息
+        
+        Args:
+            start_id: 起始项目ID（包含）
+            end_id: 结束项目ID（包含）
+            
+        Returns:
+            指定范围内的项目信息列表
+        """
+        try:
+            logger.info(f"📋 查询项目ID范围: {start_id} - {end_id}")
+            
+            # 获取所有项目
+            all_projects = self.get_project_list()
+            if all_projects is None:
+                return None
+            
+            # 筛选指定范围的项目
+            range_projects = [
+                project for project in all_projects 
+                if start_id <= project['id'] <= end_id
+            ]
+            
+            logger.info(f"✅ 找到 {len(range_projects)} 个项目在范围 {start_id}-{end_id} 内")
+            return range_projects
+            
+        except Exception as e:
+            logger.error(f"❌ 查询范围项目异常: {e}")
+            return None
+    
+    def get_task_count_summary(self, start_id: int, end_id: int) -> Optional[Dict]:
+        """
+        获取指定ID范围内的任务数量统计
+        
+        Args:
+            start_id: 起始项目ID（包含）
+            end_id: 结束项目ID（包含）
+            
+        Returns:
+            任务统计信息字典
+        """
+        try:
+            logger.info(f"📊 统计项目ID {start_id}-{end_id} 的任务数量...")
+            
+            # 获取范围内的项目
+            projects = self.get_projects_in_range(start_id, end_id)
+            if projects is None:
+                return None
+            
+            if not projects:
+                logger.warning(f"⚠️ 在范围 {start_id}-{end_id} 内未找到任何项目")
+                return {
+                    'range_start': start_id,
+                    'range_end': end_id,
+                    'project_count': 0,
+                    'completed_projects': 0,
+                    'project_completion_rate': 0.0,
+                    'total_tasks': 0,
+                    'total_finished_tasks': 0,
+                    'total_annotations': 0,
+                    'completion_rate': 0.0,
+                    'projects': []
+                }
+            
+            # 计算统计信息
+            total_tasks = sum(p['task_count'] for p in projects)
+            total_finished = sum(p['finished_task_count'] for p in projects)
+            total_annotations = sum(p['total_annotations'] for p in projects)
+            completion_rate = (total_finished / total_tasks * 100) if total_tasks > 0 else 0.0
+            
+            # 计算完成项目统计率 - 完全完成的项目数量
+            completed_projects = 0
+            for project in projects:
+                if project['task_count'] > 0 and project['finished_task_count'] == project['task_count']:
+                    completed_projects += 1
+            
+            project_completion_rate = (completed_projects / len(projects) * 100) if len(projects) > 0 else 0.0
+            
+            summary = {
+                'range_start': start_id,
+                'range_end': end_id,
+                'project_count': len(projects),
+                'completed_projects': completed_projects,
+                'project_completion_rate': project_completion_rate,
+                'total_tasks': total_tasks,
+                'total_finished_tasks': total_finished,
+                'total_annotations': total_annotations,
+                'completion_rate': completion_rate,
+                'projects': projects
+            }
+            
+            logger.info(f"✅ 统计完成: {len(projects)}个项目，总任务数 {total_tasks}")
+            return summary
+            
+        except Exception as e:
+            logger.error(f"❌ 统计任务数量异常: {e}")
+            return None
+    
+    def display_task_summary(self, summary: Dict) -> None:
+        """
+        显示任务统计信息
+        
+        Args:
+            summary: 任务统计信息字典
+        """
+        if not summary:
+            print("📭 没有找到任何统计数据")
+            return
+        
+        print(f"\n{'='*80}")
+        print(f"📊 项目任务统计报告")
+        print(f"{'='*80}")
+        print(f"🎯 项目ID范围: {summary['range_start']} - {summary['range_end']}")
+        print(f"📁 项目总数: {summary['project_count']} 个")
+        print(f"🏆 完成项目数: {summary['completed_projects']} 个")
+        print(f"📊 项目完成率: {summary['project_completion_rate']:.1f}%")
+        print(f"📋 任务总数: {summary['total_tasks']} 个")
+        print(f"✅ 已完成任务: {summary['total_finished_tasks']} 个")
+        print(f"🏷️ 总标注数: {summary['total_annotations']} 个")
+        print(f"📈 任务完成率: {summary['completion_rate']:.1f}%")
+        print(f"{'='*80}")
+        
+        if summary['projects']:
+            print(f"\n📋 详细项目列表:")
+            print(f"{'ID':<6} {'项目名称':<35} {'任务数':<8} {'完成数':<8} {'完成率':<8}")
+            print(f"{'-'*80}")
+            
+            for project in summary['projects']:
+                # 截断过长的标题
+                title = project['title']
+                if len(title) > 33:
+                    title = title[:30] + "..."
+                
+                # 计算项目完成率
+                proj_completion = (project['finished_task_count'] / project['task_count'] * 100) if project['task_count'] > 0 else 0.0
+                
+                print(f"{project['id']:<6} {title:<35} {project['task_count']:<8} "
+                      f"{project['finished_task_count']:<8} {proj_completion:.1f}%")
+            
+            print(f"{'-'*80}")
+        
+        print(f"\n💡 使用建议:")
+        
+        # 项目完成率分析
+        if summary['project_completion_rate'] == 0:
+            print(f"   🔴 无完成项目，所有项目都需要继续标注")
+        elif summary['project_completion_rate'] < 20:
+            print(f"   ⚠️ 完成项目较少({summary['project_completion_rate']:.1f}%)，建议集中资源完成部分项目")
+        elif summary['project_completion_rate'] < 50:
+            print(f"   🟡 部分项目已完成({summary['project_completion_rate']:.1f}%)，继续推进其他项目")
+        else:
+            print(f"   🟢 大部分项目已完成({summary['project_completion_rate']:.1f}%)，进展良好")
+        
+        # 任务完成率分析
+        if summary['completion_rate'] < 50:
+            print(f"   ⚠️ 任务完成率较低({summary['completion_rate']:.1f}%)，建议加快标注进度")
+        elif summary['completion_rate'] < 80:
+            print(f"   🟡 任务进展良好({summary['completion_rate']:.1f}%)，继续保持")
+        else:
+            print(f"   🟢 任务完成率很高({summary['completion_rate']:.1f}%)，接近完成")
+        
+        # 项目规模分析
+        if summary['total_tasks'] > 1000:
+            print(f"   📊 任务量较大({summary['total_tasks']}个)，建议合理分配资源")
+        
+        # 项目数量和完成状态综合分析
+        if summary['project_count'] > 0:
+            avg_tasks_per_project = summary['total_tasks'] / summary['project_count']
+            if avg_tasks_per_project > 100:
+                print(f"   🎯 平均每项目任务较多({avg_tasks_per_project:.0f}个)，建议优先完成小项目")
+        
+        print(f"{'='*80}\n")
 
 
 def interactive_menu(query: LabelStudioProjectQuery) -> Optional[List[Dict]]:
@@ -359,12 +550,13 @@ def interactive_menu(query: LabelStudioProjectQuery) -> Optional[List[Dict]]:
         print("🚀 Label Studio 项目管理器")
         print("=" * 60)
         print("1. 查看所有项目")
-        print("2. 删除单个项目")
-        print("3. 批量删除项目")
-        print("4. 退出")
+        print("2. 查询项目范围任务统计")
+        print("3. 删除单个项目")
+        print("4. 批量删除项目")
+        print("5. 退出")
         print("-" * 60)
         
-        choice = input("请选择操作 (1-4): ").strip()
+        choice = input("请选择操作 (1-5): ").strip()
         
         if choice == "1":
             # 查看项目列表
@@ -377,6 +569,40 @@ def interactive_menu(query: LabelStudioProjectQuery) -> Optional[List[Dict]]:
                 print("❌ 无法获取项目信息")
                 
         elif choice == "2":
+            # 查询项目范围任务统计
+            print("\n📊 项目任务统计查询")
+            print("=" * 40)
+            
+            try:
+                start_id = int(input("请输入起始项目ID: ").strip())
+                end_id = int(input("请输入结束项目ID: ").strip())
+                
+                if start_id > end_id:
+                    print("❌ 起始ID不能大于结束ID")
+                    continue
+                
+                # 获取任务统计
+                summary = query.get_task_count_summary(start_id, end_id)
+                if summary is not None:
+                    query.display_task_summary(summary)
+                    
+                    # 保存统计结果到文件
+                    filename = f"task_summary_{start_id}_{end_id}.json"
+                    try:
+                        with open(filename, 'w', encoding='utf-8') as f:
+                            import json
+                            json.dump(summary, f, ensure_ascii=False, indent=2)
+                        print(f"💾 统计结果已保存到: {filename}")
+                    except Exception as e:
+                        print(f"⚠️ 保存文件失败: {e}")
+                        
+                else:
+                    print("❌ 无法获取任务统计信息")
+                    
+            except ValueError:
+                print("❌ 请输入有效的项目ID (数字)")
+                
+        elif choice == "3":
             # 删除单个项目
             projects = query.get_project_list()
             if projects is None:
@@ -395,7 +621,7 @@ def interactive_menu(query: LabelStudioProjectQuery) -> Optional[List[Dict]]:
             except ValueError:
                 print("❌ 请输入有效的项目ID")
                 
-        elif choice == "3":
+        elif choice == "4":
             # 批量删除项目
             projects = query.get_project_list()
             if projects is None:
@@ -430,14 +656,65 @@ def interactive_menu(query: LabelStudioProjectQuery) -> Optional[List[Dict]]:
             except ValueError:
                 print("❌ 请输入有效的项目ID (数字)")
                 
-        elif choice == "4":
+        elif choice == "5":
             print("👋 感谢使用 Label Studio 项目管理器")
             break
             
         else:
-            print("❌ 无效选择，请输入 1-4")
+            print("❌ 无效选择，请输入 1-5")
     
     return None
+
+
+def get_task_summary_range(start_id: int, end_id: int, display: bool = True, save_file: bool = True) -> Optional[Dict]:
+    """
+    快速查询指定范围项目的任务统计 - 便捷函数
+    
+    Args:
+        start_id: 起始项目ID（包含）
+        end_id: 结束项目ID（包含）
+        display: 是否显示统计结果，默认True
+        save_file: 是否保存统计结果到文件，默认True
+        
+    Returns:
+        任务统计信息字典
+        
+    Example:
+        # 查询超星801到956的所有项目任务统计
+        summary = get_task_summary_range(801, 956)
+        print(f"项目总数: {summary['project_count']}")
+        print(f"完成项目数: {summary['completed_projects']}")
+        print(f"项目完成率: {summary['project_completion_rate']:.1f}%")
+        print(f"总任务数: {summary['total_tasks']}")
+        print(f"任务完成率: {summary['completion_rate']:.1f}%")
+    """
+    print(f"📊 Label Studio 项目任务统计工具")
+    print(f"🎯 查询范围: 项目ID {start_id} - {end_id}")
+    print("=" * 50)
+    
+    # 创建查询器实例
+    query = LabelStudioProjectQuery()
+    
+    # 获取任务统计
+    summary = query.get_task_count_summary(start_id, end_id)
+    
+    if summary is not None:
+        # 显示结果
+        if display:
+            query.display_task_summary(summary)
+        
+        # 保存到文件
+        if save_file:
+            filename = f"task_summary_{start_id}_{end_id}.json"
+            try:
+                import json
+                with open(filename, 'w', encoding='utf-8') as f:
+                    json.dump(summary, f, ensure_ascii=False, indent=2)
+                print(f"💾 统计结果已保存到: {filename}")
+            except Exception as e:
+                print(f"⚠️ 保存文件失败: {e}")
+    
+    return summary
 
 
 def delete_projects_by_list(project_ids_to_delete: List[int], confirm: bool = True) -> Dict[str, List[int]]:
@@ -479,28 +756,46 @@ def main():
 
 
 if __name__ == "__main__":
-    # ========== 默认删除项目 14-23 ==========
-    print("🗑️ 自动删除项目 ID 14-23...")
-    projects_to_delete = list(range(30, 1000))  # 生成 [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-    result = delete_projects_by_list(projects_to_delete, confirm=True)
-    print(f"删除结果: 成功 {len(result['success'])} 个，失败 {len(result['failed'])} 个")
+    # ========== 快速查询任务统计示例 ==========
+    print("📊 Label Studio 项目任务统计功能演示")
+    print("=" * 60)
     
-    # 运行主程序
+    # 示例1：查询超星801到956的所有项目任务统计
+    print("\n🎯 示例查询: 超星801到956项目任务统计")
+    # summary = get_task_summary_range(801, 956)
+    # if summary:
+    #     print(f"✅ 查询成功！总任务数: {summary['total_tasks']}")
+    
+    # 运行主程序 - 交互式菜单
     project_list = main()
     
     # 如果需要在其他地方使用项目列表，可以这样访问：
     if project_list:
         print(f"\n🔍 可通过变量 'project_list' 访问项目数据")
         print(f"项目数量: {len(project_list)}")
-        
-        # 示例：打印所有项目的ID和名称
-        print("\n📝 项目ID和名称列表:")
-        for project in project_list:
-            print(f"  - ID: {project['id']}, 名称: {project['title']}")
     
-    # ========== 其他批量删除使用示例 ==========
-    # 如果你需要直接通过代码删除其他项目，可以取消注释下面的代码：
+    # ========== 任务统计查询使用示例 ==========
+    # 以下是一些使用新功能的示例，取消注释即可使用：
     
+    # 示例1：查询超星801到956的所有项目任务统计
+    # summary = get_task_summary_range(801, 956)
+    # if summary:
+    #     print(f"项目总数: {summary['project_count']}")
+    #     print(f"完成项目数: {summary['completed_projects']}")
+    #     print(f"项目完成率: {summary['project_completion_rate']:.1f}%")
+    #     print(f"总任务数: {summary['total_tasks']}")
+    #     print(f"任务完成率: {summary['completion_rate']:.1f}%")
+    
+    # 示例2：只获取统计数据，不显示详细信息
+    # summary = get_task_summary_range(801, 956, display=False, save_file=False)
+    
+    # 示例3：通过类实例进行更精细的控制
+    # query = LabelStudioProjectQuery()
+    # projects_in_range = query.get_projects_in_range(801, 956)
+    # if projects_in_range:
+    #     print(f"找到 {len(projects_in_range)} 个项目")
+    
+    # ========== 批量删除使用示例 ==========
     # 示例1：删除指定的项目ID列表
     # projects_to_delete = [1, 3, 5]  # 要删除的项目ID列表
     # result = delete_projects_by_list(projects_to_delete, confirm=True)
@@ -509,7 +804,3 @@ if __name__ == "__main__":
     # 示例2：不需要确认的批量删除（谨慎使用！）
     # projects_to_delete = [7, 8, 9]
     # result = delete_projects_by_list(projects_to_delete, confirm=False)
-    
-    # 示例3：通过类实例进行更复杂的操作
-    # query = LabelStudioProjectQuery()
-    # result = query.delete_projects_batch([2, 4, 6], confirm=True)

@@ -14,6 +14,12 @@ Label Studio 自动串行标注器
 - 📝 详细日志：记录处理过程和错误信息
 - ⚙️ 灵活配置：用户可自定义参数
 
+使用方法：
+```bash
+cd label-studio-ml-backend/my_ml_backend
+python auto_serial_labeler.py
+```
+
 作者: AI Assistant
 创建时间: 2025-01-28
 版本: 1.0.0
@@ -37,13 +43,13 @@ from datetime import datetime
 # Label Studio 配置
 LABEL_STUDIO_URL = "http://localhost:8080"          # Label Studio服务地址
 LABEL_STUDIO_API_TOKEN = "02be98ff6805d4d3c86f6b51bb0d538acb4c96e5"     # 您的API令牌，在Label Studio的Account Settings中获取
-PROJECT_IDS = list(range(770, 770+100))                          # 693开始，共279个项目，到972，项目ID列表，按顺序处理，在项目URL中可以找到
+PROJECT_IDS = list(range(890, 809,-1))                          # 693开始，共249个项目，到941，项目ID列表，按顺序处理，在项目URL中可以找到
 
 # ML Backend 配置  
 ML_BACKEND_URL = "http://localhost:9090"            # ML Backend服务地址
 
 # 处理配置
-MAX_TASKS = None                                    # 最大处理任务数，None表示处理所有未标注任务
+MAX_TASKS = 2000                                    # 最大处理任务数，None表示处理所有未标注任务
 DELAY_BETWEEN_TASKS = 1.0                          # 任务间延迟时间（秒），避免对服务器造成压力
 MAX_RETRIES = 6                                    # 失败任务的最大重试次数（每个任务最多尝试4次：1次初始+3次重试）
 REQUEST_TIMEOUT = 300                              # 单个请求的超时时间（秒）
@@ -181,50 +187,98 @@ class AutoSerialLabeler:
         return True
     
     def get_unlabeled_tasks(self, project_id: int) -> List[Dict]:
-        """获取指定项目的未标注任务列表"""
+        """获取指定项目的未标注任务列表 - 支持分页获取所有任务"""
         logger.info(f"🔍 获取项目 {project_id} 的未标注任务...")
         
         try:
-            # 获取项目的所有任务
-            params = {
-                'project': project_id,
-                'fields': 'all'
-            }
+            all_tasks = []
+            page = 1
+            per_page = 100  # 每页获取数量，与Label Studio默认值保持一致
+            total_pages = None
             
-            response = self.session.get(
-                f"{self.label_studio_url}/api/tasks/",
-                params=params,
-                timeout=REQUEST_TIMEOUT
-            )
-            response.raise_for_status()
-            
-            # 检查响应内容类型
-            response_data = response.json()
-            logger.debug(f"📥 API响应类型: {type(response_data)}")
-            logger.debug(f"📄 API响应内容预览: {str(response_data)[:200]}...")
-            
-            # 处理不同的响应格式
-            if isinstance(response_data, str):
-                logger.error(f"❌ API返回了字符串而不是JSON对象: {response_data[:100]}...")
-                raise Exception("API响应格式错误：返回了字符串")
-            elif isinstance(response_data, dict):
-                # Label Studio API响应格式
-                if 'tasks' in response_data:
-                    all_tasks = response_data['tasks']
-                    logger.info(f"📊 从Label Studio响应中获取到 {len(all_tasks)} 个任务")
-                # 可能是分页响应
-                elif 'results' in response_data:
-                    all_tasks = response_data['results']
-                    logger.info(f"📊 从分页响应中获取到 {len(all_tasks)} 个任务")
+            # 循环获取所有页面的任务
+            while True:
+                logger.debug(f"📄 获取第 {page} 页任务...")
+                
+                # 获取项目的任务（分页）
+                params = {
+                    'project': project_id,
+                    'fields': 'all',
+                    'page': page,
+                    'page_size': per_page  # 明确设置每页大小
+                }
+                
+                response = self.session.get(
+                    f"{self.label_studio_url}/api/tasks/",
+                    params=params,
+                    timeout=REQUEST_TIMEOUT
+                )
+                response.raise_for_status()
+                
+                # 检查响应内容类型
+                response_data = response.json()
+                logger.debug(f"📥 第{page}页API响应类型: {type(response_data)}")
+                
+                # 处理不同的响应格式
+                page_tasks = []
+                if isinstance(response_data, dict):
+                    # Label Studio分页API响应格式
+                    if 'results' in response_data:
+                        page_tasks = response_data['results']
+                        # 获取总页数信息
+                        if total_pages is None:
+                            total_count = response_data.get('count', 0)
+                            total_pages = (total_count + per_page - 1) // per_page  # 向上取整
+                            logger.info(f"📊 项目 {project_id} 总任务数: {total_count}, 总页数: {total_pages}")
+                        
+                        logger.debug(f"📄 第{page}页获取到 {len(page_tasks)} 个任务")
+                    # 兼容旧格式
+                    elif 'tasks' in response_data:
+                        page_tasks = response_data['tasks']
+                        logger.debug(f"📄 第{page}页获取到 {len(page_tasks)} 个任务（旧格式）")
+                    else:
+                        logger.error(f"❌ 第{page}页字典响应中没有找到'results'或'tasks'字段: {list(response_data.keys())}")
+                        break
+                elif isinstance(response_data, list):
+                    # 直接返回任务列表（可能是非分页的旧版本API）
+                    page_tasks = response_data
+                    logger.info(f"📄 获取到任务列表（非分页格式）: {len(page_tasks)} 个任务")
+                    all_tasks.extend(page_tasks)
+                    break  # 非分页格式，直接跳出循环
                 else:
-                    logger.error(f"❌ 字典响应中没有找到'tasks'或'results'字段: {list(response_data.keys())}")
-                    raise Exception("API响应格式错误：字典中没有tasks或results字段")
-            elif isinstance(response_data, list):
-                all_tasks = response_data
-                logger.info(f"📊 项目总任务数: {len(all_tasks)}")
-            else:
-                logger.error(f"❌ 未知的API响应格式: {type(response_data)}")
-                raise Exception(f"API响应格式错误：未知类型 {type(response_data)}")
+                    logger.error(f"❌ 第{page}页未知的API响应格式: {type(response_data)}")
+                    break
+                
+                # 添加本页任务到总列表
+                if page_tasks:
+                    all_tasks.extend(page_tasks)
+                    logger.debug(f"📄 第{page}页添加 {len(page_tasks)} 个任务，累计: {len(all_tasks)} 个")
+                else:
+                    logger.info(f"📄 第{page}页没有更多任务，停止分页获取")
+                    break
+                
+                # 检查是否还有更多页面
+                if len(page_tasks) < per_page:
+                    # 当前页的任务数少于每页大小，说明这是最后一页
+                    logger.info(f"📄 第{page}页是最后一页（{len(page_tasks)} < {per_page}）")
+                    break
+                
+                # 如果有总页数信息，检查是否已获取完所有页面
+                if total_pages and page >= total_pages:
+                    logger.info(f"📄 已获取所有 {total_pages} 页")
+                    break
+                
+                page += 1
+                
+                # 安全检查：防止无限循环
+                if page > 1000:  # 假设最多1000页
+                    logger.warning(f"⚠️ 达到最大页数限制 {page}，停止获取")
+                    break
+                
+                # 页面间稍微延迟，避免API请求过于频繁
+                time.sleep(0.1)
+            
+            logger.info(f"📊 项目 {project_id} 分页获取完成: 共 {len(all_tasks)} 个任务（{page} 页）")
             
             # 验证任务格式
             if not all_tasks:
@@ -253,7 +307,7 @@ class AutoSerialLabeler:
                 if not valid_annotations:
                     unlabeled_tasks.append(task)
             
-            logger.info(f"🎯 未标注任务数: {len(unlabeled_tasks)}")
+            logger.info(f"🎯 未标注任务数: {len(unlabeled_tasks)} / {len(all_tasks)} (未标注率: {len(unlabeled_tasks)/len(all_tasks)*100:.1f}%)")
             
             # 应用任务数量限制
             if MAX_TASKS and len(unlabeled_tasks) > MAX_TASKS:

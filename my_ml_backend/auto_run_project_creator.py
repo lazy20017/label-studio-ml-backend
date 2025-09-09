@@ -3,6 +3,13 @@
 """
 项目自动创建器运行脚本
 简化的入口点，包含基本的前置检查和用户交互
+
+使用方法：
+```bash
+cd label-studio-ml-backend/my_ml_backend
+python auto_run_project_creator.py
+```
+
 """
 
 import os
