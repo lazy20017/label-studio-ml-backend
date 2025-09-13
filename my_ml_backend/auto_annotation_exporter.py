@@ -38,12 +38,12 @@ from datetime import datetime
 # 用户配置区域 - 请根据实际情况修改
 # ================================
 
+# 导出文件夹配置 - 使用绝对路径，方便修改
+EXPORT_BASE_DIR = r"E:\pydemo\01LabelStudio-test\label-studio-ml-backend\my_ml_backend\exported_annotations"  # 导出文件夹绝对路径
+
 # Label Studio 配置
 LABEL_STUDIO_URL = "http://localhost:8080"          # Label Studio服务地址
 LABEL_STUDIO_API_TOKEN = "02be98ff6805d4d3c86f6b51bb0d538acb4c96e5"     # 您的API令牌，在Label Studio的Account Settings中获取
-
-# 导出配置
-DEFAULT_OUTPUT_DIR = "exported_annotations"         # 默认导出目录
 REQUEST_TIMEOUT = 61                                # 单个请求的超时时间（秒）
 DELAY_BETWEEN_REQUESTS = 0.5                       # 请求间延迟时间（秒），避免对服务器造成压力
 
@@ -94,7 +94,7 @@ class AutoAnnotationExporter:
     def __init__(self, 
                  label_studio_url: str = LABEL_STUDIO_URL,
                  api_token: str = LABEL_STUDIO_API_TOKEN,
-                 output_dir: str = DEFAULT_OUTPUT_DIR):
+                 output_dir: str = EXPORT_BASE_DIR):
         """
         初始化导出器
         
@@ -346,6 +346,91 @@ class AutoAnnotationExporter:
             logger.error(f"❌ 获取项目 {project_id} 任务异常: {e}")
             return None
     
+    def _extract_source_filename(self, task_data: Dict) -> str:
+        """
+        从任务数据中提取源文件名称
+        
+        Args:
+            task_data: 任务数据字典
+            
+        Returns:
+            源文件名称，如果未找到则返回"未知"
+        """
+        # 调试信息：记录任务数据结构
+        logger.debug(f"🔍 分析任务数据结构: {list(task_data.keys()) if task_data else '空数据'}")
+        
+        # 常见的文件名字段列表
+        filename_fields = [
+            'filename', 'file_name', 'fileName', 'name', 'file', 
+            'image', 'audio', 'video', 'document', 'text_file',
+            'source_file', 'original_file', 'filepath', 'file_path',
+            'title', 'source', 'input_file'  # 新增一些可能的字段
+        ]
+        
+        # 首先检查直接的文件名字段
+        for field in filename_fields:
+            if field in task_data and task_data[field]:
+                filename = str(task_data[field])
+                logger.debug(f"✅ 从字段 '{field}' 找到文件名: {filename}")
+                # 如果是完整路径，只取文件名部分
+                if '/' in filename:
+                    filename = filename.split('/')[-1]
+                elif '\\' in filename:
+                    filename = filename.split('\\')[-1]
+                return filename
+        
+        # 检查嵌套字段（例如在 file 对象中）
+        if 'file' in task_data and isinstance(task_data['file'], dict):
+            file_obj = task_data['file']
+            logger.debug(f"🔍 检查嵌套file对象: {list(file_obj.keys())}")
+            for field in filename_fields:
+                if field in file_obj and file_obj[field]:
+                    filename = str(file_obj[field])
+                    logger.debug(f"✅ 从嵌套字段 'file.{field}' 找到文件名: {filename}")
+                    if '/' in filename:
+                        filename = filename.split('/')[-1]
+                    elif '\\' in filename:
+                        filename = filename.split('\\')[-1]
+                    return filename
+        
+        # 检查URL中的文件名
+        url_fields = ['url', 'image_url', 'audio_url', 'video_url', 'file_url']
+        for field in url_fields:
+            if field in task_data and task_data[field]:
+                url = str(task_data[field])
+                logger.debug(f"🔍 检查URL字段 '{field}': {url}")
+                # 从URL中提取文件名
+                if '/' in url:
+                    filename = url.split('/')[-1]
+                    # 移除URL参数
+                    if '?' in filename:
+                        filename = filename.split('?')[0]
+                    if filename and filename != '':
+                        logger.debug(f"✅ 从URL字段 '{field}' 提取文件名: {filename}")
+                        return filename
+        
+        # 检查text字段，有时文件名可能包含在文本中
+        if 'text' in task_data and task_data['text']:
+            text = str(task_data['text'])
+            # 如果文本很短且包含文件扩展名，可能就是文件名
+            if len(text) < 100 and ('.' in text):
+                # 检查是否包含常见文件扩展名
+                extensions = ['.txt', '.pdf', '.doc', '.docx', '.csv', '.json', '.xml', '.html']
+                for ext in extensions:
+                    if ext.lower() in text.lower():
+                        # 尝试提取文件名
+                        words = text.split()
+                        for word in words:
+                            if ext.lower() in word.lower():
+                                logger.debug(f"✅ 从text字段推测文件名: {word}")
+                                return word
+        
+        # 记录未找到文件名的情况
+        logger.debug(f"⚠️ 未找到文件名，任务数据内容: {str(task_data)[:200]}...")
+        
+        # 如果都找不到，返回未知
+        return "未知"
+    
     def format_annotation_data(self, project: Dict, tasks: List[Dict]) -> Dict:
         """
         格式化标注数据
@@ -374,11 +459,16 @@ class AutoAnnotationExporter:
                 annotated_tasks += 1
                 total_annotations += len(valid_annotations)
             
+            # 提取数据来源文件名称
+            task_data = task.get('data', {})
+            source_filename = self._extract_source_filename(task_data)
+            
             # 格式化任务数据
             formatted_task = {
                 'task_id': task.get('id'),
                 'created_at': task.get('created_at'),
                 'updated_at': task.get('updated_at'),
+                'source_filename': source_filename,  # 添加数据来源文件名称字段
             }
             
             # 包含原始任务数据
@@ -493,6 +583,10 @@ class AutoAnnotationExporter:
                         }
                         labels.append(label_info)
                 
+                # 提取数据来源文件名称
+                task_data = task.get('data', {})
+                source_filename = self._extract_source_filename(task_data)
+                
                 # 构建简洁格式的任务
                 simple_task = {
                     'text': text,
@@ -502,7 +596,8 @@ class AutoAnnotationExporter:
                     'annotation_id': annotation.get('id'),
                     'created_at': annotation.get('created_at'),
                     'updated_at': annotation.get('updated_at'),
-                    'lead_time': annotation.get('lead_time')
+                    'lead_time': annotation.get('lead_time'),
+                    'source_filename': source_filename  # 添加数据来源文件名称字段
                 }
                 
                 simple_tasks.append(simple_task)
@@ -582,6 +677,102 @@ class AutoAnnotationExporter:
             self.stats['errors'].append(error_msg)
             return None
     
+    def batch_export_projects(self, start_id: int, end_id: int) -> Dict:
+        """
+        批量导出项目的标注结果
+        
+        Args:
+            start_id: 开始项目ID
+            end_id: 结束项目ID
+            
+        Returns:
+            批量导出结果统计
+        """
+        logger.info(f"🔄 开始批量导出项目 {start_id} 到 {end_id}...")
+        
+        batch_stats = {
+            'total_projects': 0,
+            'successful_exports': 0,
+            'failed_exports': 0,
+            'exported_files': [],
+            'failed_projects': []
+        }
+        
+        # 确保ID范围有效
+        if start_id > end_id:
+            logger.error("❌ 开始项目ID不能大于结束项目ID")
+            return batch_stats
+        
+        # 逐个导出项目
+        for project_id in range(start_id, end_id + 1):
+            logger.info(f"📦 正在导出项目 {project_id} ({project_id - start_id + 1}/{end_id - start_id + 1})")
+            batch_stats['total_projects'] += 1
+            
+            try:
+                result = self.export_project(project_id)
+                if result:
+                    batch_stats['successful_exports'] += 1
+                    
+                    # 记录导出的文件信息
+                    projects = self.get_all_projects()
+                    if projects:
+                        project_info = next((p for p in projects if p.get('id') == project_id), None)
+                        if project_info:
+                            project_title = project_info.get('title', f'project_{project_id}')
+                            safe_title = "".join(c for c in project_title if c.isalnum() or c in (' ', '-', '_')).rstrip()
+                            safe_title = safe_title.replace(' ', '_')
+                            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                            filename = f"{safe_title}_{timestamp}.json"
+                            batch_stats['exported_files'].append({
+                                'project_id': project_id,
+                                'title': project_title,
+                                'filename': filename
+                            })
+                        else:
+                            batch_stats['exported_files'].append({
+                                'project_id': project_id,
+                                'title': f'项目_{project_id}',
+                                'filename': f'project_{project_id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+                            })
+                    
+                    logger.info(f"✅ 项目 {project_id} 导出成功")
+                else:
+                    batch_stats['failed_exports'] += 1
+                    batch_stats['failed_projects'].append(project_id)
+                    logger.warning(f"⚠️ 项目 {project_id} 导出失败")
+            
+            except Exception as e:
+                batch_stats['failed_exports'] += 1
+                batch_stats['failed_projects'].append(project_id)
+                error_msg = f"项目 {project_id} 导出异常: {e}"
+                logger.error(f"❌ {error_msg}")
+                self.stats['errors'].append(error_msg)
+            
+            # 添加延迟避免对服务器造成压力
+            if project_id < end_id:  # 最后一个项目不需要延迟
+                time.sleep(DELAY_BETWEEN_REQUESTS)
+        
+        # 打印批量导出总结
+        logger.info(f"\n{'='*60}")
+        logger.info(f"📊 批量导出完成总结")
+        logger.info(f"{'='*60}")
+        logger.info(f"📋 项目范围: {start_id} - {end_id}")
+        logger.info(f"✅ 成功导出: {batch_stats['successful_exports']}")
+        logger.info(f"❌ 导出失败: {batch_stats['failed_exports']}")
+        logger.info(f"📈 成功率: {(batch_stats['successful_exports'] / batch_stats['total_projects'] * 100):.1f}%")
+        
+        if batch_stats['failed_projects']:
+            logger.info(f"❌ 失败的项目ID: {batch_stats['failed_projects']}")
+        
+        if batch_stats['exported_files']:
+            logger.info(f"📁 导出的文件:")
+            for file_info in batch_stats['exported_files']:
+                logger.info(f"  - 项目 {file_info['project_id']}: {file_info['filename']}")
+        
+        logger.info(f"{'='*60}")
+        
+        return batch_stats
+    
     def print_statistics(self):
         """打印导出统计信息"""
         print(f"\n{'='*60}")
@@ -623,12 +814,13 @@ def main():
     while True:
         print(f"\n{'-'*50}")
         print("📋 选择操作:")
-        print("1. 导出项目")
-        print("2. 查看项目列表")
-        print("3. 退出")
+        print("1. 导出单个项目")
+        print("2. 批量导出项目")
+        print("3. 查看项目列表")
+        print("4. 退出")
         print(f"{'-'*50}")
         
-        choice = input("请选择操作 (1-3): ").strip()
+        choice = input("请选择操作 (1-4): ").strip()
         
         if choice == "1":
             # 导出单个项目
@@ -643,6 +835,37 @@ def main():
                 print("❌ 请输入有效的项目ID")
         
         elif choice == "2":
+            # 批量导出项目
+            try:
+                start_id = int(input("请输入开始项目ID: ").strip())
+                end_id = int(input("请输入结束项目ID: ").strip())
+                
+                if start_id > end_id:
+                    print("❌ 开始项目ID不能大于结束项目ID")
+                    continue
+                
+                # 确认批量导出
+                project_count = end_id - start_id + 1
+                print(f"\n📋 即将批量导出 {project_count} 个项目 (ID: {start_id} - {end_id})")
+                confirm = input("确认执行批量导出？(y/n): ").strip().lower()
+                
+                if confirm in ['y', 'yes', '是', '确认']:
+                    batch_result = exporter.batch_export_projects(start_id, end_id)
+                    print(f"\n🎉 批量导出完成！")
+                    print(f"✅ 成功: {batch_result['successful_exports']}/{batch_result['total_projects']}")
+                    print(f"❌ 失败: {batch_result['failed_exports']}/{batch_result['total_projects']}")
+                    
+                    if batch_result['exported_files']:
+                        print(f"\n📁 导出的文件:")
+                        for file_info in batch_result['exported_files']:
+                            print(f"  - {file_info['filename']}")
+                else:
+                    print("⏹️ 取消批量导出")
+                    
+            except ValueError:
+                print("❌ 请输入有效的项目ID")
+        
+        elif choice == "3":
             # 查看项目列表
             projects = exporter.get_all_projects()
             if projects:
@@ -669,15 +892,21 @@ def main():
                         created_at = "未知"
                     
                     print(f"{project['id']:<5} {title:<40} {task_count:<8} {created_at:<20}")
+                    
+                # 显示ID范围提示
+                if projects:
+                    min_id = min(p.get('id', 0) for p in projects)
+                    max_id = max(p.get('id', 0) for p in projects)
+                    print(f"\n💡 提示: 项目ID范围为 {min_id} - {max_id}")
             else:
                 print("❌ 无法获取项目列表")
         
-        elif choice == "3":
+        elif choice == "4":
             print("👋 感谢使用 Label Studio 标注结果导出器")
             break
         
         else:
-            print("❌ 无效选择，请输入 1-3")
+            print("❌ 无效选择，请输入 1-4")
     
     # 显示最终统计
     exporter.print_statistics()

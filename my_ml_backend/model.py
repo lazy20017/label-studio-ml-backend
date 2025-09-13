@@ -1,56 +1,43 @@
 from typing import List, Dict, Optional
 import json
 import os
+import base64
 import time
 from openai import OpenAI
 from label_studio_ml.model import LabelStudioMLBase
 from label_studio_ml.response import ModelResponse
 
-# 启动命令   label-studio-ml start my_ml_backend
 
+# ==================== 多模态图片描述配置 ====================
+# 支持的图片格式
+SUPPORTED_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
 
-# ==================== 命名实体配置 ====================
-# 从配置文件导入实体配置
-try:
-    from entity_config import get_entity_config, get_entity_labels, get_all_categories, get_entities_by_category
-    NER_ENTITY_CONFIG = get_entity_config()
-    ENTITY_LABELS = get_entity_labels()
-    print(f"✅ 加载了 {len(ENTITY_LABELS)} 种实体类型")
-except ImportError:
-    print("❌ 配置文件不存在，退出程序")
-    exit()
+# Label Studio 媒体目录配置
+# 可以通过环境变量 LABEL_STUDIO_MEDIA_DIR 设置
+LABEL_STUDIO_MEDIA_DIR = os.getenv('LABEL_STUDIO_MEDIA_DIR', r'C:\Users\Administrator\AppData\Local\label-studio\label-studio\media')
 
+# 图片描述任务配置
+IMAGE_DESCRIPTION_CONFIG = {
+    "task_type": "图片描述文本标注",
+    "model_type": "多模态视觉语言模型", 
+    "output_format": "自然语言文本描述",
+    "language": "中文",
+    "max_tokens": 1000,
+    "temperature": 0.7,
+    "features": [
+        "物体识别",
+        "场景理解", 
+        "颜色分析",
+        "动作描述",
+        "细节观察"
+    ]
+}
 
-# 生成JSON格式示例
-def get_json_format_example():
-    """生成JSON格式示例"""
-    return """{{
-  "entities": [
-    {{
-      "text": "实体文本",
-      "start": 起始位置,
-      "end": 结束位置,
-      "label": "实体类型"
-    }}
-  ]
-}}"""
-
-def validate_label(label: str) -> str:
-    """验证标签是否在有效标签列表中"""
-    if not label:
-        return None
-    
-    clean_label = label.strip()
-    
-    # 直接匹配标签名称
-    if clean_label in ENTITY_LABELS:
-        return clean_label
-    
-    return None
-
-# 🌍 全局状态管理 - 简化的API Key和模型切换
+# ==================== 🌍 全局状态管理 - API Key和模型切换 ====================
 # 使用全局变量统一管理当前状态，避免复杂的切换逻辑
 api_key_list = [
+    "ms-d200fd06-f07f-4be8-a6a8-9ebf76dd103a",  # 原始默认Key
+    "ms-758c9c64-2498-467c-a0de-8b32a1370bc1",
     "ms-376c277c-8f18-4c42-9ba9-c4b0911fa9b0",
     "ms-78247b29-fd23-4ef9-a86a-0e792da83f3e",
     "ms-89acac3e-5ed3-4c06-ad67-8941aef812d1",
@@ -58,38 +45,17 @@ api_key_list = [
     'ms-6a7bc978-f320-48bc-aa67-f9c2e6c9d5c6',
     'ms-7fa00741-856a-4134-80d2-f296b15c0e76',
     'ms-ca41cec5-48ca-4a9e-9fdf-ac348a638d11',
-    
 ]
 
 # 🔑 全局API Key状态
 GLOBAL_API_KEY_INDEX = 0
 GLOBAL_CURRENT_API_KEY = api_key_list[GLOBAL_API_KEY_INDEX]
 
-# 🤖 全局模型状态  
-# 推理模型太慢了
-'''
-    'Qwen/Qwen3-235B-A22B-Thinking-2507', 
-    'deepseek-ai/DeepSeek-R1-0528',
-    
-'''
+# 🤖 全局模型状态 - 多模态模型列表
 available_models_global = [ 
-
-
-    'deepseek-ai/DeepSeek-V3',
-    'Qwen/Qwen3-Coder-480B-A35B-Instruct',
-    'Qwen/Qwen3-235B-A22B-Instruct-2507',
-    'ZhipuAI/GLM-4.5', 
-    'deepseek-ai/DeepSeek-V3.1',
- 
+"Qwen/Qwen2.5-VL-72B-Instruct",
+"stepfun-ai/step3",
 ]
-
-# 🧠 推理模型列表 - 用户指定的4个模型都按推理模型处理
-THINKING_MODELS = {
-    'Qwen/Qwen3-235B-A22B-Thinking-2507',
-    'ZhipuAI/GLM-4.5', 
-    'deepseek-ai/DeepSeek-V3.1',
-    'deepseek-ai/DeepSeek-R1-0528',
-}
 
 GLOBAL_MODEL_INDEX = 0
 GLOBAL_CURRENT_MODEL = available_models_global[GLOBAL_MODEL_INDEX]
@@ -149,9 +115,6 @@ def reset_global_state():
     print(f"🔄 全局状态已重置: API Key ***{GLOBAL_CURRENT_API_KEY[-8:]}, 模型 {GLOBAL_CURRENT_MODEL.split('/')[-1]}")
     return True
 
-def is_thinking_model(model_name: str) -> bool:
-    """检测是否为推理模型 - 检查是否在指定的推理模型列表中"""
-    return model_name in THINKING_MODELS
 
 class NewModel(LabelStudioMLBase):
     """Custom ML Backend model
@@ -160,7 +123,9 @@ class NewModel(LabelStudioMLBase):
     def setup(self):
         """Configure any parameters of your model here
         """
-        self.set("model_version", "2.0.0-洪涝灾害专用版")
+        print(f"\n🚀 图片描述ML Backend启动中...")
+        
+        self.set("model_version", "2.0.0-多账号切换版")
         
         # 🌍 使用全局状态管理 - 简化架构
         self.api_base_url = os.getenv('MODELSCOPE_API_URL', 'https://api-inference.modelscope.cn/v1')
@@ -173,14 +138,14 @@ class NewModel(LabelStudioMLBase):
         self.client = None
         self._api_initialized = False
         
-        print("✅ 洪涝灾害专用ML后端初始化完成")
+        print("✅ 多模态图片描述ML后端初始化完成")
         print(f"🎯 当前模型: {get_current_model().split('/')[-1]}")
         print(f"🔑 当前API Key: ***{get_current_api_key()[-8:]}")
         print(f"📋 可用模型: {len(available_models_global)} 个")
         print(f"🔑 可用API Key: {len(api_key_list)} 个")
         print(f"🔄 简化切换: 失败{self.max_failures_before_switch}次切换模型，所有模型失败切换API Key")
         print(f"⏰ 超时设置: 250秒（给大模型充足处理时间）")
-        print(f"🌊 专业领域: 洪涝灾害知识提取 v2.0.0")
+        print(f"🖼️ 专业领域: 多模态图片描述 v2.0.0")
         print(f"🚀 简化策略: 使用全局状态统一管理API Key和模型切换")
     
     def reset_state(self):
@@ -362,352 +327,332 @@ class NewModel(LabelStudioMLBase):
             self._api_initialized = False
             return False
     
+    def _convert_local_path_to_base64(self, file_path: str) -> Optional[str]:
+        """将本地文件路径转换为base64格式的数据URL"""
+        
+        # 获取目录信息
+        current_dir = os.getcwd()
+        parent_dir = os.path.dirname(current_dir)
+        grandparent_dir = os.path.dirname(parent_dir)
+        
+        # 尝试路径解析 - 专注于Label Studio媒体目录
+        possible_paths = []
+        
+        # 1. Label Studio 实际媒体目录 (Windows) - 主要路径
+        label_studio_media_dir = r'C:\Users\Administrator\AppData\Local\label-studio\label-studio\media'
+        
+        if os.path.exists(label_studio_media_dir):
+            # 处理路径:移除开头的斜杠，直接使用相对路径
+            relative_path = file_path.lstrip('/')
+            possible_paths.append(os.path.join(label_studio_media_dir, relative_path))
+        else:
+            print(f"   ❌ Label Studio媒体目录不存在: {label_studio_media_dir}")
+        
+        # 2. 备用路径 (仅当主路径不存在时)
+        backup_media_dirs = [
+            os.path.expanduser(r'~\AppData\Local\label-studio\label-studio\media'),
+            r'C:\Users\%USERNAME%\AppData\Local\label-studio\label-studio\media',
+        ]
+        
+        for backup_dir in backup_media_dirs:
+            if os.path.exists(backup_dir):
+                relative_path = file_path.lstrip('/')
+                possible_paths.append(os.path.join(backup_dir, relative_path))
+        
+        # 3. 配置的媒体目录 (如果设置了环境变量)
+        if LABEL_STUDIO_MEDIA_DIR and os.path.exists(LABEL_STUDIO_MEDIA_DIR):
+            relative_path = file_path.lstrip('/')
+            possible_paths.append(os.path.join(LABEL_STUDIO_MEDIA_DIR, relative_path))
+        
+        # 4. 原始路径 (最后备用)
+        # 删除路径中开始的/data/文件夹
+        file_path = file_path.replace('/data/', '')
+        possible_paths.append(file_path)
+        
+        # 测试每个可能的路径
+        for i, test_path in enumerate(possible_paths):
+            test_path = test_path.replace('\data', '')
+            
+            if os.path.exists(test_path):
+                file_path = test_path
+                break
+        else:
+            print(f"\n❌ 未找到Label Studio媒体文件!")
+            return self._create_config_guidance_message()
+        
+        try:
+            # 获取文件扩展名来确定MIME类型
+            _, ext = os.path.splitext(file_path)
+            ext = ext.lower().lstrip('.')
+            
+            mime_type_map = {
+                'jpg': 'image/jpeg',
+                'jpeg': 'image/jpeg', 
+                'png': 'image/png',
+                'gif': 'image/gif',
+                'webp': 'image/webp',
+                'bmp': 'image/bmp'
+            }
+            
+            mime_type = mime_type_map.get(ext, 'image/jpeg')
+            
+            # 读取文件并转换为base64
+            with open(file_path, 'rb') as image_file:
+                image_data = image_file.read()
+                base64_data = base64.b64encode(image_data).decode('utf-8')
+                
+            # 构建data URL
+            data_url = f"data:{mime_type};base64,{base64_data}"
+            
+            return data_url
+            
+        except Exception as e:
+            print(f"❌ 文件读取失败: {e}")
+            return None
+    
+    def _create_config_guidance_message(self) -> str:
+        """创建配置指引消息(当文件未找到时的fallback)"""
+        return """⚠️ 配置问题:无法访问上传的图片文件
+
+🔧 解决方案:
+
+1️⃣ 检查Label Studio配置
+   - 确保启用了本地文件服务
+   - 设置正确的文件根目录
+
+2️⃣ 检查文件路径
+   - 确保文件已正确上传到Label Studio
+   - 检查文件是否在正确的媒体目录中
+
+3️⃣ 使用Base64上传
+   - 直接上传base64编码的图片
+   - 避免文件路径依赖问题
+
+4️⃣ 配置环境变量
+   - LABEL_STUDIO_MEDIA_DIR=your_media_path
+   - 重启ML Backend服务
+
+请联系管理员配置文件服务后重试。"""
+    
+    def _format_config_guidance_prediction(self, guidance_message: str, task: Dict) -> Dict:
+        """格式化配置指引消息为Label Studio预测格式"""
+        
+        # 动态获取字段名
+        from_name, to_name = self._get_field_names()
+        
+        prediction = {
+            "model_version": self.get("model_version"),
+            "score": 0.1,  # 低分表示这是配置问题
+            "result": [{
+                "from_name": from_name,
+                "to_name": to_name, 
+                "type": "textarea",
+                "value": {
+                    "text": [guidance_message]
+                }
+            }]
+        }
+        
+        return prediction
 
 
     def predict(self, tasks: List[Dict], context: Optional[Dict] = None, **kwargs) -> ModelResponse:
-        """ 命名实体识别预测
-            :param tasks: Label Studio tasks in JSON format
+        """ 图片描述文本标注预测
+            :param tasks: Label Studio tasks in JSON format (包含图片数据)
             :param context: Label Studio context in JSON format
-            :return: ModelResponse with predictions
+            :return: ModelResponse with predictions (图片描述文本)
         """
-        total_tasks = len(tasks)
+        
         predictions = []
         
-        # 检查是否为实体标注任务
-        if not self._is_annotation_task(tasks):
-            print("ℹ️ 非标注任务，跳过大模型连接")
-            # 返回空预测结果
-            empty_predictions = []
-            for task in tasks:
-                empty_prediction = {
+        for i, task in enumerate(tasks):
+            try:
+                prediction = self._process_single_task(task)
+                if prediction:
+                    predictions.append(prediction)
+                else:
+                    predictions.append({
+                        "model_version": self.get("model_version"),
+                        "score": 0.0,
+                        "result": []
+                    })
+            except Exception as e:
+                print(f"❌ 任务 {i+1} 处理失败: {e}")
+                predictions.append({
                     "model_version": self.get("model_version"),
                     "score": 0.0,
                     "result": []
-                }
-                empty_predictions.append(empty_prediction)
-            return ModelResponse(predictions=empty_predictions)
+                })
         
-        # 🔌 确保API连接（简化重试逻辑）
-        max_attempts = len(available_models_global)  # 最多尝试所有模型
-        
-        for attempt in range(max_attempts):
-            if self._ensure_api_connection():
-                break  # 连接成功
-            else:
-                if attempt < max_attempts - 1:
-                    print(f"🔄 连接失败，已自动切换到下一个配置 ({attempt + 1}/{max_attempts})")
-                    continue
-                else:
-                    print("❌ 所有配置都无法连接，返回空结果")
-                    empty_predictions = []
-                    for task in tasks:
-                        empty_prediction = {
-                            "model_version": self.get("model_version"),
-                            "score": 0.0,
-                            "result": [],
-                            "error": f"所有{len(available_models_global)}个模型都无法连接"
-                        }
-                        empty_predictions.append(empty_prediction)
-                    return ModelResponse(predictions=empty_predictions)
-        
-        if total_tasks > 1:
-            print(f"🚀 开始处理 {total_tasks} 个标注任务")
-        
-        start_time = time.time()
-        
-        for i, task in enumerate(tasks):
-            if total_tasks > 1:  # 多任务时显示进度
-                print(f"\n🔄 处理任务 {i+1}/{total_tasks}")
-            
-            # 记录开始时间
-            task_start_time = time.time()
-            
-            try:
-                prediction = self._process_single_task(task)
-                task_end_time = time.time()
-                task_duration = task_end_time - task_start_time
-                
-                if prediction and prediction.get('result') and len(prediction.get('result', [])) > 0:
-                    # 成功识别到实体
-                    predictions.append(prediction)
-                    entities_count = len(prediction.get('result', []))
-                    if total_tasks > 1:
-                        print(f"✅ 任务 {i+1} 成功 (耗时: {task_duration:.1f}s, 实体: {entities_count})")
-                else:
-                    # 未识别到实体或处理失败
-                    failed_prediction = {
-                        "model_version": self.get("model_version"),
-                        "score": 0.0,
-                        "result": [],
-                        "error": "未识别到任何实体",
-                        "status": "failed"
-                    }
-                    predictions.append(failed_prediction)
-                    if total_tasks > 1:
-                        print(f"❌ 任务 {i+1} 失败 - 无实体 (耗时: {task_duration:.1f}s)")
-                    
-            except Exception as e:
-                task_end_time = time.time()
-                task_duration = task_end_time - task_start_time
-                if total_tasks > 1:
-                    print(f"❌ 任务 {i+1} 异常 (耗时: {task_duration:.1f}s): {str(e)[:50]}")
-                failed_prediction = {
-                    "model_version": self.get("model_version"),
-                    "score": 0.0,
-                    "result": [],
-                    "error": f"处理异常: {str(e)}",
-                    "status": "failed"
-                }
-                predictions.append(failed_prediction)
-            
-        
-        # 处理完成后的总结
-        end_time = time.time()
-        total_duration = end_time - start_time
-        processed_count = len(predictions)
-        
-        # 统计成功和失败的任务
-        successful_tasks = sum(1 for p in predictions if p.get('result') and len(p.get('result', [])) > 0)
-        failed_tasks = processed_count - successful_tasks
-        total_entities = sum(len(p.get('result', [])) for p in predictions)
-        
-        if total_tasks > 1:
-            print(f"\n📊 处理完成: {successful_tasks}/{processed_count} 成功, 总实体: {total_entities}, 耗时: {total_duration:.1f}s")
-            if failed_tasks > 0:
-                print(f"⚠️ {failed_tasks} 个任务处理失败")
-            
-            # 显示状态统计
-            self._print_status()
+        # 输出最终返回的JSON结果
+        print("\n" + "="*60)
+        print("📤 最终返回的JSON结果:")
+        print("="*60)
+        for i, prediction in enumerate(predictions):
+            print(f"\n--- 预测结果 {i+1} ---")
+            print(json.dumps(prediction, indent=2, ensure_ascii=False))
+        print("\n" + "="*60)
         
         return ModelResponse(predictions=predictions)
     
-    def _is_annotation_task(self, tasks: List[Dict]) -> bool:
-        """判断是否为需要进行实体标注的任务"""
-        if not tasks:
-            return False
-        
-        # 检查任务是否包含需要标注的文本内容
-        for task in tasks:
-            task_data = task.get('data', {})
-            
-            # 检查是否有文本内容需要标注
-            text_keys = ['text', 'content', 'prompt', 'question', 'description', 'query']
-            has_text_content = False
-            
-            for key, value in task_data.items():
-                if isinstance(value, str) and key in text_keys and value.strip():
-                    has_text_content = True
-                    break
-            
-            if has_text_content:
-                # 检查是否已经有标注结果（如果有完整标注则可能是查看任务）
-                annotations = task.get('annotations', [])
-                if annotations:
-                    # 如果有标注但是空的，说明需要预测
-                    for annotation in annotations:
-                        result = annotation.get('result', [])
-                        if not result:  # 空标注，需要预测
-                            return True
-                else:
-                    # 没有标注，需要预测
-                    return True
-        
-        return False
-    
     def _process_single_task(self, task: Dict) -> Optional[Dict]:
-        """处理单个任务"""
+        """处理单个图片描述任务"""
+        
         task_data = task.get('data', {})
         
-        # 提取文本内容
-        text_content = ""
-        text_keys = ['text', 'content', 'prompt', 'question', 'description', 'query']
+        # 提取图片内容
+        image_url = None
+        image_data = None
+        custom_prompt = ""
         
+        # 查找图片URL
         for key, value in task_data.items():
-            if isinstance(value, str) and key in text_keys:
-                text_content = value
-                break
+            if isinstance(value, str):
+                # 优先检查captioning字段(您的模板中的图片字段)
+                if key in ['captioning', 'image', 'img', 'photo', 'picture', 'url']:
+                    image_url = value
+                    break
+                elif value.startswith(('http://', 'https://', 'data:image/')):
+                    image_url = value
+                    break
+                elif key in ['text', 'prompt', 'question', 'description']:
+                    custom_prompt = value
         
-        if not text_content:
+        if not image_url:
             return None
         
-        # 构建NER提示词（使用配置化的实体标签）
-        json_format = get_json_format_example()
-        
-        # 按类别组织实体类型说明
-        try:
-            from entity_config import get_all_categories, get_entities_by_category
-            categories = get_all_categories()
-            categorized_examples = ""
+        # 处理图片数据
+        if image_url.startswith('data:image/'):
+            # Base64编码的图片
+            image_data = image_url
             
-            for category in categories:
-                entities = get_entities_by_category(category)
-                if entities:
-                    # 特殊处理关系标签类别
-                    if category == "关系标签":
-                        categorized_examples += f"\n🔗 {category}类（语义关系实体）:\n"
-                        for label_key, config in list(entities.items())[:8]:  # 关系标签显示更多
-                            examples = "、".join(config['examples'][:3])  # 关系标签显示3个示例
-                            description = config['description']
-                            categorized_examples += f"   • {description}: {examples}\n"
-                    else:
-                        categorized_examples += f"\n📂 {category}类:\n"
-                        for label_key, config in list(entities.items())[:5]:  # 每类最多显示5个实体，避免提示词过长
-                            examples = "、".join(config['examples'][:2])  # 每个实体显示2个示例
-                            description = config['description']
-                            categorized_examples += f"   • {description}: {examples}\n"
+        elif image_url.startswith(('http://', 'https://')):
+            # 网络URL图片
+            image_data = image_url
             
-            # 生成简化的实体列表（使用description）
-            entity_descriptions = []
-            for label_key in ENTITY_LABELS[:20]:  # 只显示前20个，避免过长
-                if label_key in NER_ENTITY_CONFIG:
-                    entity_descriptions.append(NER_ENTITY_CONFIG[label_key]['description'])
-                else:
-                    entity_descriptions.append(label_key)
+        else:
+            # 本地文件路径
+            # 转换本地文件为base64
+            image_data = self._convert_local_path_to_base64(image_url)
             
-            entity_labels_list = "、".join(entity_descriptions)
-            if len(ENTITY_LABELS) > 20:
-                entity_labels_list += f"等{len(ENTITY_LABELS)}种实体类型"
-                
-        except ImportError:
-            # 备用方案：使用原来的格式
-            categorized_examples = ""
-            for label, config in NER_ENTITY_CONFIG.items():
-                examples = "、".join(config['examples'][:2])
-                categorized_examples += f"   {label}({config['description']}): {examples}\n"
-            entity_labels_list = "、".join(ENTITY_LABELS)
+            if not image_data:
+                return None
+            
+            # 检查是否返回的是配置指引消息
+            if image_data.startswith("⚠️ 配置问题"):
+                return self._format_config_guidance_prediction(image_data, task)
         
-        # 生成严格的标签列表（只显示标签名称，不显示描述）
-        valid_labels_only = list(ENTITY_LABELS)
-        labels_display = "、".join(valid_labels_only)
+        # 构建图片描述提示词
+        if custom_prompt:
+            prompt = f"请根据用户的要求描述这张图片:{custom_prompt}"
+        else:
+            prompt = """你是洪涝灾害分析专家。请对以下图片进行分析，并按照生产级标准输出。
+
+要求:
+
+1. **自主视觉思维链(Visual Chain-of-Thought)**:
+   - 使用分步列表形式，每一步包含以下字段:
+     1. **reasoning_level**:推理层次，可选值:
+        - "perception"(感知层，直接从图片获取信息)  
+        - "relationship"(关系推理层，分析对象或因素间关系)  
+        - "semantic"(语义/因果推理层，判断灾害等级、原因和潜在影响)
+     2. **reasoning / Why**:为什么做这步，说明观察或推理目的。
+     3. **observation / How**:怎么做，说明具体观察或分析方法。
+     4. **expected_outcome / What to obtain**:希望通过这步获得的信息或结果。
+     5. **inference / Conclusion**:根据观察和分析得出的结论。
+     6. **step_type**(可选):步骤类型，例如 "observation", "inference", "cause_analysis", "impact_estimation"。
+     7. **confidence**(可选):分析可信度，例如 "高", "中", "低"。
+     8. **time_reference**(可选):当前观察/过去/预测。
+     9. **mapped_field**(可选):对应结构化字段。
+   - 步骤按逻辑顺序编号，第1步、第2步、第3步……。
+   - 模型自主推理，不需要提前提供分析步骤。
+   - 示例格式:
+[
+  {
+    "step": 1,
+    "reasoning_level": "perception",
+    "reasoning": "需要了解洪水严重程度，判断居民风险。",
+    "observation": "观察到街道积水，水深及膝，多栋建筑底层被淹。",
+    "expected_outcome": "获取受灾区域及影响范围。",
+    "inference": "低洼街区受洪水直接影响，居民生活受阻。",
+    "step_type": "observation",
+    "confidence": "高",
+    "time_reference": "当前",
+    "mapped_field": "affected_area"
+  },
+  {
+    "step": 2,
+    "reasoning_level": "relationship",
+    "reasoning": "分析建筑受灾与地势关系，判断洪水扩散路径。",
+    "observation": "水位高的街道邻近低洼建筑，部分道路阻塞。",
+    "expected_outcome": "理解洪水传播及受灾链条。",
+    "inference": "洪水主要影响低洼区域，交通受阻。",
+    "step_type": "impact_estimation",
+    "confidence": "中",
+    "time_reference": "当前",
+    "mapped_field": "affected_area"
+  },
+  {
+    "step": 3,
+    "reasoning_level": "semantic",
+    "reasoning": "判断灾害等级、原因及潜在影响。",
+    "observation": "连续强降雨，排水不畅，低洼建筑淹水。",
+    "expected_outcome": "确定灾害类型、等级及应对措施。",
+    "inference": "该区域中度至重度洪水，居民需撤离，经济损失可能发生。",
+    "step_type": "cause_analysis",
+    "confidence": "中",
+    "time_reference": "当前",
+    "mapped_field": "disaster_level"
+  }
+]
+
+2. **结构化总结(Structured Summary)**:
+   - 核心维度(观察到就填，无法观察标记“未观察到”):
+     - disaster_type(灾害类型)
+     - affected_environment(承灾环境)
+     - affected_area(受灾范围)
+     - disaster_level(灾害等级)
+     - disaster_time(灾害时间)
+     - disaster_location(灾害地点)
+     - disaster_cause(灾害原因)
+     - disaster_consequence(灾害后果)
+     - disaster_impact(灾害影响)
+     - response_measures(灾害应对措施)
+     - other_details(其他值得注意的细节)
+   - 可选扩展维度(观察到就填，无法观察标记“未观察到”):
+     - hydrological_features(水深、水流速度等)
+     - affected_population
+     - infrastructure_damage
+     - environmental_factors
+     - warning_signals
+     - socioeconomic_impact
+     - disaster_trend
+     - recoverability
+     - anomalies_or_unusual_observations
+     - weather_conditions
+
+3. **总体文本描述(overall_text_description)**:
+   - 综合视觉思维链和结构化信息生成自然语言总结。
+   - 语言简明、客观、专业，可直接用于报告、监测或新闻稿。
+
+4. **输出要求**:
+   - JSON 格式，包含四部分:
+     1. "image_id":图片名称或ID
+     2. "visual_cot":分步五维思维链
+     3. "structured_description":结构化字段
+     4. "overall_text_description":自然语言总结
+   - 核心维度和可选扩展维度统一采用“观察到就填，未观察标记‘未观察到’”方式。"""
         
-        prompt = f"""请对以下文本进行命名实体识别，识别出文本中存在的所有实体，包括传统的命名实体和关系表达。
-
-📝 文本内容：
-{text_content}
-
-🎯 支持的实体类型及示例：{categorized_examples}
-
-🔗 关系标签说明：
-关系标签用于标注实体之间的语义关系，通常是动词短语或连接词。这些关系词同样作为实体进行标注：
-
-💡 关系标签标注原则：
-1. 标注完整的关系表达，而不是单个词汇
-2. 包含关系动词及其前后的相关成分
-3. 关系标签通常连接两个或多个其他实体
-4. 示例：
-   - "根据《防洪法》第十条规定" → "根据...规定"标注为"依据关系"
-   - "水利部负责全国防汛工作" → "负责"标注为"责任关系"
-   - "洪水导致农田受损" → "导致"标注为"因果关系"
-   - "各部门协调配合抢险救灾" → "协调配合"标注为"协调关系"
-
-🏥 疾病与健康实体说明：
-疾病与健康类实体用于标注与洪涝灾害相关的疾病、健康状况和医疗防疫措施：
-1. 疾病类型：传染病、水生疾病、环境病等
-2. 健康状况：受伤、中毒、感染等状态描述
-3. 医疗需求：救治、药品、医疗设备等需求
-4. 防疫措施：消毒、疫苗、隔离等预防措施
-示例：
-   - "霍乱、痢疾等肠道传染病" → "疾病类型"
-   - "灾民身体状况良好" → "健康状况"
-   - "急需抗生素和消毒用品" → "医疗需求"
-   - "对灾区进行全面消毒" → "防疫措施"
-
-👥 人员信息实体说明：
-人员信息类实体用于标注与人员相关的具体信息：
-1. 人员信息：姓名、年龄、性别、身份等个人基本信息
-2. 职务职称：职位、职级、专业技术职称等
-3. 专业技能：专业能力、技术特长、工作经验等
-4. 联系方式：电话、地址、邮箱等联系信息
-示例：
-   - "张三，男，45岁，党员" → "人员信息"
-   - "高级工程师、项目负责人" → "职务职称"
-   - "具有20年水利工程经验" → "专业技能"
-   - "联系电话：139****8888" → "联系方式"
-
-🔢 时间数量实体说明：
-时间数量类实体用于标注各种时间和数量的具体信息：
-1. 时间数量：具体的时间长度、期限、时长等
-2. 持续时间：事件或状态的持续时长
-3. 频率周期：重复发生的时间间隔、频率等
-4. 数量规模：人数、物资数量、规模大小等
-示例：
-   - "连续降雨72小时" → "时间数量"
-   - "警报持续3天" → "持续时间"
-   - "每隔2小时巡查一次" → "频率周期"
-   - "转移群众5000人" → "数量规模"
-
-⚠️ 严格要求：
-1. 识别文本中真实存在的所有实体，包括传统实体和关系
-2. 准确标注实体的起始和结束位置（基于字符位置）
-3. 标签名称必须严格使用下面列出的标签名称，一字不差
-4. 禁止使用描述性文字、简化名称或任何变体形式
-5. 如果实体类型不在标签列表中，则不要标注该实体
-6. 关系标签要包含完整的关系表达，不要只标注单个动词
-
-🔍 特别关注：
-- 法律条款：识别"第X条"、"第X章"、"第X节"等法律条款格式
-- 关系表达：识别表示依据、责任、管辖、因果等关系的动词短语
-- 时序关系：识别表示时间先后的关系词汇
-- 影响关系：识别表示影响、波及的关系表达
-
-📋 请严格按照以下JSON格式返回结果：
-{json_format}
-
-🏷️ 严格使用以下标签名称（复制粘贴，一字不差）：
-{labels_display}
-
-❌ 禁止事项：
-- 禁止使用描述性文字作为标签（如"政府部门"应使用"政府机构"）
-- 禁止使用简化形式（如"条款"应使用"法律条款"）
-- 禁止使用近似词汇（如"法规"应使用"法律法规"）
-- 禁止自创标签名称
-- 禁止只标注关系动词的单个词汇，要标注完整的关系表达
-
-✅ 正确示例：
-实体标签：
-- 标签必须是："法律条款"，不能是"条款"、"法条"、"条文"
-- 标签必须是："政府机构"，不能是"政府部门"、"机构"
-- 标签必须是："法律法规"，不能是"法律"、"法规"、"条例"
-
-关系标签：
-- "根据《防洪法》规定" → "依据关系"
-- "水务局负责河道管理" → "责任关系"  
-- "洪水造成损失" → "因果关系"
-- "各部门协调配合" → "协调关系"
-- "汛期期间执行预案" → "执行关系"
-
-疾病与健康标签：
-- "霍乱疫情" → "疾病类型"
-- "伤员情况稳定" → "健康状况"
-- "需要医疗救助" → "医疗需求"
-- "开展防疫消毒" → "防疫措施"
-
-人员信息标签：
-- "李明，工程师" → "人员信息"
-- "防汛指挥长" → "职务职称"
-- "水利专业技术" → "专业技能"
-- "电话13912345678" → "联系方式"
-
-时间数量标签：
-- "持续48小时" → "时间数量"
-- "警戒期3天" → "持续时间"
-- "每2小时一次" → "频率周期"
-- "转移5000人" → "数量规模"
-
-请确保每个标签都从上面的列表中精确复制，关系标签要标注完整的关系表达！"""
+        # 调用多模态API（使用智能切换版本）
+        api_response = self._call_multimodal_api_with_switching(prompt, image_data)
         
-        # 调用API
-        api_response = self._call_modelscope_api(prompt)
-        
-        if api_response and api_response.strip():
-            return self._format_prediction(api_response, task)
-        
-        # API调用失败或返回空响应
-        print("❌ API调用失败或返回空响应")
-        return None
+        if api_response:
+            return self._format_description_prediction(api_response, task)
+        else:
+            return None
     
-    def _call_modelscope_api(self, prompt: str) -> Optional[str]:
-        """🚀 简化的API调用（使用全局状态管理）"""
+    def _call_multimodal_api_with_switching(self, prompt: str, image_data: str) -> Optional[str]:
+        """🚀 智能切换版本的多模态API调用（使用全局状态管理）"""
         max_total_attempts = len(available_models_global) * 2  # 总共尝试次数
         
         for attempt in range(max_total_attempts):
@@ -717,61 +662,71 @@ class NewModel(LabelStudioMLBase):
             
             current_model = get_current_model()
             try:
-                print(f"🔄 调用API (尝试 {attempt + 1}/{max_total_attempts})")
-                print(f"   📡 模型: {current_model.split('/')[-1]} | ⏰ 超时: 250s | 💾 最大token: 2000")
+                print(f"🔄 调用多模态API (尝试 {attempt + 1}/{max_total_attempts})")
+                print(f"   📡 模型: {current_model.split('/')[-1]} | ⏰ 超时: 250s | 💾 最大token: 1000")
                 
                 start_time = time.time()
                 
-                # 检测是否为推理模型
-                is_thinking_model_flag = is_thinking_model(current_model)
+                # 构建多模态消息
+                system_message = "You are a helpful assistant specialized in image description. Please provide detailed, accurate descriptions in Chinese."
                 
-                if is_thinking_model_flag:
-                    # 推理模型使用流式处理
-                    print("   🧠 检测到推理模型，使用流式处理")
-                    content = self._handle_thinking_model_stream(current_model, prompt)
-                else:
-                    # 普通模型使用非流式处理
-                    print("   📡 普通模型，使用非流式处理")
-                    response = self.client.chat.completions.create(
-                        model=current_model,
-                        messages=[
-                            {"role": "system", "content": "🌊 You are a specialized Knowledge Extraction Expert for Flood Disaster Management domain. 专注：洪涝灾害法律法规、应急预案、技术标准。能力：法律条款、应急流程、组织职责、技术标准、关系抽取。CRITICAL: You must extract both traditional entities AND relational expressions. Use EXACT label names from the provided list. Never use descriptions, abbreviations, or variations. For relation labels, extract complete phrases that express semantic relationships between entities. Always respond with valid JSON format containing only the specified labels."},
-                            {"role": "user", "content": prompt}
-                        ],
-                        max_tokens=2000,
-                        temperature=0.1,
-                        top_p=0.9,
-                        stream=False,
+                messages = [
+                    {
+                        "role": "system", 
+                        "content": system_message
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": image_data
+                                }
+                            }
+                        ]
+                    }
+                ]
+                
+                response = self.client.chat.completions.create(
+                    model=current_model,
+                    messages=messages,
+                    max_tokens=1000,
+                    temperature=0.7,
+                    top_p=0.9,
+                    stream=False,
                         timeout=250
                     )
-                    
-                    if response.choices and len(response.choices) > 0:
-                        content = response.choices[0].message.content
-                        # 📋 详细输出普通模型接收到的信息
-                        print(f"\n📥 =====  普通模型响应信息  =====")
-                        print(f"📝 响应内容长度: {len(content) if content else 0}")
-                        if content:
-                            print(f"📝 完整响应内容:\n{content}")
-                        print(f"📥 ==============================\n")
-                    else:
-                        content = None
-                        print("❌ 普通模型响应为空或无choices")
                 
                 end_time = time.time()
                 api_duration = end_time - start_time
                 
-                if content and content.strip():
-                    # 成功
-                    self._handle_success()
-                    print(f"   ✅ 成功 (耗时: {api_duration:.1f}s, 长度: {len(content)})")
-                    return content
+                if response.choices and len(response.choices) > 0:
+                    choice = response.choices[0]
+                    
+                    if hasattr(choice, 'message'):
+                        message = choice.message
+                        content = getattr(message, 'content', None)
+                        
+                        if content and content.strip():
+                            # 成功
+                            self._handle_success()
+                            print(f"   ✅ 成功 (耗时: {api_duration:.1f}s, 长度: {len(content)})")
+                            return content
+                        else:
+                            print(f"⚠️ 返回空内容")
+                            self._handle_failure("空响应")
+                    else:
+                        print(f"⚠️ 无消息内容")
+                        self._handle_failure("无消息")
                 else:
-                    print(f"⚠️ 返回空内容")
-                    self._handle_failure("空响应")
+                    print(f"⚠️ 无响应choices")
+                    self._handle_failure("无响应")
                         
             except Exception as e:
                 error_str = str(e)
-                print(f"❌ API异常: {error_str[:100]}")
+                print(f"❌ 多模态API异常: {error_str[:100]}")
                 
                 # 检查是否需要立即切换
                 if self._should_switch_immediately(error_str):
@@ -784,377 +739,309 @@ class NewModel(LabelStudioMLBase):
         print("❌ 所有尝试都失败")
         return None
     
-    def _handle_thinking_model_stream(self, model: str, prompt: str) -> Optional[str]:
-        """处理推理模型的流式响应"""
+    def _call_multimodal_api(self, prompt: str, image_data: str) -> Optional[str]:
+        """调用多模态API进行图片描述（保留原方法作为备用）"""
+        
+        if not self.client:
+                return None
+                
         try:
+            # 构建多模态消息
+            system_message = "You are a helpful assistant specialized in image description. Please provide detailed, accurate descriptions in Chinese."
+            
+            messages = [
+                {
+                    "role": "system", 
+                    "content": system_message
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": image_data
+                            }
+                        }
+                    ]
+                }
+            ]
+            
             response = self.client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": "🌊 You are a specialized Knowledge Extraction Expert for Flood Disaster Management domain. 专注：洪涝灾害法律法规、应急预案、技术标准。能力：法律条款、应急流程、组织职责、技术标准、关系抽取。CRITICAL: You must extract both traditional entities AND relational expressions. Use EXACT label names from the provided list. Never use descriptions, abbreviations, or variations. For relation labels, extract complete phrases that express semantic relationships between entities. Always respond with valid JSON format containing only the specified labels."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=2000,
-                temperature=0.1,
+                model=get_current_model(),
+                messages=messages,
+                max_tokens=1000,
+                temperature=0.7,
                 top_p=0.9,
-                stream=True,  # 推理模型使用流式
-                timeout=250
+                stream=False
             )
             
-            reasoning_content = ""
-            answer_content = ""
-            done_reasoning = False
-            
-            print("   🔄 开始接收流式响应...")
-            
-            for chunk in response:
-                if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
-                    # 推理过程内容
-                    reasoning_chunk = chunk.choices[0].delta.reasoning_content
-                    reasoning_content += reasoning_chunk
-                    
-                elif hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
-                    # 最终答案内容
-                    answer_chunk = chunk.choices[0].delta.content
-                    if not done_reasoning:
-                        print("   🧠 推理完成，开始输出答案")
-                        done_reasoning = True
-                    answer_content += answer_chunk
-            
-            # 📋 详细输出接收到的信息，方便调试
-            print(f"\n📥 =====  接收到的完整响应信息  =====")
-            print(f"🧠 推理内容长度: {len(reasoning_content)}")
-            if reasoning_content:
-                print(f"🧠 推理内容前500字符:\n{reasoning_content[:500]}")
-                if len(reasoning_content) > 500:
-                    print(f"🧠 推理内容后500字符:\n{reasoning_content[-500:]}")
-            
-            print(f"\n📝 答案内容长度: {len(answer_content)}")
-            if answer_content:
-                print(f"📝 完整答案内容:\n{answer_content}")
-            
-            print(f"📥 ================================\n")
-            
-            # 优先使用答案内容，如果答案内容为空则使用推理内容
-            if answer_content.strip():
-                print(f"   ✅ 使用答案内容进行解析")
-                # 对于DeepSeek模型，检查答案内容是否完整
-                if 'deepseek' in model.lower():
-                    print(f"   🔧 DeepSeek模型，检查JSON完整性...")
-                    if not self._is_json_complete(answer_content):
-                        print(f"   ⚠️ DeepSeek返回的JSON不完整，尝试修复")
-                        repaired = self._repair_incomplete_json(answer_content)
-                        if repaired:
-                            return repaired
-                return answer_content.strip()
-            elif reasoning_content.strip():
-                print(f"   ⚠️ 答案内容为空，尝试从推理内容提取")
-                # 从推理内容中提取最终答案
-                extracted = self._extract_answer_from_reasoning(reasoning_content)
-                if extracted:
-                    print(f"   📤 从推理内容提取的结果:\n{extracted[:500]}")
-                return extracted
-            else:
-                print(f"   ❌ 推理和答案内容都为空")
-                return None
+            if response.choices and len(response.choices) > 0:
+                choice = response.choices[0]
                 
-        except Exception as e:
-            print(f"   ❌ 流式处理失败: {str(e)[:100]}")
-            raise e
-    
-    def _extract_answer_from_reasoning(self, reasoning_content: str) -> Optional[str]:
-        """从推理内容中提取最终答案"""
-        import re
-        
-        # 尝试提取JSON部分
-        json_patterns = [
-            r'```json\s*(.*?)\s*```',  # ```json 代码块
-            r'\{[^{}]*"entities"[^{}]*:.*?\}',  # entities JSON
-            r'\{.*?"entities".*?\}',  # 宽松的entities匹配
-            r'\{.*\}',  # 最后的JSON匹配
-        ]
-        
-        for pattern in json_patterns:
-            matches = re.findall(pattern, reasoning_content, re.DOTALL)
-            if matches:
-                # 返回最后一个匹配的JSON（通常是最终结果）
-                return matches[-1].strip()
-        
-        # 如果没有找到JSON，尝试提取答案部分
-        answer_patterns = [
-            r'(?:最终答案|答案|结果)[：:]\s*(.*)',
-            r'(?:Final Answer|Answer)[：:]\s*(.*)',
-            r'(?:因此|所以|综上)[，,]?\s*(.*)',
-        ]
-        
-        for pattern in answer_patterns:
-            match = re.search(pattern, reasoning_content, re.IGNORECASE | re.DOTALL)
-            if match:
-                return match.group(1).strip()
-        
-        # 如果都找不到，返回推理内容的后半部分
-        lines = reasoning_content.strip().split('\n')
-        if len(lines) > 10:
-            return '\n'.join(lines[-5:])  # 返回最后5行
-        
-        return reasoning_content.strip()
-    
-    def _repair_incomplete_json(self, json_str: str) -> Optional[str]:
-        """修复不完整的JSON字符串"""
-        try:
-            print(f"🔧 开始修复JSON...")
-            
-            # 清理字符串
-            cleaned = json_str.strip()
-            if not cleaned:
+                if hasattr(choice, 'message'):
+                    message = choice.message
+                    content = getattr(message, 'content', None)
+                    
+                    if content:
+                        return content
+                
                 return None
             
-            # 提取JSON部分（如果有代码块）
-            import re
-            json_match = re.search(r'\{.*', cleaned, re.DOTALL)
-            if json_match:
-                cleaned = json_match.group()
-            
-            print(f"🔧 清理后的JSON长度: {len(cleaned)}")
-            print(f"🔧 清理后的JSON末尾50字符: ...{cleaned[-50:]}")
-            
-            # 首先尝试修复常见的JSON语法错误
-            repaired = cleaned
-            
-            # 修复1: 移除末尾多余的逗号
-            repaired = re.sub(r',\s*}', '}', repaired)
-            repaired = re.sub(r',\s*]', ']', repaired)
-            
-            # 修复2: 确保JSON正确结束
-            if '"entities"' in repaired and '[' in repaired:
-                # 统计整个JSON的花括号和方括号平衡情况
-                total_open_braces = repaired.count('{')
-                total_close_braces = repaired.count('}')
-                total_open_brackets = repaired.count('[')
-                total_close_brackets = repaired.count(']')
-                
-                print(f"🔧 整体括号统计: 开花括号{total_open_braces}, 闭花括号{total_close_braces}")
-                print(f"🔧 整体方括号统计: 开方括号{total_open_brackets}, 闭方括号{total_close_brackets}")
-                
-                # 检查是否以正确的符号结尾
-                last_char = repaired.rstrip()[-1] if repaired.rstrip() else ''
-                print(f"🔧 JSON最后字符: '{last_char}'")
-                
-                # 计算需要补全的括号数量
-                missing_close_braces = total_open_braces - total_close_braces
-                missing_close_brackets = total_open_brackets - total_close_brackets
-                
-                # 针对DeepSeek常见的情况：entities数组正确但缺少最外层花括号
-                if last_char == ']' and missing_close_braces == 1 and missing_close_brackets == 0:
-                    print(f"🔧 检测到DeepSeek典型错误：缺少最外层花括号")
-                    repaired += '\n}'
-                    print(f"🔧 添加最外层花括号后的JSON:\n{repaired}")
-                    try:
-                        json.loads(repaired)
-                        print(f"✅ 添加最外层花括号修复成功")
-                        return repaired
-                    except json.JSONDecodeError as e:
-                        print(f"❌ 添加花括号后仍有错误: {str(e)}")
-                
-                # 尝试直接解析看是否有其他语法错误
-                if missing_close_braces == 0 and missing_close_brackets == 0:
-                    print(f"🔧 括号已平衡，检查语法错误...")
-                    try:
-                        json.loads(repaired)
-                        print(f"✅ JSON已经有效")
-                        return repaired
-                    except json.JSONDecodeError as e:
-                        print(f"🔧 JSON语法错误: {str(e)}")
-                        
-                        # 修复3: 处理不完整的最后一个实体对象
-                        if "Expecting ',' delimiter" in str(e):
-                            print(f"🔧 处理不完整的实体对象...")
-                            
-                            # 找到最后一个完整的实体
-                            entity_pattern = r'\{\s*"text":\s*"[^"]*",\s*"start":\s*\d+,\s*"end":\s*\d+,\s*"label":\s*"[^"]*"\s*\}'
-                            matches = list(re.finditer(entity_pattern, repaired))
-                            
-                            if matches:
-                                # 找到最后一个完整实体的结束位置
-                                last_match = matches[-1]
-                                last_entity_end = last_match.end()
-                                
-                                # 构建修复后的JSON
-                                entities_part = repaired[:last_entity_end]
-                                repaired = entities_part + '\n  ]\n}'
-                                
-                                print(f"🔧 移除不完整实体后的JSON:\n{repaired}")
-                                try:
-                                    json.loads(repaired)
-                                    print(f"✅ 移除不完整实体修复成功")
-                                    return repaired
-                                except:
-                                    pass
-                
-                # 一般的括号补全逻辑
-                if missing_close_braces > 0 or missing_close_brackets > 0:
-                    print(f"🔧 需要补全: {missing_close_braces}个}}, {missing_close_brackets}个]")
-                    
-                    # 补全花括号
-                    for _ in range(missing_close_braces):
-                        repaired += '\n    }'
-                    
-                    # 补全方括号
-                    for _ in range(missing_close_brackets):
-                        repaired += '\n  ]'
-                    
-                    # 确保最外层以花括号结尾
-                    if not repaired.rstrip().endswith('}') and total_open_braces > total_close_braces:
-                        repaired += '\n}'
-                    
-                    print(f"🔧 补全括号后的JSON:\n{repaired}")
-                    try:
-                        json.loads(repaired)
-                        print(f"✅ 补全括号修复成功")
-                        return repaired
-                    except json.JSONDecodeError as e2:
-                        print(f"❌ 补全括号后仍有错误: {str(e2)}")
-            
-            # 最后的尝试：重构JSON
-            print(f"🔧 尝试重构JSON...")
-            if '"entities"' in repaired:
-                # 提取所有可能的实体
-                entity_pattern = r'"text":\s*"([^"]*)",\s*"start":\s*(\d+),\s*"end":\s*(\d+),\s*"label":\s*"([^"]*)"'
-                entities_matches = re.findall(entity_pattern, repaired)
-                
-                if entities_matches:
-                    print(f"🔧 找到 {len(entities_matches)} 个完整实体，重构JSON")
-                    
-                    # 重新构建JSON
-                    entities_list = []
-                    for text, start, end, label in entities_matches:
-                        entity = {
-                            "text": text,
-                            "start": int(start),
-                            "end": int(end),
-                            "label": label
-                        }
-                        entities_list.append(entity)
-                    
-                    reconstructed = {
-                        "entities": entities_list
-                    }
-                    
-                    reconstructed_json = json.dumps(reconstructed, ensure_ascii=False, indent=2)
-                    print(f"🔧 重构的JSON:\n{reconstructed_json}")
-                    return reconstructed_json
-            
-            print("❌ 所有修复策略都失败")
-            return None
-            
         except Exception as e:
-            print(f"❌ JSON修复异常: {str(e)}")
+            print(f"❌ 多模态API调用异常: {str(e)}")
             return None
     
-    def _is_json_complete(self, json_str: str) -> bool:
-        """检查JSON字符串是否完整"""
-        try:
-            # 简单的完整性检查
-            cleaned = json_str.strip()
-            if not cleaned:
-                return False
-            
-            # 检查基本结构
-            if not cleaned.startswith('{'):
-                return False
-            
-            # 检查花括号平衡
-            open_braces = cleaned.count('{')
-            close_braces = cleaned.count('}')
-            
-            # 检查方括号平衡
-            open_brackets = cleaned.count('[')
-            close_brackets = cleaned.count(']')
-            
-            print(f"🔧 完整性检查: 开括号{open_braces}, 闭括号{close_braces}, 开方括号{open_brackets}, 闭方括号{close_brackets}")
-            print(f"🔧 JSON开始: '{cleaned[:20]}...', 结束: '...{cleaned[-20:]}'")
-            
-            # 检查是否平衡
-            if open_braces != close_braces or open_brackets != close_brackets:
-                print(f"🔧 括号不平衡")
-                return False
-            
-            # 即使括号平衡，也要检查是否以}结尾
-            if not cleaned.endswith('}'):
-                print(f"🔧 JSON不以}}结尾")
-                return False
-            
-            # 尝试解析JSON
-            try:
-                json.loads(cleaned)
-                print(f"🔧 JSON解析成功，格式完整")
-                return True
-            except json.JSONDecodeError as e:
-                print(f"🔧 JSON解析失败，有语法错误: {str(e)}")
-                return False
-                
-        except Exception as e:
-            print(f"🔧 完整性检查异常: {str(e)}")
-            return False
-    
-    def _map_invalid_label(self, invalid_label: str) -> Optional[str]:
-        """映射无效标签到有效标签"""
-        # 常见的标签映射关系
-        label_mapping = {
-            # 地理相关映射
-            "影响范围": "行政区划",
-            "地理位置": "行政区划", 
-            "地区": "行政区划",
-            "区域": "行政区划",
-            "范围": "行政区划",
-            
-            # 时间相关映射
-            "时间": "时间节点",
-            "日期": "时间节点",
-            "期间": "时间节点",
-            
-            # 灾害相关映射
-            "灾害": "灾害类型",
-            "自然灾害": "灾害类型",
-            "事故": "灾害类型",
-            
-            # 机构相关映射
-            "机构": "政府机构",
-            "部门": "政府机构",
-            "组织": "政府机构",
-            
-            # 法律相关映射
-            "法律": "法律法规",
-            "法规": "法律法规",
-            "条例": "法律法规",
-            "规定": "法律法规",
-            
-            # 数据相关映射
-            "数据": "降雨数据",
-            "数量": "降雨数据",
-            "量级": "降雨数据",
+    def _format_description_prediction(self, api_response: str, task: Dict) -> Dict:
+        """格式化图片描述预测结果为Label Studio格式"""
+        
+        # 构建基础预测结构
+        model_version = self.get("model_version")
+        
+        prediction = {
+            "model_version": model_version,
+            "score": 0.95,
+            "result": []
         }
         
-        # 直接映射
-        if invalid_label in label_mapping:
-            mapped = label_mapping[invalid_label]
-            if mapped in ENTITY_LABELS:
-                return mapped
+        # 动态获取字段名
+        from_name, to_name = self._get_field_names()
         
-        # 模糊匹配（包含关系）
-        invalid_lower = invalid_label.lower()
-        for invalid_key, valid_label in label_mapping.items():
-            if invalid_key.lower() in invalid_lower or invalid_lower in invalid_key.lower():
-                if valid_label in ENTITY_LABELS:
-                    return valid_label
+        # 处理API响应
+        if api_response and api_response.strip():
+            cleaned_response = self._clean_response_format(api_response.strip())
+            
+            # 构建Label Studio结果格式
+            result_item = {
+                "from_name": from_name,
+                "to_name": to_name,
+                "type": "textarea", 
+                "value": {
+                    "text": [cleaned_response]
+                }
+            }
+            
+            prediction["result"].append(result_item)
+            
+        else:
+            default_message = "无法生成图片描述"
+            result_item = {
+                "from_name": from_name,
+                "to_name": to_name, 
+                "type": "textarea",
+                "value": {
+                    "text": [default_message]
+                }
+            }
+            
+            prediction["result"].append(result_item)
         
-        # 如果还是找不到，尝试相似度匹配
-        for valid_label in ENTITY_LABELS:
-            # 简单的相似度检查（共同字符）
-            common_chars = set(invalid_label) & set(valid_label)
-            if len(common_chars) >= min(2, len(invalid_label) // 2):
-                return valid_label
+        return prediction
+    
+    def _clean_response_format(self, response: str) -> str:
+        """清理API响应中的格式标记并验证JSON完整性"""
+        import re
         
-        return None
+        # 移除```json和```标记
+        cleaned = re.sub(r'```json\s*', '', response)
+        cleaned = re.sub(r'\s*```', '', cleaned)
+        
+        # 移除其他代码块标记
+        cleaned = re.sub(r'```[\w]*\s*', '', cleaned)
+        
+        # 移除markdown格式标记
+        cleaned = re.sub(r'^\s*```\s*$', '', cleaned, flags=re.MULTILINE)
+        
+        # 清理多余的空白行
+        cleaned = re.sub(r'\n\s*\n\s*\n', '\n\n', cleaned)
+        
+        # 验证和修复JSON结构
+        cleaned = self._validate_and_fix_json(cleaned.strip())
+        
+        return cleaned
+    
+    def _validate_and_fix_json(self, text: str) -> str:
+        """验证JSON结构完整性并尝试修复"""
+        
+        # 首先尝试解析JSON
+        try:
+            json.loads(text)
+            print("✅ JSON结构验证通过")
+            return text
+        except json.JSONDecodeError as e:
+            print(f"⚠️ 检测到JSON结构问题: {str(e)}")
+            
+            # 尝试修复常见的JSON问题
+            fixed_text = self._fix_common_json_issues(text)
+            
+            # 再次验证修复后的JSON
+            try:
+                json.loads(fixed_text)
+                print("✅ JSON结构修复成功")
+                return fixed_text
+            except json.JSONDecodeError as e2:
+                print(f"❌ JSON修复失败: {str(e2)}")
+                # 如果修复失败，返回一个标准的错误JSON结构
+                return self._create_fallback_json_response(text)
+    
+    def _fix_common_json_issues(self, text: str) -> str:
+        """修复常见的JSON问题"""
+        import re
+        
+        print("🔧 尝试修复JSON结构...")
+        
+        # 1. 移除可能的非JSON前缀和后缀文本
+        # 查找第一个{和最后一个}
+        first_brace = text.find('{')
+        last_brace = text.rfind('}')
+        
+        if first_brace != -1 and last_brace != -1 and first_brace < last_brace:
+            text = text[first_brace:last_brace + 1]
+            print("   📝 提取JSON主体部分")
+        
+        # 2. 修复未闭合的字符串引号
+        # 简单的引号修复：确保每行的引号是成对的
+        lines = text.split('\n')
+        fixed_lines = []
+        
+        for line in lines:
+            # 计算引号数量
+            quote_count = line.count('"') - line.count('\\"')  # 排除转义引号
+            
+            # 如果引号数量为奇数，可能缺少闭合引号
+            if quote_count % 2 == 1:
+                # 在行末添加引号（如果该行看起来像是值）
+                stripped = line.rstrip()
+                if stripped and not stripped.endswith(('"', ',', '}', ']')):
+                    line = stripped + '"'
+                    if not line.endswith(',') and not line.endswith('}'):
+                        line += ','
+            
+            fixed_lines.append(line)
+        
+        text = '\n'.join(fixed_lines)
+        
+        # 3. 修复缺少的逗号
+        # 在}前面的行如果没有逗号，添加逗号
+        text = re.sub(r'(["\]}])\s*\n\s*(["\[{])', r'\1,\n\2', text)
+        
+        # 4. 修复多余的逗号
+        # 移除}和]前面的多余逗号
+        text = re.sub(r',(\s*[}\]])', r'\1', text)
+        
+        # 5. 修复未闭合的数组和对象
+        open_braces = text.count('{') - text.count('}')
+        open_brackets = text.count('[') - text.count(']')
+        
+        # 添加缺失的闭合括号
+        text += '}' * open_braces
+        text += ']' * open_brackets
+        
+        print(f"   🔧 修复完成: 添加了{open_braces}个{{}}和{open_brackets}个[]")
+        
+        return text
+    
+    def _create_fallback_json_response(self, original_text: str) -> str:
+        """创建备用的JSON响应结构"""
+        print("🆘 创建备用JSON响应")
+        
+        # 尝试从原始文本中提取一些信息
+        extracted_info = self._extract_basic_info_from_text(original_text)
+        
+        fallback_response = {
+            "image_id": "unknown",
+            "visual_cot": [
+                {
+                    "step": 1,
+                    "reasoning_level": "perception",
+                    "reasoning": "由于JSON解析错误，进行基础分析",
+                    "observation": extracted_info.get("observation", "无法完整解析API响应"),
+                    "expected_outcome": "获取基础图片信息",
+                    "inference": extracted_info.get("inference", "响应格式存在问题，已进行基础处理"),
+                    "step_type": "error_handling",
+                    "confidence": "低"
+                }
+            ],
+            "structured_description": {
+                "disaster_type": extracted_info.get("disaster_type", "未能识别"),
+                "affected_area": extracted_info.get("affected_area", "未观察到"),
+                "disaster_level": "未观察到",
+                "parsing_status": "JSON格式错误，已使用备用结构"
+            },
+            "overall_text_description": extracted_info.get("description", f"由于响应格式问题，无法完整解析图片描述。原始响应片段：{original_text[:200]}...")
+        }
+        
+        return json.dumps(fallback_response, ensure_ascii=False, indent=2)
+    
+    def _extract_basic_info_from_text(self, text: str) -> Dict[str, str]:
+        """从损坏的文本中提取基础信息"""
+        import re
+        
+        info = {}
+        
+        # 尝试提取灾害类型
+        disaster_patterns = [
+            r'["\'](洪水|洪涝|水灾|flooding)["\']',
+            r'disaster_type["\']?\s*:\s*["\']([^"\']+)["\']',
+            r'灾害类型["\']?\s*:\s*["\']([^"\']+)["\']'
+        ]
+        
+        for pattern in disaster_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                info["disaster_type"] = match.group(1)
+                break
+        
+        # 尝试提取描述信息
+        desc_patterns = [
+            r'overall_text_description["\']?\s*:\s*["\']([^"\']{20,})["\']',
+            r'总体.*?描述["\']?\s*:\s*["\']([^"\']{20,})["\']',
+            r'描述["\']?\s*:\s*["\']([^"\']{20,})["\']'
+        ]
+        
+        for pattern in desc_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                info["description"] = match.group(1)
+                break
+        
+        # 尝试提取观察信息
+        obs_patterns = [
+            r'observation["\']?\s*:\s*["\']([^"\']{10,})["\']',
+            r'观察["\']?\s*:\s*["\']([^"\']{10,})["\']'
+        ]
+        
+        for pattern in obs_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                info["observation"] = match.group(1)
+                break
+        
+        return info
+    
+    def _format_prediction(self, api_response: str, task: Dict) -> Dict:
+        """格式化预测结果为Label Studio格式(备用方法)"""
+        
+        prediction = {
+            "model_version": self.get("model_version"),
+            "score": 0.85,
+            "result": []
+        }
+        
+        # 返回清理后的文本结果
+        if api_response and api_response.strip():
+            cleaned_response = self._clean_response_format(api_response.strip())
+            prediction["result"].append({
+                "from_name": "prediction",
+                "to_name": "text",
+                "type": "textarea",
+                "value": {
+                    "text": [cleaned_response]
+                }
+            })
+        
+        return prediction
     
     def _print_status(self):
         """📊 简化的状态显示"""
@@ -1181,436 +1068,50 @@ class NewModel(LabelStudioMLBase):
             "management_type": "simplified_global_state"
         }
     
-    def _format_prediction(self, api_response: str, task: Dict) -> Dict:
-        """格式化预测结果为Label Studio格式"""
-        
-        prediction = {
-            "model_version": self.get("model_version"),
-            "score": 0.95,
-            "result": []
-        }
-        
-        # 尝试解析NER结果
-        ner_results = self._parse_ner_response(api_response, task)
-        if ner_results and len(ner_results) > 0:
-            prediction["result"] = ner_results
-            prediction["score"] = 0.95
-            return prediction
-        
-        # 如果没有识别到任何实体，返回失败信息
-        prediction["score"] = 0.0
-        prediction["result"] = []
-        return None
-    
-    def _parse_ner_response(self, api_response: str, task: Dict) -> Optional[List[Dict]]:
-        """解析AI返回的命名实体识别JSON结果，并用正则表达式进行补充"""
-        
-        # 获取原始文本
-        task_data = task.get('data', {})
-        original_text = ""
-        for key in ['text', 'content', 'prompt', 'question', 'description', 'query']:
-            if key in task_data and isinstance(task_data[key], str):
-                original_text = task_data[key]
-                break
-        
-        if not original_text:
-            return None
-        
-        # 初始化结果列表
-        results = []
-        ai_entities = []
-        
-        # 第一步：解析AI模型的识别结果
-        if api_response and api_response.strip():
-            ai_entities = self._parse_ai_entities(api_response, original_text)
-            if ai_entities:
-                results.extend(ai_entities)
-        
-        # 第二步：使用正则表达式进行补充识别
-        regex_entities = self._extract_regex_entities(original_text, ai_entities)
-        if regex_entities:
-            results.extend(regex_entities)
-        
-        # 第三步：去重和排序
-        final_results = self._deduplicate_entities(results)
-        
-        return final_results if final_results else None
-    
-    def _parse_ai_entities(self, api_response: str, original_text: str) -> List[Dict]:
-        """解析AI模型返回的实体"""
-        ai_results = []
-        
-        print(f"\n🔍 =====  开始解析AI响应  =====")
-        print(f"📝 原始响应长度: {len(api_response)}")
-        print(f"📝 原始响应内容:\n{api_response}")
-        print(f"🔍 ============================\n")
-        
+    def _get_field_names(self) -> tuple:
+        """动态获取Label Studio配置中的字段名"""
         try:
-            # 尝试直接解析JSON
-            try:
-                print("🔍 尝试直接解析JSON...")
-                ner_data = json.loads(api_response.strip())
-                print("✅ 直接解析JSON成功")
-            except json.JSONDecodeError as e:
-                print(f"❌ 直接JSON解析失败: {str(e)}")
-                # 尝试提取JSON部分
-                import re
-                
-                # 多种JSON提取策略
-                patterns = [
-                    r'\{[^{}]*"entities"[^{}]*:.*?\}',  # 最严格的entities匹配
-                    r'\{.*?"entities".*?\}',            # 宽松的entities匹配
-                    r'\{.*\}',                          # 最宽松的JSON匹配
-                ]
-                
-                ner_data = None
-                for i, pattern in enumerate(patterns):
-                    print(f"🔍 尝试模式 {i+1}: {pattern}")
-                    json_match = re.search(pattern, api_response, re.DOTALL)
-                    if json_match:
-                        extracted_json = json_match.group()
-                        print(f"🔍 模式 {i+1} 提取到: {extracted_json[:200]}")
-                        try:
-                            ner_data = json.loads(extracted_json)
-                            print(f"✅ 模式 {i+1} 解析成功")
-                            break
-                        except json.JSONDecodeError as e2:
-                            print(f"❌ 模式 {i+1} 解析失败: {str(e2)}")
-                            continue
-                
-                if not ner_data:
-                    print("❌ 所有JSON提取模式都失败，尝试JSON修复...")
-                    # 尝试修复不完整的JSON
-                    repaired_json = self._repair_incomplete_json(api_response)
-                    if repaired_json:
-                        try:
-                            ner_data = json.loads(repaired_json)
-                            print("✅ JSON修复成功")
-                        except json.JSONDecodeError as e3:
-                            print(f"❌ JSON修复后仍然解析失败: {str(e3)}")
-                            return ai_results
-                    else:
-                        print("❌ JSON修复失败")
-                        return ai_results
-            
-            # 检查entities字段
-            if 'entities' not in ner_data or not isinstance(ner_data['entities'], list):
-                print(f"❌ 缺少entities字段或格式错误")
-                print(f"📝 解析到的数据结构: {type(ner_data)}")
-                print(f"📝 数据内容: {ner_data}")
-                return ai_results
-            
-            entities = ner_data['entities']
-            print(f"✅ 找到entities字段，包含 {len(entities)} 个实体")
-            
-            # 转换为Label Studio格式
-            for i, entity in enumerate(entities):
-                print(f"\n🔍 处理实体 {i+1}/{len(entities)}: {entity}")
-                # 验证必需字段
-                required_fields = ['text', 'start', 'end', 'label']
-                missing_fields = [field for field in required_fields if field not in entity]
-                if missing_fields:
-                    print(f"   ❌ 缺少必需字段: {missing_fields}")
-                    continue
-                
-                start = entity['start']
-                end = entity['end']
-                text = entity['text']
-                original_label = entity['label']
-                
-                print(f"   📝 原始实体: text='{text}', start={start}, end={end}, label='{original_label}'")
-                
-                # 严格验证标签
-                validated_label = validate_label(original_label)
-                if not validated_label:
-                    print(f"   ❌ 标签验证失败: '{original_label}' 不在有效标签列表中")
-                    print(f"   📝 有效标签列表前10个: {list(ENTITY_LABELS)[:10]}")
-                    # 尝试标签映射修正
-                    mapped_label = self._map_invalid_label(original_label)
-                    if mapped_label:
-                        print(f"   🔧 尝试标签映射: '{original_label}' → '{mapped_label}'")
-                        validated_label = mapped_label
-                    else:
-                        continue
-                
-                print(f"   ✅ 标签验证成功: '{original_label}' → '{validated_label}'")
-                
-                # 使用验证通过的标签
-                label = validated_label
-                
-                # 验证位置信息基本合理性
-                if not isinstance(start, int) or not isinstance(end, int) or start < 0:
-                    print(f"   ❌ 位置信息格式错误: start={start}({type(start)}), end={end}({type(end)})")
-                    continue
-                
-                print(f"   🔍 开始位置修正...")
-                # 先尝试修正位置，再进行范围检查
-                corrected_start, corrected_end, corrected_text = self._correct_entity_position(
-                    original_text, text, start, end
+            # 尝试从Label Studio配置中获取字段名
+            if hasattr(self, 'label_interface') and self.label_interface:
+                # 查找TextArea标签
+                textarea_from_name, textarea_to_name, _ = self.label_interface.get_first_tag_occurence(
+                    'TextArea', ['Image', 'Text', 'HyperText']
                 )
-                
-                # 检查修正后的位置是否合理
-                if corrected_start is None or corrected_end is None or corrected_text is None:
-                    print(f"   ❌ 位置修正失败: 无法在原文中找到实体")
-                    continue
-                
-                # 验证修正后的位置不超出文本长度
-                if corrected_end > len(original_text) or corrected_start < 0:
-                    print(f"   ❌ 修正后位置超出范围: start={corrected_start}, end={corrected_end}, 文本长度={len(original_text)}")
-                    continue
-                
-                print(f"   ✅ 位置修正成功: start={corrected_start}, end={corrected_end}, text='{corrected_text}'")
-                
-                if corrected_text:
-                    # 验证修正后的实体是否合理
-                    if self._is_valid_entity(corrected_text, validated_label):
-                        result = {
-                            "from_name": "label",
-                            "to_name": "text",
-                            "type": "labels",
-                            "value": {
-                                "start": corrected_start,
-                                "end": corrected_end,
-                                "text": corrected_text,
-                                "labels": [label]
-                            },
-                            "source": "ai"  # 标记来源为AI
-                        }
-                        
-                        ai_results.append(result)
-                        print(f"   ✅ 实体添加成功: '{corrected_text}' [{label}]")
-                    else:
-                        print(f"   ❌ 实体验证失败: '{corrected_text}' 不符合 {validated_label} 类型要求")
+                if textarea_from_name and textarea_to_name:
+                    return textarea_from_name, textarea_to_name
             
-            print(f"\n📊 AI实体解析结果: 成功处理 {len(ai_results)} 个实体")
-            return ai_results
+            # 查找Image标签
+            if hasattr(self, 'label_interface') and self.label_interface:
+                image_from_name, image_to_name, _ = self.label_interface.get_first_tag_occurence(
+                    'Image', []
+                )
+                if image_from_name:
+                    return "caption", image_from_name
             
         except Exception as e:
-            print(f"❌ AI实体解析异常: {str(e)}")
-            return ai_results
-    
-    def _extract_regex_entities(self, original_text: str, existing_entities: List[Dict]) -> List[Dict]:
-        """使用正则表达式补充识别实体"""
-        regex_results = []
-        
-        try:
-            # 获取已识别实体的位置范围，避免重复
-            existing_ranges = set()
-            for entity in existing_entities:
-                value = entity.get('value', {})
-                start = value.get('start', -1)
-                end = value.get('end', -1)
-                if start >= 0 and end > start:
-                    # 扩展范围以避免重叠
-                    for pos in range(max(0, start-1), min(len(original_text), end+1)):
-                        existing_ranges.add(pos)
-            
-            # 从entity_config获取正则模式
-            from entity_config import get_entity_config
-            entity_config = get_entity_config()
-            
-            # 遍历所有配置的实体类型
-            for label_key, config in entity_config.items():
-                if 'patterns' not in config or not config['patterns']:
-                    continue
-                
-                patterns = config['patterns']
-                description = config['description']
-                
-                # 对每个正则模式进行匹配
-                for pattern in patterns:
-                    try:
-                        import re
-                        matches = re.finditer(pattern, original_text)
-                        
-                        for match in matches:
-                            start = match.start()
-                            end = match.end()
-                            text = match.group()
-                            
-                            # 检查是否与已识别的实体重叠
-                            overlapping = any(pos in existing_ranges for pos in range(start, end))
-                            if overlapping:
-                                continue
-                            
-                            # 验证实体是否合理
-                            if self._is_valid_entity(text, label_key):
-                                result = {
-                                    "from_name": "label",
-                                    "to_name": "text",
-                                    "type": "labels",
-                                    "value": {
-                                        "start": start,
-                                        "end": end,
-                                        "text": text,
-                                        "labels": [label_key]  # 使用标签键名而不是description
-                                    },
-                                    "source": "regex"  # 标记来源为正则
-                                }
-                                
-                                regex_results.append(result)
-                                
-                                # 更新已识别范围
-                                for pos in range(start, end):
-                                    existing_ranges.add(pos)
-                                
-                    except re.error:
-                        continue
-            
-            return regex_results
-            
-        except Exception:
-            return regex_results
-    
-    def _deduplicate_entities(self, entities: List[Dict]) -> List[Dict]:
-        """去重和排序实体"""
-        
-        # 按起始位置排序
-        sorted_entities = sorted(entities, key=lambda x: x.get('value', {}).get('start', 0))
-        
-        # 去重逻辑：如果两个实体位置重叠超过50%，保留置信度高的
-        deduplicated = []
-        
-        for current in sorted_entities:
-            current_value = current.get('value', {})
-            current_start = current_value.get('start', 0)
-            current_end = current_value.get('end', 0)
-            current_text = current_value.get('text', '')
-            current_source = current.get('source', 'unknown')
-            
-            # 检查是否与已添加的实体重叠
-            should_add = True
-            for i, existing in enumerate(deduplicated):
-                existing_value = existing.get('value', {})
-                existing_start = existing_value.get('start', 0)
-                existing_end = existing_value.get('end', 0)
-                existing_text = existing_value.get('text', '')
-                existing_source = existing.get('source', 'unknown')
-                
-                # 计算重叠度
-                overlap_start = max(current_start, existing_start)
-                overlap_end = min(current_end, existing_end)
-                
-                if overlap_start < overlap_end:  # 有重叠
-                    overlap_length = overlap_end - overlap_start
-                    current_length = current_end - current_start
-                    existing_length = existing_end - existing_start
-                    
-                    # 计算重叠比例（相对于较短的实体）
-                    min_length = min(current_length, existing_length)
-                    overlap_ratio = overlap_length / min_length if min_length > 0 else 0
-                    
-                    if overlap_ratio > 0.5:  # 重叠超过50%
-                        
-                        # 优先级：AI > 正则，长实体 > 短实体
-                        should_replace = False
-                        if current_source == 'ai' and existing_source == 'regex':
-                            should_replace = True
-                        elif current_source == existing_source and current_length > existing_length:
-                            should_replace = True
-                        
-                        if should_replace:
-                            deduplicated[i] = current
-                        
-                        should_add = False
-                        break
-            
-            if should_add:
-                deduplicated.append(current)
-        
-        # 最终按位置排序
-        final_results = sorted(deduplicated, key=lambda x: x.get('value', {}).get('start', 0))
-        
-        # 移除source标记（Label Studio不需要）
-        for result in final_results:
-            result.pop('source', None)
-        
-        return final_results
-    
-    def _correct_entity_position(self, original_text: str, entity_text: str, start: int, end: int) -> tuple:
-        """修正实体位置"""
-        # 首先检查原始位置是否正确
-        if start < len(original_text) and end <= len(original_text):
-            extracted = original_text[start:end]
-            if extracted == entity_text:
-                return start, end, entity_text
-        
-        # 清理实体文本（去除多余空格和标点）
-        clean_entity = entity_text.strip()
-        if not clean_entity:
-            return None, None, None
-        
-        # 在原文中搜索实体文本
-        try:
-            # 尝试精确匹配
-            exact_start = original_text.find(clean_entity)
-            if exact_start != -1:
-                exact_end = exact_start + len(clean_entity)
-                return exact_start, exact_end, clean_entity
-            
-            # 尝试模糊匹配（去除标点符号）
-            import re
-            clean_text_for_search = re.sub(r'[^\w\u4e00-\u9fff]', '', clean_entity)
-            if len(clean_text_for_search) >= 2:  # 至少2个字符才进行模糊匹配
-                for i in range(len(original_text) - len(clean_text_for_search) + 1):
-                    slice_text = original_text[i:i + len(clean_text_for_search)]
-                    clean_slice = re.sub(r'[^\w\u4e00-\u9fff]', '', slice_text)
-                    if clean_slice == clean_text_for_search:
-                        return i, i + len(clean_text_for_search), slice_text
-            
-            # 如果还是找不到，尝试部分匹配
-            if len(clean_entity) >= 3:
-                core_part = clean_entity[:min(len(clean_entity), 5)]  # 取前几个字符作为核心
-                core_start = original_text.find(core_part)
-                if core_start != -1:
-                    # 尝试扩展匹配
-                    extended_end = min(core_start + len(clean_entity) + 2, len(original_text))
-                    extended_text = original_text[core_start:extended_end]
-                    return core_start, extended_end, extended_text
-            
-        except Exception:
             pass
         
-        return None, None, None
+        # 根据您的模板，使用正确的字段名
+        return "caption", "image"
     
-    def _is_valid_entity(self, text: str, label: str) -> bool:
-        """简化的实体验证（基础规则验证）"""
-        if not text or len(text.strip()) < 1:
-            return False
-        
-        # 去除首尾标点符号和空格
-        clean_text = text.strip()
-        
-        # 不能只是标点符号
-        import re
-        if re.match(r'^[^\w\u4e00-\u9fff]+$', clean_text):
-            return False
-        
-        # 基础长度验证
-        if len(clean_text) < 1:
-            return False
-        
-        # 验证标签是否有效
-        if label not in ENTITY_LABELS:
-            return False
-        
-        # 特殊验证：关系标签
-        if label.endswith("关系"):
-            # 关系标签应该包含动词或连接词
-            relation_keywords = ['根据', '依据', '按照', '负责', '主管', '管辖', '导致', '造成', '引起', 
-                               '之前', '之后', '同时', '包括', '包含', '属于', '影响', '波及', '协调', 
-                               '配合', '执行', '实施', '补偿', '赔偿']
-            
-            if not any(keyword in clean_text for keyword in relation_keywords):
-                # 对于关系标签，放宽验证，只要不是纯标点就接受
-                pass
-        
-        return True
-    
+    def _extract_choice(self, response: str, choices: List[str]) -> Optional[str]:
+        """从响应中提取最匹配的选择"""
+        response_lower = response.lower()
+        for choice in choices:
+            if choice.lower() in response_lower:
+                return choice
+        return choices[0] if choices else None
     
     def fit(self, event, data, **kwargs):
-        """训练/更新模型"""
-        self.set('my_data', 'updated_data')
+        """
+        训练/更新图片描述模型
+        :param event: 事件类型 ('ANNOTATION_CREATED', 'ANNOTATION_UPDATED', 'START_TRAINING')
+        :param data: 事件数据(包含图片和描述标注)
+        """
+        # 记录标注数据用于模型优化
+        old_data = self.get('annotation_data')
+        self.set('annotation_data', 'updated_description_data')
         self.set('model_version', 'updated_version')
-        print(f"✅ 模型已更新 ({event})")
+        print(f"✅ 图片描述模型已更新 (事件: {event})")
+        print(f"📸 已记录新的图片描述标注数据，用于后续模型优化")
 
