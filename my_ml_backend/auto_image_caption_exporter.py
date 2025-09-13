@@ -40,8 +40,8 @@ from datetime import datetime
 # 用户配置区域 - 请根据实际情况修改
 # ================================
 
-# 导出文件夹配置
-EXPORT_BASE_DIR = "outfile"  # 使用相对路径，导出到outfile文件夹
+# 导出文件夹配置 - 绝对路径，方便修改
+EXPORT_BASE_DIR = r"E:\pydemo\01LabelStudio-test\outfile"  # 导出文件夹的绝对路径
 
 # Label Studio 配置
 LABEL_STUDIO_URL = "http://localhost:8080"

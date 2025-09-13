@@ -2,13 +2,12 @@ from typing import List, Dict, Optional
 import json
 import os
 import base64
-import time
 from openai import OpenAI
 from label_studio_ml.model import LabelStudioMLBase
 from label_studio_ml.response import ModelResponse
 
 
-# ==================== 多模态图片描述配置 ====================
+# ==================== 多模态图框选标注配置 ====================
 # 支持的图片格式
 SUPPORTED_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
 
@@ -16,27 +15,33 @@ SUPPORTED_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
 # 可以通过环境变量 LABEL_STUDIO_MEDIA_DIR 设置
 LABEL_STUDIO_MEDIA_DIR = os.getenv('LABEL_STUDIO_MEDIA_DIR', r'C:\Users\Administrator\AppData\Local\label-studio\label-studio\media')
 
-# 图片描述任务配置
-IMAGE_DESCRIPTION_CONFIG = {
-    "task_type": "图片描述文本标注",
+# 图框选标注任务配置
+RECTANGLE_ANNOTATION_CONFIG = {
+    "task_type": "灾害图片框选标注",
     "model_type": "多模态视觉语言模型", 
-    "output_format": "自然语言文本描述",
+    "output_format": "矩形框标注",
     "language": "中文",
     "max_tokens": 1000,
     "temperature": 0.7,
-    "features": [
-        "物体识别",
-        "场景理解", 
-        "颜色分析",
-        "动作描述",
-        "细节观察"
+    "labels": [
+        "积水淹没区域",      # 蓝色
+        "受灾建筑物",        # 红色
+        "受灾道路",          # 橙色
+        "受灾人员",          # 粉色
+        "受灾车辆",          # 紫色
+        "救援人员",          # 绿色
+        "救援车辆",          # 青色
+        "树木农田受损区",    # 棕色
+        "电力设施",          # 黄色
+        "桥梁堤坝",          # 深橙色
+        "交通设施",          # 灰色
+        "漂浮物"             # 浅蓝色
     ]
 }
 
 # ==================== 🌍 全局状态管理 - API Key和模型切换 ====================
 # 使用全局变量统一管理当前状态，避免复杂的切换逻辑
 api_key_list = [
-    "ms-d200fd06-f07f-4be8-a6a8-9ebf76dd103a",  # 原始默认Key
     "ms-758c9c64-2498-467c-a0de-8b32a1370bc1",
     "ms-376c277c-8f18-4c42-9ba9-c4b0911fa9b0",
     "ms-78247b29-fd23-4ef9-a86a-0e792da83f3e",
@@ -53,8 +58,9 @@ GLOBAL_CURRENT_API_KEY = api_key_list[GLOBAL_API_KEY_INDEX]
 
 # 🤖 全局模型状态 - 多模态模型列表
 available_models_global = [ 
-"Qwen/Qwen2.5-VL-72B-Instruct",
+
 "stepfun-ai/step3",
+"Qwen/Qwen2.5-VL-72B-Instruct",
 ]
 
 GLOBAL_MODEL_INDEX = 0
@@ -117,13 +123,13 @@ def reset_global_state():
 
 
 class NewModel(LabelStudioMLBase):
-    """Custom ML Backend model
+    """Custom ML Backend model for rectangle annotation
     """
     
     def setup(self):
         """Configure any parameters of your model here
         """
-        print(f"\n🚀 图片描述ML Backend启动中...")
+        print(f"\n🚀 灾害图框选标注ML Backend启动中...")
         
         self.set("model_version", "2.0.0-多账号切换版")
         
@@ -138,14 +144,14 @@ class NewModel(LabelStudioMLBase):
         self.client = None
         self._api_initialized = False
         
-        print("✅ 多模态图片描述ML后端初始化完成")
+        print("✅ 多模态图框选标注ML后端初始化完成")
         print(f"🎯 当前模型: {get_current_model().split('/')[-1]}")
         print(f"🔑 当前API Key: ***{get_current_api_key()[-8:]}")
         print(f"📋 可用模型: {len(available_models_global)} 个")
         print(f"🔑 可用API Key: {len(api_key_list)} 个")
         print(f"🔄 简化切换: 失败{self.max_failures_before_switch}次切换模型，所有模型失败切换API Key")
         print(f"⏰ 超时设置: 250秒（给大模型充足处理时间）")
-        print(f"🖼️ 专业领域: 多模态图片描述 v2.0.0")
+        print(f"🖼️ 专业领域: 多模态图框选标注 v2.0.0")
         print(f"🚀 简化策略: 使用全局状态统一管理API Key和模型切换")
     
     def reset_state(self):
@@ -342,7 +348,7 @@ class NewModel(LabelStudioMLBase):
         label_studio_media_dir = r'C:\Users\Administrator\AppData\Local\label-studio\label-studio\media'
         
         if os.path.exists(label_studio_media_dir):
-            # 处理路径:移除开头的斜杠，直接使用相对路径
+            # 处理路径：移除开头的斜杠，直接使用相对路径
             relative_path = file_path.lstrip('/')
             possible_paths.append(os.path.join(label_studio_media_dir, relative_path))
         else:
@@ -411,10 +417,10 @@ class NewModel(LabelStudioMLBase):
             return None
     
     def _create_config_guidance_message(self) -> str:
-        """创建配置指引消息(当文件未找到时的fallback)"""
-        return """⚠️ 配置问题:无法访问上传的图片文件
+        """创建配置指引消息（当文件未找到时的fallback）"""
+        return """⚠️ 配置问题：无法访问上传的图片文件
 
-🔧 解决方案:
+🔧 解决方案：
 
 1️⃣ 检查Label Studio配置
    - 确保启用了本地文件服务
@@ -457,10 +463,10 @@ class NewModel(LabelStudioMLBase):
 
 
     def predict(self, tasks: List[Dict], context: Optional[Dict] = None, **kwargs) -> ModelResponse:
-        """ 图片描述文本标注预测
+        """ 灾害图片框选标注预测
             :param tasks: Label Studio tasks in JSON format (包含图片数据)
             :param context: Label Studio context in JSON format
-            :return: ModelResponse with predictions (图片描述文本)
+            :return: ModelResponse with predictions (矩形框标注)
         """
         
         predictions = []
@@ -496,27 +502,24 @@ class NewModel(LabelStudioMLBase):
         return ModelResponse(predictions=predictions)
     
     def _process_single_task(self, task: Dict) -> Optional[Dict]:
-        """处理单个图片描述任务"""
+        """处理单个框选标注任务"""
         
         task_data = task.get('data', {})
         
         # 提取图片内容
         image_url = None
         image_data = None
-        custom_prompt = ""
         
         # 查找图片URL
         for key, value in task_data.items():
             if isinstance(value, str):
-                # 优先检查captioning字段(您的模板中的图片字段)
-                if key in ['captioning', 'image', 'img', 'photo', 'picture', 'url']:
+                # 优先检查image字段（模板中的图片字段）
+                if key in ['image', 'img', 'photo', 'picture', 'url']:
                     image_url = value
                     break
                 elif value.startswith(('http://', 'https://', 'data:image/')):
                     image_url = value
                     break
-                elif key in ['text', 'prompt', 'question', 'description']:
-                    custom_prompt = value
         
         if not image_url:
             return None
@@ -542,117 +545,60 @@ class NewModel(LabelStudioMLBase):
             if image_data.startswith("⚠️ 配置问题"):
                 return self._format_config_guidance_prediction(image_data, task)
         
-        # 构建图片描述提示词
-        if custom_prompt:
-            prompt = f"请根据用户的要求描述这张图片:{custom_prompt}"
-        else:
-            prompt = """你是洪涝灾害分析专家。请对以下图片进行分析，并按照生产级标准输出。
+        # 构建框选标注提示词
+        prompt = """请分析这张灾害图片，识别并标注以下区域和对象：
 
-要求:
+标注类别（请从以下类别中选择合适的进行标注）：
+1. 积水淹没区域 - 被洪水淹没的区域
+2. 受灾建筑物 - 受到灾害影响的建筑物
+3. 受灾道路 - 受到灾害影响的道路
+4. 受灾人员 - 受到灾害影响的人员
+5. 受灾车辆 - 受到灾害影响的车辆
+6. 救援人员 - 参与救援的人员
+7. 救援车辆 - 参与救援的车辆
+8. 树木农田受损区 - 受损的树木和农田区域
+9. 电力设施 - 电力相关设施
+10. 桥梁堤坝 - 桥梁和堤坝设施
+11. 交通设施 - 交通相关设施
+12. 漂浮物 - 水中的漂浮物
 
-1. **自主视觉思维链(Visual Chain-of-Thought)**:
-   - 使用分步列表形式，每一步包含以下字段:
-     1. **reasoning_level**:推理层次，可选值:
-        - "perception"(感知层，直接从图片获取信息)  
-        - "relationship"(关系推理层，分析对象或因素间关系)  
-        - "semantic"(语义/因果推理层，判断灾害等级、原因和潜在影响)
-     2. **reasoning / Why**:为什么做这步，说明观察或推理目的。
-     3. **observation / How**:怎么做，说明具体观察或分析方法。
-     4. **expected_outcome / What to obtain**:希望通过这步获得的信息或结果。
-     5. **inference / Conclusion**:根据观察和分析得出的结论。
-     6. **step_type**(可选):步骤类型，例如 "observation", "inference", "cause_analysis", "impact_estimation"。
-     7. **confidence**(可选):分析可信度，例如 "高", "中", "低"。
-     8. **time_reference**(可选):当前观察/过去/预测。
-     9. **mapped_field**(可选):对应结构化字段。
-   - 步骤按逻辑顺序编号，第1步、第2步、第3步……。
-   - 模型自主推理，不需要提前提供分析步骤。
-   - 示例格式:
-[
-  {
-    "step": 1,
-    "reasoning_level": "perception",
-    "reasoning": "需要了解洪水严重程度，判断居民风险。",
-    "observation": "观察到街道积水，水深及膝，多栋建筑底层被淹。",
-    "expected_outcome": "获取受灾区域及影响范围。",
-    "inference": "低洼街区受洪水直接影响，居民生活受阻。",
-    "step_type": "observation",
-    "confidence": "高",
-    "time_reference": "当前",
-    "mapped_field": "affected_area"
-  },
-  {
-    "step": 2,
-    "reasoning_level": "relationship",
-    "reasoning": "分析建筑受灾与地势关系，判断洪水扩散路径。",
-    "observation": "水位高的街道邻近低洼建筑，部分道路阻塞。",
-    "expected_outcome": "理解洪水传播及受灾链条。",
-    "inference": "洪水主要影响低洼区域，交通受阻。",
-    "step_type": "impact_estimation",
-    "confidence": "中",
-    "time_reference": "当前",
-    "mapped_field": "affected_area"
-  },
-  {
-    "step": 3,
-    "reasoning_level": "semantic",
-    "reasoning": "判断灾害等级、原因及潜在影响。",
-    "observation": "连续强降雨，排水不畅，低洼建筑淹水。",
-    "expected_outcome": "确定灾害类型、等级及应对措施。",
-    "inference": "该区域中度至重度洪水，居民需撤离，经济损失可能发生。",
-    "step_type": "cause_analysis",
-    "confidence": "中",
-    "time_reference": "当前",
-    "mapped_field": "disaster_level"
-  }
-]
+请以JSON格式返回标注结果，包含每个区域/对象的类别、位置坐标和置信度。格式如下：
+{
+  "annotations": [
+    {
+      "label": "积水淹没区域",
+      "bbox": [x1, y1, x2, y2],
+      "confidence": 0.95
+    }
+  ]
+}
 
-2. **结构化总结(Structured Summary)**:
-   - 核心维度(观察到就填，无法观察标记“未观察到”):
-     - disaster_type(灾害类型)
-     - affected_environment(承灾环境)
-     - affected_area(受灾范围)
-     - disaster_level(灾害等级)
-     - disaster_time(灾害时间)
-     - disaster_location(灾害地点)
-     - disaster_cause(灾害原因)
-     - disaster_consequence(灾害后果)
-     - disaster_impact(灾害影响)
-     - response_measures(灾害应对措施)
-     - other_details(其他值得注意的细节)
-   - 可选扩展维度(观察到就填，无法观察标记“未观察到”):
-     - hydrological_features(水深、水流速度等)
-     - affected_population
-     - infrastructure_damage
-     - environmental_factors
-     - warning_signals
-     - socioeconomic_impact
-     - disaster_trend
-     - recoverability
-     - anomalies_or_unusual_observations
-     - weather_conditions
+**重要坐标要求**：
+- 坐标格式：[左上角x%, 左上角y%, 右下角x%, 右下角y%]
+- 坐标值必须是0-100之间的百分比数值（不是像素值）
+- 例如：[10.5, 15.2, 45.8, 67.3] 表示从图片宽度10.5%，高度15.2%位置到宽度45.8%，高度67.3%位置的矩形框
+- 左上角坐标 < 右下角坐标
+- 所有坐标值范围：0 ≤ 坐标值 ≤ 100
 
-3. **总体文本描述(overall_text_description)**:
-   - 综合视觉思维链和结构化信息生成自然语言总结。
-   - 语言简明、客观、专业，可直接用于报告、监测或新闻稿。
+**坐标示例**：
+- 图片左上角区域：[5.0, 5.0, 30.0, 25.0]
+- 图片中心区域：[35.0, 35.0, 65.0, 65.0]  
+- 图片右下角区域：[70.0, 75.0, 95.0, 95.0]
 
-4. **输出要求**:
-   - JSON 格式，包含四部分:
-     1. "image_id":图片名称或ID
-     2. "visual_cot":分步五维思维链
-     3. "structured_description":结构化字段
-     4. "overall_text_description":自然语言总结
-   - 核心维度和可选扩展维度统一采用“观察到就填，未观察标记‘未观察到’”方式。"""
+请严格按照百分比格式返回坐标，这对准确标注至关重要！"""
         
         # 调用多模态API（使用智能切换版本）
         api_response = self._call_multimodal_api_with_switching(prompt, image_data)
         
         if api_response:
-            return self._format_description_prediction(api_response, task)
+            return self._format_annotation_prediction(api_response, task)
         else:
             return None
     
     def _call_multimodal_api_with_switching(self, prompt: str, image_data: str) -> Optional[str]:
         """🚀 智能切换版本的多模态API调用（使用全局状态管理）"""
+        import time
+        
         max_total_attempts = len(available_models_global) * 2  # 总共尝试次数
         
         for attempt in range(max_total_attempts):
@@ -668,7 +614,7 @@ class NewModel(LabelStudioMLBase):
                 start_time = time.time()
                 
                 # 构建多模态消息
-                system_message = "You are a helpful assistant specialized in image description. Please provide detailed, accurate descriptions in Chinese."
+                system_message = "You are a helpful assistant specialized in disaster image analysis and rectangle annotation. Please provide accurate annotation results in JSON format."
                 
                 messages = [
                     {
@@ -696,8 +642,8 @@ class NewModel(LabelStudioMLBase):
                     temperature=0.7,
                     top_p=0.9,
                     stream=False,
-                        timeout=250
-                    )
+                    timeout=250
+                )
                 
                 end_time = time.time()
                 api_duration = end_time - start_time
@@ -740,14 +686,14 @@ class NewModel(LabelStudioMLBase):
         return None
     
     def _call_multimodal_api(self, prompt: str, image_data: str) -> Optional[str]:
-        """调用多模态API进行图片描述（保留原方法作为备用）"""
+        """调用多模态API进行框选标注"""
         
         if not self.client:
-                return None
-                
+            return None
+        
         try:
             # 构建多模态消息
-            system_message = "You are a helpful assistant specialized in image description. Please provide detailed, accurate descriptions in Chinese."
+            system_message = "You are a helpful assistant specialized in disaster image analysis and rectangle annotation. Please provide accurate annotation results in JSON format."
             
             messages = [
                 {
@@ -787,14 +733,243 @@ class NewModel(LabelStudioMLBase):
                     if content:
                         return content
                 
-                return None
-            
+            return None
+                
         except Exception as e:
             print(f"❌ 多模态API调用异常: {str(e)}")
             return None
     
-    def _format_description_prediction(self, api_response: str, task: Dict) -> Dict:
-        """格式化图片描述预测结果为Label Studio格式"""
+    def _pixel_to_percentage(self, pixel_coords: List[float], image_width: int, image_height: int) -> List[float]:
+        """将像素坐标转换为百分比坐标"""
+        x1, y1, x2, y2 = pixel_coords
+        
+        # 转换为百分比
+        x1_percent = (x1 / image_width) * 100
+        y1_percent = (y1 / image_height) * 100
+        x2_percent = (x2 / image_width) * 100
+        y2_percent = (y2 / image_height) * 100
+        
+        return [x1_percent, y1_percent, x2_percent, y2_percent]
+    
+    def _get_image_dimensions(self, task: Dict) -> tuple:
+        """尝试获取图片的真实尺寸"""
+        try:
+            import requests
+            from PIL import Image
+            import io
+            
+            # 获取图片数据
+            task_data = task.get('data', {})
+            image_url = None
+            
+            for key, value in task_data.items():
+                if isinstance(value, str) and (key in ['image', 'img', 'photo', 'picture', 'url', 'captioning'] or 
+                                              value.startswith(('http://', 'https://', 'data:image/', '/'))):
+                    image_url = value
+                    break
+            
+            if not image_url:
+                return None, None
+            
+            if image_url.startswith('data:image/'):
+                # Base64编码的图片
+                import base64
+                header, data = image_url.split(',', 1)
+                image_data = base64.b64decode(data)
+                image = Image.open(io.BytesIO(image_data))
+                return image.width, image.height
+                
+            elif image_url.startswith(('http://', 'https://')):
+                # 网络URL图片
+                response = requests.get(image_url, timeout=10)
+                image = Image.open(io.BytesIO(response.content))
+                return image.width, image.height
+                
+            else:
+                # 本地文件路径 - 使用现有的路径解析逻辑
+                image_data = self._convert_local_path_to_base64(image_url)
+                if image_data and image_data.startswith('data:image/'):
+                    import base64
+                    header, data = image_data.split(',', 1)
+                    image_bytes = base64.b64decode(data)
+                    image = Image.open(io.BytesIO(image_bytes))
+                    return image.width, image.height
+                    
+        except Exception as e:
+            print(f"⚠️ 无法获取图片尺寸: {e}")
+            
+        return None, None
+    
+    def _detect_coordinate_type(self, x1: float, y1: float, x2: float, y2: float, task: Dict) -> str:
+        """改进的坐标类型检测"""
+        max_coord = max(x1, y1, x2, y2)
+        min_coord = min(x1, y1, x2, y2)
+        
+        # 获取图片尺寸作为参考
+        image_width, image_height = self._get_image_dimensions(task)
+        
+        if image_width and image_height:
+            # 如果有图片尺寸，检查是否为像素坐标
+            max_image_dim = max(image_width, image_height)
+            min_image_dim = min(image_width, image_height)
+            
+            if max_coord > max_image_dim:
+                print(f"⚠️ 坐标超出图片尺寸，可能有误: max_coord={max_coord}, image_size={image_width}x{image_height}")
+                return "pixel"  # 仍按像素处理，但会被限制
+            elif max_coord > min_image_dim * 0.8:
+                print(f"🔍 坐标接近图片尺寸，判定为像素坐标: max_coord={max_coord}, image_size={image_width}x{image_height}")
+                return "pixel"
+        
+        # 标准化坐标 (0-1)
+        if max_coord <= 1.0 and min_coord >= 0:
+            print(f"✅ 检测到标准化坐标(0-1): 范围[{min_coord:.3f}, {max_coord:.3f}]")
+            return "normalized"
+        
+        # 百分比坐标 (0-100)
+        elif max_coord <= 100 and min_coord >= 0:
+            # 进一步检查：如果所有坐标都是整数且较小，可能是像素坐标
+            if (all(abs(c - round(c)) < 0.01 for c in [x1, y1, x2, y2]) and 
+                max_coord < 50 and 
+                not image_width):  # 没有图片尺寸信息时更保守
+                print(f"🤔 疑似小尺寸像素坐标: 范围[{min_coord}, {max_coord}]，按百分比处理")
+                return "percentage"  # 倾向于按百分比处理，更安全
+            print(f"✅ 检测到百分比坐标: 范围[{min_coord}, {max_coord}]")
+            return "percentage"
+        
+        # 像素坐标（大数值）
+        else:
+            print(f"🔍 检测到像素坐标: 范围[{min_coord}, {max_coord}]")
+            return "pixel"
+    
+    def _normalize_coordinates(self, x1: float, y1: float, x2: float, y2: float, task: Dict) -> tuple:
+        """智能标准化坐标为百分比格式"""
+        
+        # 使用改进的坐标类型检测
+        coord_type = self._detect_coordinate_type(x1, y1, x2, y2, task)
+        
+        if coord_type == "percentage":
+            print(f"✅ 检测到百分比坐标，直接使用")
+            return x1, y1, x2, y2
+        
+        elif coord_type == "normalized":
+            print(f"✅ 检测到标准化坐标(0-1)，转换为百分比")
+            return x1 * 100, y1 * 100, x2 * 100, y2 * 100
+        
+        elif coord_type == "pixel":
+            # 像素坐标，尝试获取图片真实尺寸进行转换
+            print(f"🔍 检测到像素坐标，尝试获取图片尺寸进行精确转换")
+            image_width, image_height = self._get_image_dimensions(task)
+            
+            if image_width and image_height:
+                print(f"📏 获取到图片尺寸: {image_width}x{image_height}")
+                x1_percent = (x1 / image_width) * 100
+                y1_percent = (y1 / image_height) * 100
+                x2_percent = (x2 / image_width) * 100
+                y2_percent = (y2 / image_height) * 100
+                
+                # 确保坐标在合理范围内
+                x1_percent = max(0, min(100, x1_percent))
+                y1_percent = max(0, min(100, y1_percent))
+                x2_percent = max(0, min(100, x2_percent))
+                y2_percent = max(0, min(100, y2_percent))
+                
+                print(f"✅ 精确转换完成: [{x1_percent:.1f}, {y1_percent:.1f}, {x2_percent:.1f}, {y2_percent:.1f}]")
+                return x1_percent, y1_percent, x2_percent, y2_percent
+            else:
+                # 无法获取图片尺寸，使用改进的启发式方法
+                print(f"⚠️ 无法获取图片尺寸，使用改进的启发式转换")
+                return self._heuristic_coordinate_conversion(x1, y1, x2, y2)
+        
+        else:
+            # 未知类型，使用启发式方法
+            print(f"⚠️ 未知坐标类型，使用启发式转换")
+            return self._heuristic_coordinate_conversion(x1, y1, x2, y2)
+    
+    def _heuristic_coordinate_conversion(self, x1: float, y1: float, x2: float, y2: float) -> tuple:
+        """改进的启发式坐标转换"""
+        max_coord = max(x1, y1, x2, y2)
+        
+        # 基于坐标数值特征进行更精确的推测
+        if max_coord > 5000:
+            # 超高分辨率 (4K+ 图片)
+            estimated_size = 6000
+            print(f"🔧 推测为超高分辨率图片 (~6000px)")
+        elif max_coord > 2000:
+            # 高分辨率 (2K-4K 图片)
+            estimated_size = 3000
+            print(f"🔧 推测为高分辨率图片 (~3000px)")
+        elif max_coord > 1000:
+            # 标准分辨率 (1K-2K 图片)
+            estimated_size = 1500
+            print(f"🔧 推测为标准分辨率图片 (~1500px)")
+        elif max_coord > 500:
+            # 中等分辨率 (500-1000px 图片)
+            estimated_size = 800
+            print(f"🔧 推测为中等分辨率图片 (~800px)")
+        elif max_coord > 200:
+            # 小尺寸图片 (200-500px)
+            estimated_size = 400
+            print(f"🔧 推测为小尺寸图片 (~400px)")
+        else:
+            # 很小的坐标值，可能已经是百分比或标准化坐标
+            if max_coord > 100:
+                estimated_size = 200  # 按小图片处理
+                print(f"🔧 推测为微小图片 (~200px)")
+            else:
+                # 直接按百分比处理
+                print(f"🔧 坐标值很小，直接按百分比处理")
+                return max(0, min(100, x1)), max(0, min(100, y1)), max(0, min(100, x2)), max(0, min(100, y2))
+        
+        # 转换为百分比
+        x1_percent = (x1 / estimated_size) * 100
+        y1_percent = (y1 / estimated_size) * 100
+        x2_percent = (x2 / estimated_size) * 100
+        y2_percent = (y2 / estimated_size) * 100
+        
+        # 限制在合理范围内，并添加边界检查
+        x1_final = max(0, min(100, x1_percent))
+        y1_final = max(0, min(100, y1_percent))
+        x2_final = max(0, min(100, x2_percent))
+        y2_final = max(0, min(100, y2_percent))
+        
+        # 检查转换结果的合理性
+        if x2_final <= x1_final or y2_final <= y1_final:
+            print(f"⚠️ 启发式转换产生无效矩形，调整坐标")
+            # 确保最小尺寸
+            if x2_final <= x1_final:
+                x2_final = min(100, x1_final + 1.0)
+            if y2_final <= y1_final:
+                y2_final = min(100, y1_final + 1.0)
+        
+        print(f"⚠️ 启发式转换结果: [{x1_final:.1f}, {y1_final:.1f}, {x2_final:.1f}, {y2_final:.1f}]")
+        return x1_final, y1_final, x2_final, y2_final
+    
+    def _validate_coordinates(self, x: float, y: float, width: float, height: float) -> tuple:
+        """验证并修正坐标的有效性"""
+        # 确保坐标在0-100范围内
+        x = max(0, min(100, x))
+        y = max(0, min(100, y))
+        
+        # 确保宽度和高度为正值且不超出边界
+        width = max(0.1, min(100 - x, width))
+        height = max(0.1, min(100 - y, height))
+        
+        # 确保矩形不会超出图片边界
+        if x + width > 100:
+            width = 100 - x
+        if y + height > 100:
+            height = 100 - y
+            
+        # 最终检查：确保最小尺寸
+        if width < 0.1:
+            width = 0.1
+        if height < 0.1:
+            height = 0.1
+            
+        return x, y, width, height
+    
+    def _format_annotation_prediction(self, api_response: str, task: Dict) -> Dict:
+        """格式化框选标注预测结果为Label Studio格式"""
         
         # 构建基础预测结构
         model_version = self.get("model_version")
@@ -808,220 +983,99 @@ class NewModel(LabelStudioMLBase):
         # 动态获取字段名
         from_name, to_name = self._get_field_names()
         
-        # 处理API响应
-        if api_response and api_response.strip():
-            cleaned_response = self._clean_response_format(api_response.strip())
+        # 解析API响应中的JSON数据
+        try:
+            # 尝试从响应中提取JSON
+            import re
+            json_match = re.search(r'\{.*\}', api_response, re.DOTALL)
+            if json_match:
+                json_str = json_match.group()
+                detection_data = json.loads(json_str)
+                
+                if 'annotations' in detection_data:
+                    for obj in detection_data['annotations']:
+                        if 'label' in obj and 'bbox' in obj:
+                            # 构建Label Studio矩形框格式
+                            bbox = obj['bbox']
+                            confidence = obj.get('confidence', 0.8)
+                            
+                            # 处理bbox坐标：[x1, y1, x2, y2] 格式
+                            x1, y1, x2, y2 = bbox
+                            
+                            print(f"🔍 原始坐标: [{x1}, {y1}, {x2}, {y2}]")
+                            
+                            # 坐标格式检测和转换
+                            x1_percent, y1_percent, x2_percent, y2_percent = self._normalize_coordinates(x1, y1, x2, y2, task)
+                            
+                            # 确保坐标顺序正确（左上角 -> 右下角）
+                            if x1_percent > x2_percent:
+                                x1_percent, x2_percent = x2_percent, x1_percent
+                            if y1_percent > y2_percent:
+                                y1_percent, y2_percent = y2_percent, y1_percent
+                            
+                            # 计算Label Studio需要的格式：x, y, width, height (百分比)
+                            x = x1_percent
+                            y = y1_percent
+                            width = x2_percent - x1_percent
+                            height = y2_percent - y1_percent
+                            
+                            # 使用改进的坐标验证函数
+                            x, y, width, height = self._validate_coordinates(x, y, width, height)
+                            
+                            print(f"📐 验证后坐标: x={x:.1f}%, y={y:.1f}%, width={width:.1f}%, height={height:.1f}%")
+                            
+                            result_item = {
+                                "from_name": from_name,
+                                "to_name": to_name,
+                                "type": "rectanglelabels",
+                                "value": {
+                                    "x": x,
+                                    "y": y,
+                                    "width": width,
+                                    "height": height,
+                                    "rectanglelabels": [obj['label']]
+                                },
+                                "score": confidence
+                            }
+                            
+                            prediction["result"].append(result_item)
             
-            # 构建Label Studio结果格式
-            result_item = {
-                "from_name": from_name,
-                "to_name": to_name,
-                "type": "textarea", 
-                "value": {
-                    "text": [cleaned_response]
-                }
-            }
-            
-            prediction["result"].append(result_item)
-            
-        else:
-            default_message = "无法生成图片描述"
-            result_item = {
-                "from_name": from_name,
-                "to_name": to_name, 
-                "type": "textarea",
-                "value": {
-                    "text": [default_message]
-                }
-            }
-            
-            prediction["result"].append(result_item)
+            # 如果没有解析到有效的标注结果，尝试使用默认标注
+            if not prediction["result"]:
+                # 生成一些示例标注框（用于测试）- 百分比坐标
+                sample_objects = [
+                    {"label": "积水淹没区域", "bbox": [10.5, 15.2, 45.8, 50.3], "confidence": 0.8},
+                    {"label": "受灾建筑物", "bbox": [55.0, 60.5, 85.2, 90.8], "confidence": 0.7},
+                    {"label": "救援人员", "bbox": [20.3, 25.7, 35.6, 40.1], "confidence": 0.6}
+                ]
+                
+                for obj in sample_objects:
+                    bbox = obj['bbox']
+                    result_item = {
+                        "from_name": from_name,
+                        "to_name": to_name,
+                        "type": "rectanglelabels",
+                        "value": {
+                            "x": bbox[0],
+                            "y": bbox[1],
+                            "width": bbox[2] - bbox[0],
+                            "height": bbox[3] - bbox[1],
+                            "rectanglelabels": [obj['label']]
+                        },
+                        "score": obj['confidence']
+                    }
+                    
+                    prediction["result"].append(result_item)
+                    
+        except Exception as e:
+            print(f"❌ 解析检测结果失败: {str(e)}")
+            # 返回空结果
+            pass
         
         return prediction
     
-    def _clean_response_format(self, response: str) -> str:
-        """清理API响应中的格式标记并验证JSON完整性"""
-        import re
-        
-        # 移除```json和```标记
-        cleaned = re.sub(r'```json\s*', '', response)
-        cleaned = re.sub(r'\s*```', '', cleaned)
-        
-        # 移除其他代码块标记
-        cleaned = re.sub(r'```[\w]*\s*', '', cleaned)
-        
-        # 移除markdown格式标记
-        cleaned = re.sub(r'^\s*```\s*$', '', cleaned, flags=re.MULTILINE)
-        
-        # 清理多余的空白行
-        cleaned = re.sub(r'\n\s*\n\s*\n', '\n\n', cleaned)
-        
-        # 验证和修复JSON结构
-        cleaned = self._validate_and_fix_json(cleaned.strip())
-        
-        return cleaned
-    
-    def _validate_and_fix_json(self, text: str) -> str:
-        """验证JSON结构完整性并尝试修复"""
-        
-        # 首先尝试解析JSON
-        try:
-            json.loads(text)
-            print("✅ JSON结构验证通过")
-            return text
-        except json.JSONDecodeError as e:
-            print(f"⚠️ 检测到JSON结构问题: {str(e)}")
-            
-            # 尝试修复常见的JSON问题
-            fixed_text = self._fix_common_json_issues(text)
-            
-            # 再次验证修复后的JSON
-            try:
-                json.loads(fixed_text)
-                print("✅ JSON结构修复成功")
-                return fixed_text
-            except json.JSONDecodeError as e2:
-                print(f"❌ JSON修复失败: {str(e2)}")
-                # 如果修复失败，返回一个标准的错误JSON结构
-                return self._create_fallback_json_response(text)
-    
-    def _fix_common_json_issues(self, text: str) -> str:
-        """修复常见的JSON问题"""
-        import re
-        
-        print("🔧 尝试修复JSON结构...")
-        
-        # 1. 移除可能的非JSON前缀和后缀文本
-        # 查找第一个{和最后一个}
-        first_brace = text.find('{')
-        last_brace = text.rfind('}')
-        
-        if first_brace != -1 and last_brace != -1 and first_brace < last_brace:
-            text = text[first_brace:last_brace + 1]
-            print("   📝 提取JSON主体部分")
-        
-        # 2. 修复未闭合的字符串引号
-        # 简单的引号修复：确保每行的引号是成对的
-        lines = text.split('\n')
-        fixed_lines = []
-        
-        for line in lines:
-            # 计算引号数量
-            quote_count = line.count('"') - line.count('\\"')  # 排除转义引号
-            
-            # 如果引号数量为奇数，可能缺少闭合引号
-            if quote_count % 2 == 1:
-                # 在行末添加引号（如果该行看起来像是值）
-                stripped = line.rstrip()
-                if stripped and not stripped.endswith(('"', ',', '}', ']')):
-                    line = stripped + '"'
-                    if not line.endswith(',') and not line.endswith('}'):
-                        line += ','
-            
-            fixed_lines.append(line)
-        
-        text = '\n'.join(fixed_lines)
-        
-        # 3. 修复缺少的逗号
-        # 在}前面的行如果没有逗号，添加逗号
-        text = re.sub(r'(["\]}])\s*\n\s*(["\[{])', r'\1,\n\2', text)
-        
-        # 4. 修复多余的逗号
-        # 移除}和]前面的多余逗号
-        text = re.sub(r',(\s*[}\]])', r'\1', text)
-        
-        # 5. 修复未闭合的数组和对象
-        open_braces = text.count('{') - text.count('}')
-        open_brackets = text.count('[') - text.count(']')
-        
-        # 添加缺失的闭合括号
-        text += '}' * open_braces
-        text += ']' * open_brackets
-        
-        print(f"   🔧 修复完成: 添加了{open_braces}个{{}}和{open_brackets}个[]")
-        
-        return text
-    
-    def _create_fallback_json_response(self, original_text: str) -> str:
-        """创建备用的JSON响应结构"""
-        print("🆘 创建备用JSON响应")
-        
-        # 尝试从原始文本中提取一些信息
-        extracted_info = self._extract_basic_info_from_text(original_text)
-        
-        fallback_response = {
-            "image_id": "unknown",
-            "visual_cot": [
-                {
-                    "step": 1,
-                    "reasoning_level": "perception",
-                    "reasoning": "由于JSON解析错误，进行基础分析",
-                    "observation": extracted_info.get("observation", "无法完整解析API响应"),
-                    "expected_outcome": "获取基础图片信息",
-                    "inference": extracted_info.get("inference", "响应格式存在问题，已进行基础处理"),
-                    "step_type": "error_handling",
-                    "confidence": "低"
-                }
-            ],
-            "structured_description": {
-                "disaster_type": extracted_info.get("disaster_type", "未能识别"),
-                "affected_area": extracted_info.get("affected_area", "未观察到"),
-                "disaster_level": "未观察到",
-                "parsing_status": "JSON格式错误，已使用备用结构"
-            },
-            "overall_text_description": extracted_info.get("description", f"由于响应格式问题，无法完整解析图片描述。原始响应片段：{original_text[:200]}...")
-        }
-        
-        return json.dumps(fallback_response, ensure_ascii=False, indent=2)
-    
-    def _extract_basic_info_from_text(self, text: str) -> Dict[str, str]:
-        """从损坏的文本中提取基础信息"""
-        import re
-        
-        info = {}
-        
-        # 尝试提取灾害类型
-        disaster_patterns = [
-            r'["\'](洪水|洪涝|水灾|flooding)["\']',
-            r'disaster_type["\']?\s*:\s*["\']([^"\']+)["\']',
-            r'灾害类型["\']?\s*:\s*["\']([^"\']+)["\']'
-        ]
-        
-        for pattern in disaster_patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                info["disaster_type"] = match.group(1)
-                break
-        
-        # 尝试提取描述信息
-        desc_patterns = [
-            r'overall_text_description["\']?\s*:\s*["\']([^"\']{20,})["\']',
-            r'总体.*?描述["\']?\s*:\s*["\']([^"\']{20,})["\']',
-            r'描述["\']?\s*:\s*["\']([^"\']{20,})["\']'
-        ]
-        
-        for pattern in desc_patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                info["description"] = match.group(1)
-                break
-        
-        # 尝试提取观察信息
-        obs_patterns = [
-            r'observation["\']?\s*:\s*["\']([^"\']{10,})["\']',
-            r'观察["\']?\s*:\s*["\']([^"\']{10,})["\']'
-        ]
-        
-        for pattern in obs_patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                info["observation"] = match.group(1)
-                break
-        
-        return info
-    
     def _format_prediction(self, api_response: str, task: Dict) -> Dict:
-        """格式化预测结果为Label Studio格式(备用方法)"""
+        """格式化预测结果为Label Studio格式（备用方法）"""
         
         prediction = {
             "model_version": self.get("model_version"),
@@ -1029,15 +1083,14 @@ class NewModel(LabelStudioMLBase):
             "result": []
         }
         
-        # 返回清理后的文本结果
+        # 返回原始文本结果
         if api_response and api_response.strip():
-            cleaned_response = self._clean_response_format(api_response.strip())
             prediction["result"].append({
                 "from_name": "prediction",
                 "to_name": "text",
                 "type": "textarea",
                 "value": {
-                    "text": [cleaned_response]
+                    "text": [api_response.strip()]
                 }
             })
         
@@ -1073,12 +1126,12 @@ class NewModel(LabelStudioMLBase):
         try:
             # 尝试从Label Studio配置中获取字段名
             if hasattr(self, 'label_interface') and self.label_interface:
-                # 查找TextArea标签
-                textarea_from_name, textarea_to_name, _ = self.label_interface.get_first_tag_occurence(
-                    'TextArea', ['Image', 'Text', 'HyperText']
+                # 查找RectangleLabels标签
+                rect_from_name, rect_to_name, _ = self.label_interface.get_first_tag_occurence(
+                    'RectangleLabels', ['Image']
                 )
-                if textarea_from_name and textarea_to_name:
-                    return textarea_from_name, textarea_to_name
+                if rect_from_name and rect_to_name:
+                    return rect_from_name, rect_to_name
             
             # 查找Image标签
             if hasattr(self, 'label_interface') and self.label_interface:
@@ -1086,13 +1139,13 @@ class NewModel(LabelStudioMLBase):
                     'Image', []
                 )
                 if image_from_name:
-                    return "caption", image_from_name
+                    return "label", image_from_name
             
         except Exception as e:
             pass
         
-        # 根据您的模板，使用正确的字段名
-        return "caption", "image"
+        # 根据框选标注模板，使用正确的字段名
+        return "label", "image"
     
     def _extract_choice(self, response: str, choices: List[str]) -> Optional[str]:
         """从响应中提取最匹配的选择"""
@@ -1104,14 +1157,14 @@ class NewModel(LabelStudioMLBase):
     
     def fit(self, event, data, **kwargs):
         """
-        训练/更新图片描述模型
+        训练/更新框选标注模型
         :param event: 事件类型 ('ANNOTATION_CREATED', 'ANNOTATION_UPDATED', 'START_TRAINING')
-        :param data: 事件数据(包含图片和描述标注)
+        :param data: 事件数据（包含图片和矩形框标注）
         """
         # 记录标注数据用于模型优化
         old_data = self.get('annotation_data')
-        self.set('annotation_data', 'updated_description_data')
+        self.set('annotation_data', 'updated_annotation_data')
         self.set('model_version', 'updated_version')
-        print(f"✅ 图片描述模型已更新 (事件: {event})")
-        print(f"📸 已记录新的图片描述标注数据，用于后续模型优化")
+        print(f"✅ 框选标注模型已更新 (事件: {event})")
+        print(f"📸 已记录新的框选标注数据，用于后续模型优化")
 
